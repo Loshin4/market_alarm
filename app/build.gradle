@@ -10,8 +10,8 @@ android {
         applicationId 'com.marketalarm.app'
         minSdk 26
         targetSdk 35
-        versionCode 4
-        versionName '0.4.0'
+        versionCode 5
+        versionName '0.5.0'
     }
 
     buildTypes {
@@ -24,7 +24,7 @@ android {
     }
 }
 
+// This app uses only Android platform APIs.
+// Keeping this block empty avoids Kotlin runtime version conflicts.
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.core:core:1.15.0'
 }
