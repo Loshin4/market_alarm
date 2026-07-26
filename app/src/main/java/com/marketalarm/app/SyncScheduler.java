@@ -6,17 +6,15 @@ import android.content.ComponentName;
 import android.content.Context;
 
 public final class SyncScheduler {
-    private static final int JOB_ID = 4401;
+    private static final int JOB_ID = 42601;
     private SyncScheduler() { }
-
-    public static void schedule(Context context) {
-        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        if (scheduler == null) return;
-        JobInfo job = new JobInfo.Builder(JOB_ID, new ComponentName(context, SyncJobService.class))
+    public static void schedule(Context c) {
+        JobScheduler js = (JobScheduler) c.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        JobInfo info = new JobInfo.Builder(JOB_ID, new ComponentName(c, SyncJobService.class))
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setPersisted(true)
-                .setPeriodic(6L * 60L * 60L * 1000L)
+                .setPeriodic(6L * 60 * 60 * 1000)
                 .build();
-        scheduler.schedule(job);
+        js.schedule(info);
     }
 }

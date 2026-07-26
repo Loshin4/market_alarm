@@ -9,25 +9,17 @@
         android:allowBackup="true"
         android:label="증시알람"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="false">
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+        android:usesCleartextTraffic="false"
+        android:supportsRtl="true">
+        <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <service
-            android:name=".SyncJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="false" />
-
+        <service android:name=".SyncJobService" android:permission="android.permission.BIND_JOB_SERVICE" android:exported="false" />
         <receiver android:name=".BootReceiver" android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
+            <intent-filter><action android:name="android.intent.action.BOOT_COMPLETED" /></intent-filter>
         </receiver>
         <receiver android:name=".ReminderReceiver" android:exported="false" />
     </application>

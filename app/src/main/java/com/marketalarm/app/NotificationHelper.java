@@ -1,5 +1,6 @@
 package com.marketalarm.app;
 
+import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -7,36 +8,43 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
+import org.json.JSONObject;
+
+import java.util.List;
+
 public final class NotificationHelper {
-    private static final String CHANNEL_ID = "market_alarm_events";
+    public static final String CHANNEL_ID = "market_events";
     private NotificationHelper() { }
 
-    public static void createChannel(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager manager = context.getSystemService(NotificationManager.class);
-            if (manager == null) return;
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID, "중요 증시 일정", NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("중요 경제지표와 기업 실적 알림");
-            manager.createNotificationChannel(channel);
+    public static void ensureChannel(Context c) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            NotificationManager nm = c.getSystemService(NotificationManager.class);
+            NotificationChannel ch = new NotificationChannel(CHANNEL_ID, "증시 중요 일정", NotificationManager.IMPORTANCE_HIGH);
+            ch.setDescription("중요 경제지표와 실적 발표 알림");
+            nm.createNotificationChannel(ch);
         }
     }
 
-    public static void notify(Context context, int id, String title, String body) {
-        createChannel(context);
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        android.app.Notification notification = new android.app.Notification.Builder(context, CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle(title)
-                .setContentText(body)
-                .setStyle(new android.app.Notification.BigTextStyle().bigText(body))
-                .setAutoCancel(true)
-                .setContentIntent(pendingIntent)
-                .build();
-        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (manager != null) manager.notify(id, notification);
+    public static void scheduleEventReminders(Context c, List<JSONObject> events) {
+        AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
+        long now = System.currentTimeMillis();
+        int scheduled = 0;
+        for (JSONObject e : events) {
+            if (e.optInt("importance") < 4 || "released".equals(e.optString("status"))) continue;
+            long eventTime = e.optLong("time");
+            long[] before = {60 * 60 * 1000L, 10 * 60 * 1000L};
+            for (int i = 0; i < before.length; i++) {
+                long at = eventTime - before[i];
+                if (at <= now || at > now + 120L * 24 * 60 * 60 * 1000) continue;
+                int request = Math.abs((e.optString("id") + "-" + i).hashCode());
+                Intent intent = new Intent(c, ReminderReceiver.class);
+                intent.putExtra("title", e.optString("title"));
+                intent.putExtra("minutes", i == 0 ? 60 : 10);
+                PendingIntent pi = PendingIntent.getBroadcast(c, request, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi);
+                scheduled++;
+                if (scheduled > 80) return;
+            }
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.marketalarm.app;
 
 import android.Manifest;
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -13,17 +13,18 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.json.JSONObject;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
     private WebView webView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        NotificationHelper.createChannel(this);
+        NotificationHelper.ensureChannel(this);
         requestNotificationPermission();
-        SyncScheduler.schedule(this);
 
         webView = new WebView(this);
         setContentView(webView);
@@ -31,63 +32,58 @@ public class MainActivity extends Activity {
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setAllowFileAccess(true);
-        settings.setBuiltInZoomControls(false);
-        settings.setDisplayZoomControls(false);
-        webView.setWebViewClient(new WebViewClient());
+        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         webView.setWebChromeClient(new WebChromeClient());
-        webView.addJavascriptInterface(new AppBridge(), "MarketApp");
+        webView.setWebViewClient(new WebViewClient());
+        webView.addJavascriptInterface(new MarketBridge(this), "MarketApp");
         webView.loadUrl("file:///android_asset/index.html");
+
+        SyncScheduler.schedule(this);
     }
 
     private void requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);
         }
     }
 
-    private void sendEventsToWeb(String json) {
-        if (webView == null) return;
-        String script = "window.receiveEvents(" + JSONObject.quote(json) + ");";
-        runOnUiThread(() -> webView.evaluateJavascript(script, null));
+    private void emitEvents(String json) {
+        runOnUiThread(() -> webView.evaluateJavascript("window.receiveEvents(" + JSONObject.quote(json) + ")", null));
     }
 
-    private void sendStatusToWeb(String message, boolean ok) {
-        if (webView == null) return;
-        String script = "window.receiveStatus(" + JSONObject.quote(message) + "," + ok + ");";
-        runOnUiThread(() -> webView.evaluateJavascript(script, null));
+    private void emitStatus(String message, boolean ok) {
+        runOnUiThread(() -> webView.evaluateJavascript("window.receiveStatus(" + JSONObject.quote(message) + "," + ok + ")", null));
     }
 
-    public class AppBridge {
+    public final class MarketBridge {
+        private final Context context;
+        MarketBridge(Context context) { this.context = context; }
+
         @JavascriptInterface
         public String getCachedEvents() {
-            return Storage.getEvents(MainActivity.this);
+            return DataRepository.getCachedEvents(context);
         }
 
         @JavascriptInterface
         public String getSettings() {
-            return Storage.getSettings(MainActivity.this);
+            return DataRepository.getSettings(context);
         }
 
         @JavascriptInterface
         public void saveSettings(String json) {
-            Storage.saveSettings(MainActivity.this, json);
-            sendStatusToWeb("설정을 저장했어요.", true);
+            DataRepository.saveSettings(context, json);
         }
 
         @JavascriptInterface
         public void refreshAll() {
-            sendStatusToWeb("공식 일정을 불러오는 중...", true);
-            DataRepository.refresh(MainActivity.this, new DataRepository.Callback() {
-                @Override
-                public void onSuccess(String json, String summary) {
-                    sendEventsToWeb(json);
-                    sendStatusToWeb(summary, true);
+            DataRepository.refreshAll(context, new DataRepository.RefreshCallback() {
+                @Override public void onSuccess(String eventsJson, String message) {
+                    emitEvents(eventsJson);
+                    emitStatus(message, true);
                 }
-
-                @Override
-                public void onError(String message) {
-                    sendStatusToWeb(message, false);
+                @Override public void onError(String eventsJson, String message) {
+                    emitEvents(eventsJson);
+                    emitStatus(message, false);
                 }
             });
         }
@@ -95,7 +91,8 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void openUrl(String url) {
             try {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(intent);
             } catch (Exception ignored) { }
         }
     }
