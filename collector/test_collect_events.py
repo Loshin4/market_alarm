@@ -59,11 +59,15 @@ ZZZZ,Example Small Company,2026-08-03,2026-06-30,,USD,United States,
         """
         empty = "<table><tbody></tbody></table>"
 
-        def fake_get(url, params=None, timeout=30):
-            page = int((params or {}).get("pageIndex", 1))
+        def fake_request(url, params=None, data=None, timeout=30, **kwargs):
+            request_values = data or params or {}
+            page = int(request_values.get("pageIndex", 1))
             return FakeResponse(text=page1 if page == 1 else empty)
 
-        with patch.object(collector, "http_get", side_effect=fake_get):
+        # collect_kind() may use either POST or GET depending on the KIND response.
+        # Unit tests must mock both methods so validation never contacts the live site.
+        with patch.object(collector, "http_get", side_effect=fake_request), \
+             patch.object(collector, "http_post", side_effect=fake_request):
             result = collector.collect_kind({})
         self.assertEqual(len(result.events), 2)
         titles = [e["title"] for e in result.events]
