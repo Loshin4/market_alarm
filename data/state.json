@@ -5,11 +5,13 @@
     "AGYS": "2026-07-26T13:48:51Z",
     "AMKR": "2026-07-26T13:48:51Z",
     "APLD": "2026-07-26T13:57:19Z",
-    "ARLP": "2026-07-26T13:57:19Z"
+    "ARLP": "2026-07-26T13:57:19Z",
+    "AZN": "2026-07-26T14:08:24Z",
+    "BCAL": "2026-07-26T14:08:24Z"
   },
   "alphaDailyQuota": {
     "date": "2026-07-26",
-    "resultCalls": 5
+    "resultCalls": 7
   },
   "missingScheduledCounts": {}
 }
