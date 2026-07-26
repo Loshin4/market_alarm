@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       force_refresh:
-        description: "Alpha Vantage 제한 대기시간을 무시하고 다시 확인"
+        description: "무료 API 대기시간을 무시하고 전체 일정을 다시 확인"
         required: false
         default: false
         type: boolean
   schedule:
-    - cron: "17 * * * *"
+    - cron: "17,47 * * * *"
 
 permissions:
   contents: write
