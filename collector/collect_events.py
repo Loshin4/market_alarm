@@ -59,6 +59,27 @@ SESSION = requests.Session()
 SESSION.headers.update(HEADERS)
 
 
+US_COMPANY_NAMES = {
+    "NVDA": "엔비디아", "MSFT": "마이크로소프트", "AAPL": "애플",
+    "AMZN": "아마존", "META": "메타", "GOOGL": "알파벳",
+    "GOOG": "알파벳", "TSLA": "테슬라", "AVGO": "브로드컴",
+    "AMD": "AMD", "MU": "마이크론", "PLTR": "팔란티어",
+    "NOW": "서비스나우", "CEG": "컨스텔레이션 에너지", "VST": "비스트라",
+}
+
+SOURCE_LABELS = {
+    "bls": "미국 노동통계국(BLS)",
+    "bea": "미국 경제분석국(BEA)",
+    "fomc": "미국 연방준비제도",
+    "bok": "한국은행",
+    "kind": "한국거래소(KIND)",
+    "dart": "금융감독원 전자공시(OpenDART)",
+    "alpha": "미국 기업 실적 데이터",
+    "spacex": "우주 발사 일정 데이터",
+    "bls_results": "미국 노동통계 발표 결과",
+}
+
+
 @dataclass
 class SourceResult:
     key: str
@@ -217,22 +238,80 @@ def parse_ics_datetime(value: str, tzid: str, all_day: bool) -> datetime:
 
 
 def translate_macro_title(title: str) -> str:
+    """공식 일정 제목을 한국어로 정규화한다.
+
+    CPI·PPI·GDP·PCE·JOLTS처럼 시장에서 통용되는 약어는 유지한다.
+    매핑되지 않은 영문 제목은 출처별 일반 한국어 제목으로 바꿔 앱에
+    긴 영문 문장이 노출되지 않게 한다.
+    """
     replacements = {
-        "Consumer Price Index": "미국 소비자물가 CPI",
-        "Producer Price Index": "미국 생산자물가 PPI",
+        "Consumer Price Index": "미국 소비자물가지수(CPI)",
+        "Producer Price Index": "미국 생산자물가지수(PPI)",
         "The Employment Situation": "미국 고용보고서",
         "Employment Situation": "미국 고용보고서",
-        "Job Openings and Labor Turnover Survey": "미국 JOLTS 구인·이직",
-        "Gross Domestic Product": "미국 GDP",
-        "Personal Income and Outlays": "미국 개인소득·소비/PCE",
+        "Job Openings and Labor Turnover Survey": "미국 구인·이직 보고서(JOLTS)",
+        "Gross Domestic Product": "미국 국내총생산(GDP)",
+        "Personal Income and Outlays": "미국 개인소득·소비 및 개인소비지출물가(PCE)",
         "U.S. International Trade in Goods and Services": "미국 무역수지",
         "Retail Sales": "미국 소매판매",
-        "Employment Cost Index": "미국 고용비용지수 ECI",
+        "Employment Cost Index": "미국 고용비용지수(ECI)",
+        "Import and Export Price Indexes": "미국 수출입물가지수",
+        "U.S. Import and Export Price Indexes": "미국 수출입물가지수",
+        "Real Earnings": "미국 실질임금",
+        "Productivity and Costs": "미국 생산성·노동비용",
+        "State Employment and Unemployment": "미국 주별 고용·실업",
+        "Metropolitan Area Employment and Unemployment": "미국 대도시권 고용·실업",
+        "County Employment and Wages": "미국 지역별 고용·임금",
+        "Union Members": "미국 노동조합 가입 현황",
+        "Consumer Expenditures": "미국 소비지출",
+        "Usual Weekly Earnings": "미국 주간 임금",
+        "Business Employment Dynamics": "미국 기업 고용 변동",
+        "Employee Benefits": "미국 근로자 복리후생",
+        "International Transactions and Investment Position": "미국 국제거래·투자 현황",
+        "Corporate Profits": "미국 기업이익",
+        "GDP by Industry": "미국 산업별 국내총생산(GDP)",
+        "GDP by State": "미국 주별 국내총생산(GDP)",
+        "Personal Consumption Expenditures by State": "미국 주별 개인소비지출",
     }
-    out = title
-    for old, new in replacements.items():
-        out = out.replace(old, new)
-    return clean_text(out)
+    out = clean_text(title)
+    for old, new in sorted(replacements.items(), key=lambda x: len(x[0]), reverse=True):
+        out = re.sub(re.escape(old), new, out, flags=re.I)
+    # Remove common release suffixes that otherwise remain in English.
+    out = re.sub(r"\b(news release|release|report|annual|quarterly|monthly)\b", "", out, flags=re.I)
+    out = clean_text(out.strip(" -–—:|"))
+    if re.search(r"[A-Za-z]{3,}", out):
+        # Keep only widely used market abbreviations; hide any residual English sentence.
+        allowed = re.sub(r"\b(CPI|PPI|GDP|PCE|JOLTS|ECI|FOMC)\b", "", out, flags=re.I)
+        if re.search(r"[A-Za-z]{3,}", allowed):
+            return "미국 주요 경제지표 발표"
+    return out or "미국 주요 경제지표 발표"
+
+
+def company_display_name(symbol: str) -> str:
+    symbol = clean_text(symbol).upper()
+    name = US_COMPANY_NAMES.get(symbol, symbol)
+    return f"{name}({symbol})" if name != symbol else symbol
+
+
+def koreanize_space_text(value: Any) -> str:
+    text = clean_text(value)
+    replacements = {
+        "SpaceX": "스페이스X", "Starship": "스타십", "Starlink": "스타링크",
+        "Falcon Heavy": "팰컨 헤비", "Falcon 9": "팰컨 9", "Falcon": "팰컨",
+        "Crew Dragon": "크루 드래건", "Dragon": "드래건",
+        "Kennedy Space Center": "케네디 우주센터",
+        "Cape Canaveral Space Force Station": "케이프커내버럴 우주군 기지",
+        "Vandenberg Space Force Base": "밴덴버그 우주군 기지",
+        "Starbase": "스타베이스", "Launch Complex": "발사단지",
+        "Space Launch Complex": "우주발사단지", "Group": "그룹",
+        "Flight": "비행", "Mission": "임무", "Test Flight": "시험비행",
+        "Success": "성공", "Failure": "실패", "Go for Launch": "발사 확정",
+        "To Be Confirmed": "확인 중", "To Be Determined": "미정",
+    }
+    for old, new in sorted(replacements.items(), key=lambda x: len(x[0]), reverse=True):
+        text = re.sub(re.escape(old), new, text, flags=re.I)
+    # Mission numbers and proper codes are kept, but long English descriptions are omitted.
+    return clean_text(text)
 
 
 def macro_importance(title: str) -> int:
@@ -246,12 +325,12 @@ def macro_importance(title: str) -> int:
 
 def collect_bls() -> SourceResult:
     raw = http_get(BLS_ICS).text
-    return SourceResult("bls", parse_ics(raw, source_key="bls", source="미국 노동통계국 BLS", source_url=BLS_ICS, category="macro"))
+    return SourceResult("bls", parse_ics(raw, source_key="bls", source=SOURCE_LABELS["bls"], source_url=BLS_ICS, category="macro"))
 
 
 def collect_bea() -> SourceResult:
     raw = http_get(BEA_ICS).text
-    return SourceResult("bea", parse_ics(raw, source_key="bea", source="미국 경제분석국 BEA", source_url=BEA_ICS, category="macro"))
+    return SourceResult("bea", parse_ics(raw, source_key="bea", source=SOURCE_LABELS["bea"], source_url=BEA_ICS, category="macro"))
 
 
 def collect_fomc() -> SourceResult:
@@ -280,7 +359,7 @@ def collect_fomc() -> SourceResult:
                 title="미국 FOMC 금리결정·성명서",
                 when=when,
                 source_key="fomc",
-                source="미국 연방준비제도",
+                source=SOURCE_LABELS["fomc"],
                 source_url=FED_CALENDAR,
                 category="central_bank",
                 importance=5,
@@ -305,7 +384,7 @@ def collect_fomc() -> SourceResult:
                 title="미국 FOMC 금리결정·성명서",
                 when=when,
                 source_key="fomc",
-                source="미국 연방준비제도",
+                source=SOURCE_LABELS["fomc"],
                 source_url=urljoin(FED_CALENDAR, link["href"]),
                 category="central_bank",
                 importance=5,
@@ -346,7 +425,7 @@ def collect_bok() -> SourceResult:
                 title="한국은행 기준금리 결정",
                 when=when,
                 source_key="bok",
-                source="한국은행",
+                source=SOURCE_LABELS["bok"],
                 source_url=BOK_CALENDAR,
                 category="central_bank",
                 importance=5,
@@ -429,7 +508,7 @@ def collect_kind(config: dict[str, Any]) -> SourceResult:
                 title=f"{company} {title or 'IR 일정'}",
                 when=when,
                 source_key="kind",
-                source="한국거래소 KIND",
+                source=SOURCE_LABELS["kind"],
                 source_url=source_url,
                 category="earnings" if earnings else "company",
                 importance=5 if watched and earnings else 4 if earnings else 3,
@@ -446,7 +525,7 @@ def collect_kind(config: dict[str, Any]) -> SourceResult:
 
 def collect_dart(config: dict[str, Any], api_key: str) -> SourceResult:
     if not api_key:
-        return SourceResult("dart", [], False, "DART_API_KEY 미설정")
+        return SourceResult("dart", [], False, "OpenDART 인증키 미설정")
     _, code_to_name = company_lookup(config)
     begin = (NOW.astimezone(KST).date() - timedelta(days=14)).strftime("%Y%m%d")
     end = NOW.astimezone(KST).date().strftime("%Y%m%d")
@@ -495,7 +574,7 @@ def collect_dart(config: dict[str, Any], api_key: str) -> SourceResult:
                 title=f"{corp_name} 실적 결과",
                 when=when,
                 source_key="dart",
-                source="금융감독원 OpenDART",
+                source=SOURCE_LABELS["dart"],
                 source_url=source_url,
                 category="earnings",
                 importance=5 if stock_code in code_to_name else 4,
@@ -524,7 +603,7 @@ def infer_report_period(report: str, d: date) -> str:
 
 def collect_alpha(config: dict[str, Any], api_key: str, state: dict[str, Any], force: bool) -> SourceResult:
     if not api_key:
-        return SourceResult("alpha", [], False, "ALPHA_VANTAGE_API_KEY 미설정")
+        return SourceResult("alpha", [], False, "미국 실적 데이터 인증키 미설정")
     last = parse_iso(state.get("alphaCalendarCheckedAt"))
     should_calendar = force or not last or NOW - last >= timedelta(hours=6)
     previous_events = load_json(EVENTS_FILE, {}).get("events", [])
@@ -536,7 +615,7 @@ def collect_alpha(config: dict[str, Any], api_key: str, state: dict[str, Any], f
         text = response.text
         if text.lstrip().startswith("{"):
             payload = response.json()
-            raise RuntimeError(payload.get("Information") or payload.get("Note") or "Alpha Vantage 오류")
+            raise RuntimeError(payload.get("Information") or payload.get("Note") or "미국 실적 데이터 조회 오류")
         for row in csv.DictReader(io.StringIO(text)):
             symbol = clean_text(row.get("symbol")).upper()
             if symbol in symbols:
@@ -568,10 +647,10 @@ def collect_alpha(config: dict[str, Any], api_key: str, state: dict[str, Any], f
             summary += f" · 회계기간 {fiscal}"
         out.append(event(
             event_id=f"us-earnings-{symbol}-{d.isoformat()}",
-            title=f"{symbol} 실적 발표",
+            title=f"{company_display_name(symbol)} 실적 발표",
             when=when,
             source_key="alpha",
-            source="Alpha Vantage",
+            source=SOURCE_LABELS["alpha"],
             source_url=f"https://www.alphavantage.co/query?function=EARNINGS_CALENDAR&symbol={symbol}",
             category="earnings",
             importance=5 if symbol in {"NVDA", "MSFT", "AAPL", "AMZN", "META", "GOOGL", "TSLA"} else 4,
@@ -623,10 +702,10 @@ def collect_alpha(config: dict[str, Any], api_key: str, state: dict[str, Any], f
         when = datetime(d.year, d.month, d.day, 16, 5, tzinfo=ET)
         out.append(event(
             event_id=f"us-earnings-{symbol}-{d.isoformat()}",
-            title=f"{symbol} 실적 결과",
+            title=f"{company_display_name(symbol)} 실적 결과",
             when=when,
             source_key="alpha",
-            source="Alpha Vantage",
+            source=SOURCE_LABELS["alpha"],
             source_url=f"https://www.alphavantage.co/query?function=EARNINGS&symbol={symbol}",
             category="earnings",
             importance=5 if symbol in {"NVDA", "MSFT", "AAPL", "AMZN", "META", "GOOGL", "TSLA"} else 4,
@@ -652,11 +731,13 @@ def collect_spacex() -> SourceResult:
     for index, payload in enumerate(payloads):
         previous = index == 1
         for row in payload.get("results") or []:
-            provider = clean_text((row.get("launch_service_provider") or {}).get("name"))
-            name = clean_text(row.get("name") or "SpaceX 발사")
-            combined = f"{provider} {name}".lower()
+            raw_provider = clean_text((row.get("launch_service_provider") or {}).get("name"))
+            raw_name = clean_text(row.get("name") or "SpaceX launch")
+            combined = f"{raw_provider} {raw_name}".lower()
             if not any(k in combined for k in ("spacex", "starship", "falcon", "dragon")):
                 continue
+            provider = koreanize_space_text(raw_provider)
+            name = koreanize_space_text(raw_name)
             dt_value = row.get("net") or row.get("window_start")
             try:
                 when = dtparser.isoparse(dt_value)
@@ -668,16 +749,17 @@ def collect_spacex() -> SourceResult:
             if not previous and delta > timedelta(days=180):
                 continue
             status_obj = row.get("status") or {}
-            status_name = clean_text(status_obj.get("name"))
-            low_status = status_name.lower()
+            raw_status_name = clean_text(status_obj.get("name"))
+            status_name = koreanize_space_text(raw_status_name)
+            low_status = raw_status_name.lower()
             released = previous or when.astimezone(UTC) <= NOW
             success = "success" in low_status
             failure = "fail" in low_status
-            rocket = clean_text((((row.get("rocket") or {}).get("configuration") or {}).get("full_name")))
+            rocket = koreanize_space_text((((row.get("rocket") or {}).get("configuration") or {}).get("full_name")))
             mission = row.get("mission") or {}
-            description = clean_text(mission.get("description"))
-            pad = clean_text(((row.get("pad") or {}).get("name")))
-            title = name if name.lower().startswith("spacex") else f"SpaceX {name}"
+            description = ""  # 긴 영문 임무 설명은 앱에 노출하지 않음
+            pad = koreanize_space_text(((row.get("pad") or {}).get("name")))
+            title = name if name.startswith("스페이스X") else f"스페이스X {name}"
             importance = 5 if any(k in combined for k in ("starship", "falcon heavy", "crew", "dragon")) else 4
             rating = 1 if success else -2 if failure else 0
             summary_parts = []
@@ -698,7 +780,7 @@ def collect_spacex() -> SourceResult:
                 title=title + (" 결과" if released else ""),
                 when=when,
                 source_key="spacex",
-                source="Launch Library 2 / SpaceX",
+                source=SOURCE_LABELS["spacex"],
                 source_url=source_url,
                 category="industry",
                 importance=importance,
@@ -711,7 +793,7 @@ def collect_spacex() -> SourceResult:
                 confidence="aggregator",
             ))
     if not out:
-        raise RuntimeError("SpaceX 일정이 비어 있음")
+        raise RuntimeError("스페이스X 일정이 비어 있음")
     return SourceResult("spacex", out)
 
 
@@ -908,7 +990,12 @@ def main() -> int:
         key = str(item.get("category", "other"))
         counts[key] = counts.get(key, 0) + 1
     sources = {
-        result.key: {"ok": result.ok, "count": len(result.events), "message": result.message}
+        result.key: {
+            "name": SOURCE_LABELS.get(result.key, result.key),
+            "ok": result.ok,
+            "count": len(result.events),
+            "message": result.message,
+        }
         for result in results
     }
     ok_count = sum(1 for result in results if result.ok)
@@ -918,7 +1005,7 @@ def main() -> int:
         "message": f"{len(merged)}개 일정 · 정상 소스 {ok_count}/{len(results)}",
         "counts": counts,
         "sources": sources,
-        "failedSources": sorted(failed_sources),
+        "failedSources": [SOURCE_LABELS.get(key, key) for key in sorted(failed_sources)],
     }
     save_json(EVENTS_FILE, {"schemaVersion": 1, "updatedAt": iso_utc(), "events": merged})
     previous_changes = load_json(CHANGES_FILE, {"changes": []}).get("changes", [])
