@@ -14,6 +14,8 @@ import os
 import re
 import sys
 import time
+import zipfile
+import html as html_lib
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -44,8 +46,10 @@ BEA_ICS = "https://www.bea.gov/news/schedule/ics/online-calendar-subscription.ic
 FED_CALENDAR = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
 FED_RELEASES = "https://www.federalreserve.gov/newsevents/pressreleases/{year}-press-fomc.htm"
 BOK_CALENDAR = "https://www.bok.or.kr/portal/singl/crncyPolicyDrcMtg/listYear.do?menuNo=200755&mtgSe=A"
-KIND_IR = "https://kind.krx.co.kr/corpgeneral/irschedule.do"
+KIND_IR = "https://kind.krx.co.kr/corpgeneral/irschedule.do?gubun=iRSchedule&method=searchIRScheduleMain"
 DART_LIST = "https://opendart.fss.or.kr/api/list.json"
+DART_DOCUMENT = "https://opendart.fss.or.kr/api/document.xml"
+NASDAQ_EARNINGS = "https://api.nasdaq.com/api/calendar/earnings"
 BLS_API = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
 ALPHA = "https://www.alphavantage.co/query"
 LL2_UPCOMING = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/"
@@ -101,7 +105,9 @@ SOURCE_LABELS = {
     "fomc": "미국 연방준비제도",
     "bok": "한국은행",
     "kind": "한국거래소(KIND)",
+    "dart_schedule": "금융감독원·한국거래소 기업설명회 공시",
     "dart": "금융감독원 전자공시(OpenDART)",
+    "nasdaq": "나스닥 전체 실적 달력",
     "alpha": "미국 기업 실적 데이터",
     "spacex": "우주 발사 일정 데이터",
     "bls_results": "미국 노동통계 발표 결과",
@@ -519,154 +525,411 @@ def company_lookup(config: dict[str, Any]) -> tuple[dict[str, str], dict[str, st
     return name_to_code, code_to_name
 
 
-
-def earnings_period_key(raw_title: str, event_date: date) -> str:
-    """Return a stable earnings period key so a time/date correction updates one event."""
-    text = clean_text(raw_title)
-    year_match = re.search(r"(20\d{2})", text)
-    year = int(year_match.group(1)) if year_match else event_date.year
-    quarter_patterns = [
-        (r"(?:제?\s*)?1\s*분기|\b1Q\s*\d{0,4}\b|\bQ1\b|first\s+quarter", "Q1"),
-        (r"(?:제?\s*)?2\s*분기|\b2Q\s*\d{0,4}\b|\bQ2\b|second\s+quarter", "Q2"),
-        (r"(?:제?\s*)?3\s*분기|\b3Q\s*\d{0,4}\b|\bQ3\b|third\s+quarter", "Q3"),
-        (r"(?:제?\s*)?4\s*분기|\b4Q\s*\d{0,4}\b|\bQ4\b|fourth\s+quarter", "Q4"),
-        (r"상반기|반기|\bH1\b|first\s+half", "H1"),
-        (r"하반기|\bH2\b|second\s+half", "H2"),
-        (r"연간|연도|사업연도|\bFY\b|full\s+year|annual", "FY"),
-    ]
-    low = text.lower()
-    for pattern, label in quarter_patterns:
-        if re.search(pattern, low, re.I):
-            return f"{year}-{label}"
-    # A stable month bucket is safer than including the exact date/time.
-    return f"{year}-M{event_date.month:02d}"
-
-
-def parse_kind_page(html: str, page: int) -> tuple[list[dict[str, Any]], int | None, int | None, tuple[str, ...]]:
-    """Parse one KIND IR page and return earnings events plus pagination metadata."""
-    soup = BeautifulSoup(html, "html.parser")
-    rows = soup.select("table tbody tr") or soup.find_all("tr")
-    events: list[dict[str, Any]] = []
-    row_keys: list[str] = []
-    for row in rows:
-        cells = [clean_text(cell.get_text(" ")) for cell in row.find_all(["td", "th"])]
-        date_index = next((i for i, cell in enumerate(cells)
-                           if re.fullmatch(r"20\d{2}[.-]\d{1,2}[.-]\d{1,2}", cell)), -1)
-        if date_index < 3:
-            continue
-        date_text = cells[date_index].replace(".", "-")
-        try:
-            d = datetime.strptime(date_text, "%Y-%m-%d").date()
-        except ValueError:
-            continue
-        company = re.sub(r"^(유가증권|코스닥|코넥스)\s*", "", cells[date_index - 3]).strip()
-        raw_title = cells[date_index - 2]
-        if not company or not raw_title:
-            continue
-        time_text = cells[date_index + 1] if date_index + 1 < len(cells) else ""
-        row_number = cells[0] if cells and re.fullmatch(r"\d+", cells[0]) else ""
-        row_keys.append(row_number or stable_id(company, raw_title, date_text, time_text))
-        low = raw_title.lower()
-        is_earnings = any(k in low for k in (
-            "실적", "경영실적", "잠정", "earnings", "financial results",
-            "results announcement", "results release", "quarter earnings",
-        ))
-        if not is_earnings:
-            continue
-        title = koreanize_earnings_title(raw_title, d.year)
-        tm = re.search(r"(\d{1,2}):(\d{2})", time_text)
-        hour, minute = (int(tm.group(1)), int(tm.group(2))) if tm else (12, 0)
-        all_day = tm is None
-        when = datetime(d.year, d.month, d.day, hour, minute, tzinfo=KST)
-        link = row.find("a", href=True)
-        source_url = urljoin(KIND_IR, link["href"]) if link else f"{KIND_IR}?gubun=iRSchedule&method=searchIRScheduleMain"
-        compact_company = re.sub(r"\s+", "", company)
-        period = earnings_period_key(raw_title, d)
-        eid = f"kr-earnings-{stable_id(compact_company)}-{period}"
-        parsed_item = event(
-            event_id=eid,
-            title=f"{company} {title}",
-            when=when,
-            source_key="kind",
-            source=SOURCE_LABELS["kind"],
-            source_url=source_url,
-            category="earnings",
-            importance=kr_importance(company),
-            market="KR",
-            all_day=all_day,
-            confidence="official_schedule",
-        )
-        parsed_item["_rawTitleHasKorean"] = bool(re.search(r"[가-힣]", raw_title))
-        events.append(parsed_item)
-    text = clean_text(soup.get_text(" "))
-    page_match = re.search(r"전체\s*[\d,]+건\s*:\s*(\d+)\s*/\s*(\d+)", text)
-    current_page = int(page_match.group(1)) if page_match else None
-    total_pages = int(page_match.group(2)) if page_match else None
-    return events, current_page, total_pages, tuple(row_keys)
-
-
-def fetch_kind_page(page: int) -> str:
-    """KIND pagination is form-based; POST is required for pageIndex to take effect."""
-    payload = {
-        "gubun": "iRSchedule",
-        "method": "searchIRScheduleMain",
-        "pageIndex": str(page),
-    }
-    response = SESSION.post(KIND_IR, data=payload, timeout=30)
-    response.raise_for_status()
-    return response.text
-
-
 def collect_kind(config: dict[str, Any] | None = None) -> SourceResult:
-    """Collect all earnings-related IR schedules from every KIND result page.
+    """KIND에 공개된 전체 실적·경영실적 발표 일정을 수집한다.
 
-    The old implementation sent pageIndex with GET, but KIND pagination is form-based,
-    so page 1 was repeatedly downloaded. This implementation uses POST, validates the
-    page marker, and rejects incomplete/repeated snapshots instead of deleting good data.
+    관심 종목 목록으로 제한하지 않는다. 같은 회사·시각에 한국어/영어 공지가
+    함께 올라오는 경우 하나로 통합하고 한국어 제목을 우선한다.
     """
     out_by_id: dict[str, dict[str, Any]] = {}
-    seen_signatures: set[tuple[str, ...]] = set()
-    expected_total_pages: int | None = None
-    raw_rows = 0
-    page = 1
-    while True:
-        html = fetch_kind_page(page)
-        parsed, current_page, total_pages, signature = parse_kind_page(html, page)
-        if expected_total_pages is None and total_pages:
-            expected_total_pages = total_pages
-        if page > 1 and current_page is not None and current_page != page:
-            raise RuntimeError(f"KIND 페이지 이동 실패: 요청 {page}, 응답 {current_page}")
-        if page > 1 and signature and signature in seen_signatures:
-            raise RuntimeError(f"KIND {page}페이지가 이전 페이지와 중복됨")
-        if signature:
-            seen_signatures.add(signature)
-            raw_rows += len(signature)
-        for item in parsed:
-            eid = str(item.get("id"))
+    empty_pages = 0
+    for page in range(1, 101):
+        params = {
+            "gubun": "iRSchedule",
+            "method": "searchIRScheduleMain",
+            "pageIndex": page,
+        }
+        html = http_get(KIND_IR, params=params).text
+        soup = BeautifulSoup(html, "html.parser")
+        rows = soup.select("table tbody tr") or soup.find_all("tr")
+        page_added = 0
+        for row in rows:
+            cells = [clean_text(cell.get_text(" ")) for cell in row.find_all(["td", "th"])]
+            date_index = next((i for i, cell in enumerate(cells)
+                               if re.fullmatch(r"20\d{2}[.-]\d{1,2}[.-]\d{1,2}", cell)), -1)
+            if date_index < 3:
+                continue
+            date_text = cells[date_index].replace(".", "-")
+            try:
+                d = datetime.strptime(date_text, "%Y-%m-%d").date()
+            except ValueError:
+                continue
+            # 공식 표 구조: 번호 / 회사명 / 제목 / 장소 / 일자 / 시작시간
+            company = re.sub(r"^(유가증권|코스닥|코넥스)\s*", "", cells[date_index - 3]).strip()
+            raw_title = cells[date_index - 2]
+            if not company or not raw_title:
+                continue
+            low = raw_title.lower()
+            is_earnings = any(k in low for k in (
+                "실적", "경영실적", "잠정", "earnings", "financial results",
+                "results announcement", "results release", "quarter earnings",
+            ))
+            if not is_earnings:
+                continue
+            title = koreanize_earnings_title(raw_title, d.year)
+            time_text = cells[date_index + 1] if date_index + 1 < len(cells) else ""
+            tm = re.search(r"(\d{1,2}):(\d{2})", time_text)
+            hour, minute = (int(tm.group(1)), int(tm.group(2))) if tm else (12, 0)
+            all_day = tm is None
+            when = datetime(d.year, d.month, d.day, hour, minute, tzinfo=KST)
+            link = row.find("a", href=True)
+            source_url = urljoin(KIND_IR, link["href"]) if link else KIND_IR
+            compact_company = re.sub(r"\s+", "", company)
+            eid = f"kr-earnings-{stable_id(compact_company)}-{d.isoformat()}"
+            item = event(
+                event_id=eid,
+                title=f"{company} {title}",
+                when=when,
+                source_key="kind",
+                source=SOURCE_LABELS["kind"],
+                source_url=source_url,
+                category="earnings",
+                importance=kr_importance(company),
+                market="KR",
+                all_day=all_day,
+                confidence="official_schedule",
+            )
             old = out_by_id.get(eid)
-            old_korean = bool(old and old.get("_rawTitleHasKorean"))
-            new_korean = bool(item.get("_rawTitleHasKorean"))
-            # Prefer Korean duplicates; otherwise prefer the latest schedule time.
-            if (
-                old is None
-                or (new_korean and not old_korean)
-                or (new_korean == old_korean and int(item.get("time", 0)) >= int(old.get("time", 0)))
-            ):
+            # 영문 중복보다 한글 제목을 우선한다.
+            old_korean = bool(old and re.search(r"[가-힣]", old.get("title", "")))
+            new_korean = bool(re.search(r"[가-힣]", item.get("title", "")))
+            if old is None or (new_korean and not old_korean):
                 out_by_id[eid] = item
-        last_page = expected_total_pages or total_pages or 1
-        if page >= last_page:
+            page_added += 1
+        if page_added == 0:
+            empty_pages += 1
+        else:
+            empty_pages = 0
+        if page > 1 and empty_pages >= 2:
             break
-        page += 1
-        if page > 100:
-            raise RuntimeError("KIND 페이지 수가 비정상적으로 많음")
     out = list(out_by_id.values())
-    for item in out:
-        item.pop("_rawTitleHasKorean", None)
     if not out:
         raise RuntimeError("KIND 전체 실적 일정이 비어 있음")
-    if expected_total_pages and len(seen_signatures) < expected_total_pages:
-        raise RuntimeError(f"KIND 수집 불완전: {len(seen_signatures)}/{expected_total_pages}페이지")
-    return SourceResult("kind", out, True, f"IR 원본 {raw_rows}건 중 실적 일정 {len(out)}개")
+    return SourceResult("kind", out)
+
+
+
+def decode_document_bytes(raw: bytes) -> str:
+    """Decode one DART original-document member without assuming one encoding."""
+    for encoding in ("utf-8", "cp949", "euc-kr", "utf-16"):
+        try:
+            return raw.decode(encoding)
+        except UnicodeDecodeError:
+            pass
+    return raw.decode("utf-8", errors="replace")
+
+
+def extract_dart_document_text(payload: bytes) -> str:
+    """Extract searchable text from OpenDART's ZIP original-document response."""
+    if payload[:1] in (b"{", b"<") and b"PK" not in payload[:8]:
+        preview = decode_document_bytes(payload[:1000])
+        if "status" in preview and "message" in preview:
+            raise RuntimeError(clean_text(BeautifulSoup(preview, "html.parser").get_text(" ")))
+    try:
+        archive = zipfile.ZipFile(io.BytesIO(payload))
+    except zipfile.BadZipFile as exc:
+        raise RuntimeError("OpenDART 원문 ZIP 형식이 아님") from exc
+    chunks: list[str] = []
+    members = sorted(
+        (info for info in archive.infolist() if not info.is_dir()),
+        key=lambda info: info.file_size,
+        reverse=True,
+    )
+    for info in members[:12]:
+        if info.file_size <= 0:
+            continue
+        raw = archive.read(info)
+        decoded = decode_document_bytes(raw)
+        soup = BeautifulSoup(decoded, "html.parser")
+        text = clean_text(html_lib.unescape(soup.get_text(" ")))
+        if text:
+            chunks.append(text)
+    return clean_text(" ".join(chunks))
+
+
+def parse_korean_date(value: str) -> date | None:
+    compact = re.fullmatch(r"(20\d{2})(\d{2})(\d{2})", value.strip())
+    if compact:
+        try:
+            return date(int(compact.group(1)), int(compact.group(2)), int(compact.group(3)))
+        except ValueError:
+            return None
+    match = re.search(r"(20\d{2})\s*(?:년|[-./])\s*(\d{1,2})\s*(?:월|[-./])\s*(\d{1,2})\s*일?", value)
+    if not match:
+        return None
+    try:
+        return date(int(match.group(1)), int(match.group(2)), int(match.group(3)))
+    except ValueError:
+        return None
+
+
+def parse_korean_time(value: str) -> tuple[int, int, bool]:
+    if "--:--" in value or "시간 미정" in value:
+        return 12, 0, True
+    match = re.search(r"(?<!\d)([01]?\d|2[0-3]):([0-5]\d)(?!\d)", value)
+    if match:
+        return int(match.group(1)), int(match.group(2)), False
+    match = re.search(r"(오전|오후)?\s*(\d{1,2})\s*시(?:\s*(\d{1,2})\s*분)?", value)
+    if match:
+        hour = int(match.group(2))
+        minute = int(match.group(3) or 0)
+        if match.group(1) == "오후" and hour < 12:
+            hour += 12
+        if match.group(1) == "오전" and hour == 12:
+            hour = 0
+        if 0 <= hour <= 23 and 0 <= minute <= 59:
+            return hour, minute, False
+    return 12, 0, True
+
+
+def extract_ir_schedule_from_document(
+    *,
+    text: str,
+    corp_name: str,
+    stock_code: str,
+    receipt_no: str,
+    receipt_date: date,
+) -> dict[str, Any] | None:
+    """Parse a market-wide IR filing into one earnings schedule event.
+
+    There is deliberately no company allowlist. Every listed company is accepted when
+    the official filing says the event is about earnings/results.
+    """
+    normalized = clean_text(text)
+    low = normalized.lower()
+    earnings_terms = (
+        "경영실적", "실적발표", "실적 발표", "잠정실적", "결산실적",
+        "earnings", "financial results", "results announcement", "results release",
+    )
+    if not any(term in low for term in earnings_terms):
+        return None
+
+    # Prefer a date immediately following the event-date labels, then fall back to a
+    # reasonable date near/after the filing date. This avoids selecting the decision date.
+    date_candidates: list[tuple[int, date]] = []
+    labeled_patterns = (
+        r"(?:행사일|개최일|시작일|일시(?:\s*및\s*장소)?)\s*[:：]?\s*([^\n]{0,240})",
+        r"(?:일시\s*)\|?\s*([^\n]{0,240})",
+    )
+    for pattern in labeled_patterns:
+        for match in re.finditer(pattern, normalized, re.I):
+            window = match.group(1)
+            parsed = parse_korean_date(window)
+            if parsed:
+                date_candidates.append((0, parsed))
+    for match in re.finditer(r"20\d{2}\s*(?:년|[-./])\s*\d{1,2}\s*(?:월|[-./])\s*\d{1,2}\s*일?", normalized):
+        parsed = parse_korean_date(match.group(0))
+        if not parsed:
+            continue
+        context = normalized[max(0, match.start() - 45):match.start()]
+        penalty = 3 if any(label in context for label in ("결정일자", "공시일", "작성일", "게재일시")) else 1
+        date_candidates.append((penalty, parsed))
+    valid = [item for item in date_candidates if receipt_date - timedelta(days=2) <= item[1] <= receipt_date + timedelta(days=240)]
+    if not valid:
+        return None
+    valid.sort(key=lambda item: (item[0], 0 if item[1] >= receipt_date else 1, item[1]))
+    event_date = valid[0][1]
+
+    # Read time from the neighborhood of the chosen date first.
+    date_tokens = [event_date.strftime("%Y-%m-%d"), event_date.strftime("%Y.%m.%d"), f"{event_date.year}년 {event_date.month}월 {event_date.day}일"]
+    time_context = normalized
+    for token in date_tokens:
+        pos = normalized.find(token)
+        if pos >= 0:
+            time_context = normalized[pos:pos + 260]
+            break
+    hour, minute, all_day = parse_korean_time(time_context)
+
+    # Prefer the official purpose/content text as the title fragment.
+    title_fragment = "실적 발표"
+    title_patterns = (
+        r"개최목적\s*[:：]?\s*(.{3,150}?)(?=개최방법|주요\s*설명회내용|IR\s*자료|\d+\.)",
+        r"주요\s*설명회내용(?:\(요약\))?\s*[:：]?\s*(.{3,150}?)(?=IR\s*자료|기타\s*투자판단|\d+\.)",
+        r"((?:20\d{2}년\s*)?(?:\d분기|상반기|하반기|연간)?\s*(?:경영)?실적\s*(?:발표|설명회|설명))",
+    )
+    for pattern in title_patterns:
+        match = re.search(pattern, normalized, re.I)
+        if match:
+            candidate = clean_text(match.group(1))
+            if any(term in candidate.lower() for term in earnings_terms):
+                title_fragment = candidate[:100]
+                break
+    title_fragment = koreanize_earnings_title(title_fragment, event_date.year)
+    compact_company = re.sub(r"\s+", "", corp_name)
+    when = datetime(event_date.year, event_date.month, event_date.day, hour, minute, tzinfo=KST)
+    return event(
+        event_id=f"kr-earnings-{stable_id(compact_company)}-{event_date.isoformat()}",
+        title=f"{corp_name} {title_fragment}",
+        when=when,
+        source_key="dart_schedule",
+        source=SOURCE_LABELS["dart_schedule"],
+        source_url=f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={receipt_no}",
+        category="earnings",
+        importance=kr_importance(corp_name),
+        symbol=stock_code,
+        market="KR",
+        all_day=all_day,
+        confidence="official_filing",
+    )
+
+
+def collect_dart_schedules(api_key: str, state: dict[str, Any], force: bool) -> SourceResult:
+    """Discover earnings schedules for all KOSPI/KOSDAQ/KONEX companies.
+
+    Primary discovery is the OpenDART exchange-disclosure list. Each new IR filing is
+    downloaded through the official original-document API and parsed for event date/time.
+    Cached parsed filings keep the 30-minute workflow well below free API limits.
+    """
+    if not api_key:
+        return SourceResult("dart_schedule", [], False, "OpenDART 인증키 미설정")
+    today = NOW.astimezone(KST).date()
+    begin = (today - timedelta(days=120)).strftime("%Y%m%d")
+    end = today.strftime("%Y%m%d")
+    filings: list[dict[str, Any]] = []
+    page = 1
+    while page <= 100:
+        params = {
+            "crtfc_key": api_key,
+            "bgn_de": begin,
+            "end_de": end,
+            "last_reprt_at": "Y",
+            "pblntf_ty": "I",
+            "page_no": page,
+            "page_count": 100,
+            "sort": "date",
+            "sort_mth": "desc",
+        }
+        payload = http_get(DART_LIST, params=params).json()
+        status = payload.get("status")
+        if status == "013":
+            break
+        if status not in ("000", None):
+            raise RuntimeError(payload.get("message", f"DART status {status}"))
+        rows = payload.get("list") or []
+        for row in rows:
+            report = clean_text(row.get("report_nm"))
+            report_low = report.lower()
+            if "기업설명회" not in report and "ir" not in report_low:
+                continue
+            if "개최" not in report and "설명회" not in report:
+                continue
+            filings.append(row)
+        total_page = int(payload.get("total_page") or 1)
+        if page >= total_page:
+            break
+        page += 1
+
+    cache = state.setdefault("dartIrScheduleCache", {})
+    out_by_id: dict[str, dict[str, Any]] = {}
+    downloaded = 0
+    parse_failed = 0
+    for row in filings:
+        receipt_no = clean_text(row.get("rcept_no"))
+        corp_name = clean_text(row.get("corp_name"))
+        stock_code = clean_text(row.get("stock_code"))
+        receipt_raw = clean_text(row.get("rcept_dt"))
+        if not receipt_no or not corp_name:
+            continue
+        try:
+            receipt_date = datetime.strptime(receipt_raw, "%Y%m%d").date()
+        except ValueError:
+            receipt_date = today
+        cached = cache.get(receipt_no)
+        parsed_event: dict[str, Any] | None = None
+        if isinstance(cached, dict) and not force:
+            parsed_event = cached.get("event")
+        else:
+            try:
+                response = http_get(DART_DOCUMENT, params={"crtfc_key": api_key, "rcept_no": receipt_no}, timeout=60)
+                text = extract_dart_document_text(response.content)
+                parsed_event = extract_ir_schedule_from_document(
+                    text=text,
+                    corp_name=corp_name,
+                    stock_code=stock_code,
+                    receipt_no=receipt_no,
+                    receipt_date=receipt_date,
+                )
+                cache[receipt_no] = {"checkedAt": iso_utc(), "receiptDate": receipt_raw, "event": parsed_event}
+                downloaded += 1
+                time.sleep(0.05)
+            except Exception as exc:
+                parse_failed += 1
+                cache[receipt_no] = {"checkedAt": iso_utc(), "receiptDate": receipt_raw, "event": None, "error": str(exc)[:200]}
+                continue
+        if parsed_event:
+            current = out_by_id.get(parsed_event["id"])
+            if current is None or event_score(parsed_event) >= event_score(current):
+                out_by_id[parsed_event["id"]] = parsed_event
+
+    # Prune old cache entries so state.json does not grow forever.
+    cutoff = today - timedelta(days=200)
+    for receipt_no in list(cache):
+        cached_date = parse_korean_date(str(cache[receipt_no].get("receiptDate", "")))
+        if cached_date and cached_date < cutoff:
+            cache.pop(receipt_no, None)
+    out = list(out_by_id.values())
+    if filings and not out:
+        raise RuntimeError(f"IR 공시 {len(filings)}건을 찾았지만 실적 일정 파싱 결과가 0건")
+    message = f"IR 공시 {len(filings)}건 · 실적 일정 {len(out)}개 · 새 원문 {downloaded}건"
+    if parse_failed:
+        message += f" · 원문 오류 {parse_failed}건"
+    return SourceResult("dart_schedule", out, True, message)
+
+
+def collect_nasdaq_earnings(state: dict[str, Any], force: bool) -> SourceResult:
+    """Free no-key fallback for the full U.S. earnings calendar on Nasdaq's domain."""
+    previous_events = load_json(EVENTS_FILE, {}).get("events", [])
+    last = parse_iso(state.get("nasdaqCalendarCheckedAt"))
+    if not force and last and NOW - last < timedelta(hours=20):
+        cached = [item for item in previous_events if item.get("sourceKey") == "nasdaq" and item.get("status") == "scheduled"]
+        return SourceResult("nasdaq", cached, True, f"이전 전체 달력 유지 {len(cached)}개")
+    today_et = NOW.astimezone(ET).date()
+    out: list[dict[str, Any]] = []
+    for offset in range(0, 46):
+        d = today_et + timedelta(days=offset)
+        response = http_get(NASDAQ_EARNINGS, params={"date": d.isoformat()}, timeout=30)
+        payload = response.json()
+        rows = (((payload.get("data") or {}).get("rows")) or [])
+        for raw in rows:
+            symbol = clean_text(raw.get("symbol")).upper()
+            if not symbol:
+                continue
+            raw_name = clean_text(raw.get("name"))
+            timing_raw = clean_text(raw.get("time")).lower()
+            if "after" in timing_raw:
+                hour, all_day, timing = 16, False, "미국 장 마감 후"
+            elif "before" in timing_raw or "pre" in timing_raw:
+                hour, all_day, timing = 8, False, "미국 장 시작 전"
+            else:
+                hour, all_day, timing = 12, True, "발표 시간 미정"
+            expected = clean_text(raw.get("epsForecast"))
+            fiscal = clean_text(raw.get("fiscalQuarterEnding"))
+            summary = timing
+            if expected and expected not in ("N/A", "--"):
+                summary += f" · 예상 EPS {expected}"
+            if fiscal:
+                summary += f" · 회계기간 {fiscal}"
+            when = datetime(d.year, d.month, d.day, hour, 0, tzinfo=ET)
+            out.append(event(
+                event_id=f"us-earnings-{symbol}-{d.isoformat()}",
+                title=f"{company_display_name(symbol, raw_name)} 실적 발표",
+                when=when,
+                source_key="nasdaq",
+                source=SOURCE_LABELS["nasdaq"],
+                source_url=f"https://www.nasdaq.com/market-activity/earnings?date={d.isoformat()}",
+                category="earnings",
+                importance=us_importance(symbol),
+                summary=summary,
+                symbol=symbol,
+                market="US",
+                expected="" if expected in ("N/A", "--") else expected,
+                all_day=all_day,
+                official=False,
+                confidence="exchange_calendar",
+            ))
+        time.sleep(0.03)
+    state["nasdaqCalendarCheckedAt"] = iso_utc()
+    return SourceResult("nasdaq", out, True, f"향후 45일 전체 실적 {len(out)}개")
 
 def collect_dart(config: dict[str, Any] | None, api_key: str) -> SourceResult:
     if not api_key:
@@ -1059,52 +1322,66 @@ def fmt_num(value: float | None) -> str:
     return f"{value:.3f}".rstrip("0").rstrip(".")
 
 
-def merge_events(
-    new_events: Iterable[dict[str, Any]],
-    old_events: list[dict[str, Any]],
-    failed_sources: set[str],
-    successful_sources: set[str],
-    state: dict[str, Any],
-) -> list[dict[str, Any]]:
+def event_company_key(item: dict[str, Any]) -> str:
+    symbol = clean_text(item.get("symbol"))
+    if symbol:
+        return symbol.upper()
+    title = clean_text(item.get("title"))
+    # Remove the earnings phrase and retain the company portion. Works market-wide,
+    # without a named-company list.
+    parts = re.split(
+        r"\s+(?=(?:20\d{2}년|\d{1,2}분기|1분기|2분기|3분기|4분기|상반기|하반기|연간|경영실적|실적|earnings))",
+        title,
+        maxsplit=1,
+        flags=re.I,
+    )
+    return re.sub(r"[^0-9A-Za-z가-힣]", "", parts[0]).upper()
+
+
+def canonical_event_key(item: dict[str, Any]) -> str:
+    if item.get("category") == "earnings":
+        when_ms = int(item.get("time", 0))
+        try:
+            event_date = datetime.fromtimestamp(when_ms / 1000, UTC).astimezone(KST if item.get("market") == "KR" else ET).date().isoformat()
+        except Exception:
+            event_date = str(when_ms)
+        company = event_company_key(item)
+        status_group = "released" if item.get("status") == "released" else "scheduled"
+        return f"earnings|{item.get('market')}|{company}|{event_date}|{status_group}"
+    return f"id|{item.get('id', '')}"
+
+
+def merge_events(new_events: Iterable[dict[str, Any]], old_events: list[dict[str, Any]], failed_sources: set[str]) -> list[dict[str, Any]]:
     merged: dict[str, dict[str, Any]] = {}
     for item in new_events:
-        eid = str(item.get("id", ""))
-        if not eid:
+        if not item.get("id"):
             continue
-        current = merged.get(eid)
+        key = canonical_event_key(item)
+        current = merged.get(key)
         if current is None or event_score(item) >= event_score(current):
-            merged[eid] = item
-
-    # Do not erase a future schedule because it was absent in one partial scrape.
-    # Remove it only after three consecutive successful source snapshots miss it.
-    missing_counts = state.setdefault("missingScheduledCounts", {})
-    seen_ids = set(merged)
-    for eid in list(missing_counts):
-        if eid in seen_ids:
-            missing_counts.pop(eid, None)
-
+            merged[key] = item
+    # Keep previously released history, preserve a failed source, and never erase a
+    # future Korean earnings date merely because one scrape/API run missed it.
     past_cutoff = NOW_MS - int(timedelta(days=120).total_seconds() * 1000)
     future_cutoff = NOW_MS + int(timedelta(days=400).total_seconds() * 1000)
     for old in old_events:
-        eid = str(old.get("id", ""))
+        if not old.get("id"):
+            continue
+        key = canonical_event_key(old)
         when = int(old.get("time", 0))
-        source_key = str(old.get("sourceKey", ""))
         keep_history = old.get("status") == "released" and past_cutoff <= when <= future_cutoff
-        keep_failed_source = source_key in failed_sources and past_cutoff <= when <= future_cutoff
-        keep_missing_grace = False
-        if (
-            eid
-            and eid not in merged
-            and old.get("status") == "scheduled"
-            and when >= NOW_MS - int(timedelta(days=2).total_seconds() * 1000)
-            and source_key in successful_sources
-        ):
-            count = int(missing_counts.get(eid, 0)) + 1
-            missing_counts[eid] = count
-            keep_missing_grace = count < 3
-        if eid and eid not in merged and (keep_history or keep_failed_source or keep_missing_grace):
-            merged[eid] = old
-
+        keep_failed_source = old.get("sourceKey") in failed_sources and past_cutoff <= when <= future_cutoff
+        keep_future_kr_schedule = (
+            old.get("status") == "scheduled"
+            and old.get("market") == "KR"
+            and old.get("category") == "earnings"
+            and NOW_MS - int(timedelta(days=2).total_seconds() * 1000) <= when <= future_cutoff
+        )
+        if key not in merged and (keep_history or keep_failed_source or keep_future_kr_schedule):
+            clone = dict(old)
+            if keep_future_kr_schedule:
+                clone["confidence"] = "previous_official_schedule"
+            merged[key] = clone
     values = [x for x in merged.values() if past_cutoff <= int(x.get("time", 0)) <= future_cutoff]
     values.sort(key=lambda x: (int(x.get("time", 0)), -int(x.get("importance", 0)), str(x.get("title", ""))))
     return values
@@ -1150,8 +1427,10 @@ def main() -> int:
         ("bea", collect_bea),
         ("fomc", collect_fomc),
         ("bok", collect_bok),
+        ("dart_schedule", lambda: collect_dart_schedules(dart_key, state, force)),
         ("kind", lambda: collect_kind(config)),
         ("dart", lambda: collect_dart(config, dart_key)),
+        ("nasdaq", lambda: collect_nasdaq_earnings(state, force)),
         ("alpha", lambda: collect_alpha(config, alpha_key, state, force)),
         ("spacex", collect_spacex),
     ]
@@ -1182,8 +1461,7 @@ def main() -> int:
         results.append(SourceResult("bls_results", [], False, str(exc)))
         print(f"[bls_results] ERROR: {exc}", file=sys.stderr)
 
-    successful_sources = {result.key for result in results if result.ok}
-    merged = merge_events(all_events, old_events, failed_sources, successful_sources, state)
+    merged = merge_events(all_events, old_events, failed_sources)
     changes = detect_changes(old_events, merged)
     counts: dict[str, int] = {}
     for item in merged:
