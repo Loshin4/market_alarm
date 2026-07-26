@@ -7,11 +7,13 @@
     "APLD": "2026-07-26T13:57:19Z",
     "ARLP": "2026-07-26T13:57:19Z",
     "AZN": "2026-07-26T14:08:24Z",
-    "BCAL": "2026-07-26T14:08:24Z"
+    "BCAL": "2026-07-26T14:08:24Z",
+    "BLX": "2026-07-26T15:19:18Z",
+    "BMRC": "2026-07-26T15:19:18Z"
   },
   "alphaDailyQuota": {
     "date": "2026-07-26",
-    "resultCalls": 7
+    "resultCalls": 9
   },
   "missingScheduledCounts": {}
 }

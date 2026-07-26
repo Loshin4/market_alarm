@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-07-26T14:08:24Z",
+  "updatedAt": "2026-07-26T15:19:18Z",
   "ok": true,
-  "message": "4902개 일정 · 정상 소스 5/9",
+  "message": "4902개 일정 · 정상 소스 6/11",
   "counts": {
     "macro": 46,
     "central_bank": 77,
@@ -33,6 +33,12 @@
       "count": 0,
       "message": "한국은행 일정을 해석하지 못함"
     },
+    "dart_schedule": {
+      "name": "금융감독원·한국거래소 기업설명회 공시",
+      "ok": false,
+      "count": 0,
+      "message": "corp_code가 없는 경우 검색기간은 3개월만 가능합니다."
+    },
     "kind": {
       "name": "한국거래소(KIND)",
       "ok": false,
@@ -45,11 +51,17 @@
       "count": 16,
       "message": ""
     },
+    "nasdaq": {
+      "name": "나스닥 전체 실적 달력",
+      "ok": false,
+      "count": 0,
+      "message": "HTTPSConnectionPool(host='api.nasdaq.com', port=443): Read timed out. (read timeout=30)"
+    },
     "alpha": {
       "name": "미국 기업 실적 데이터",
       "ok": true,
       "count": 4702,
-      "message": "전체 실적 일정 4702개 · 오늘 결과 확인 7/20"
+      "message": "전체 실적 일정 4702개 · 오늘 결과 확인 9/20"
     },
     "spacex": {
       "name": "우주 발사 일정 데이터",
@@ -59,15 +71,16 @@
     },
     "bls_results": {
       "name": "미국 노동통계 발표 결과",
-      "ok": false,
+      "ok": true,
       "count": 0,
-      "message": "HTTPSConnectionPool(host='api.bls.gov', port=443): Read timed out. (read timeout=30)"
+      "message": ""
     }
   },
   "failedSources": [
     "미국 노동통계국(BLS)",
-    "미국 노동통계 발표 결과",
     "한국은행",
-    "한국거래소(KIND)"
+    "금융감독원·한국거래소 기업설명회 공시",
+    "한국거래소(KIND)",
+    "나스닥 전체 실적 달력"
   ]
 }
