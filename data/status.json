@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-07-26T13:33:25Z",
+  "updatedAt": "2026-07-26T13:48:51Z",
   "ok": true,
-  "message": "4902개 일정 · 정상 소스 6/9",
+  "message": "4902개 일정 · 정상 소스 5/9",
   "counts": {
     "macro": 46,
     "central_bank": 77,
@@ -49,7 +49,7 @@
       "name": "미국 기업 실적 데이터",
       "ok": true,
       "count": 4702,
-      "message": "전체 실적 일정 4702개 · 오늘 결과 확인 1/20"
+      "message": "전체 실적 일정 4702개 · 오늘 결과 확인 3/20"
     },
     "spacex": {
       "name": "우주 발사 일정 데이터",
@@ -59,13 +59,14 @@
     },
     "bls_results": {
       "name": "미국 노동통계 발표 결과",
-      "ok": true,
+      "ok": false,
       "count": 0,
-      "message": ""
+      "message": "HTTPSConnectionPool(host='api.bls.gov', port=443): Read timed out. (read timeout=30)"
     }
   },
   "failedSources": [
     "미국 노동통계국(BLS)",
+    "미국 노동통계 발표 결과",
     "한국은행",
     "한국거래소(KIND)"
   ]

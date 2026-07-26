@@ -1,10 +1,13 @@
 {
   "alphaCalendarCheckedAt": "2026-07-26T13:33:25Z",
   "alphaResultChecked": {
-    "BKR": "2026-07-26T13:33:25Z"
+    "BKR": "2026-07-26T13:33:25Z",
+    "AGYS": "2026-07-26T13:48:51Z",
+    "AMKR": "2026-07-26T13:48:51Z"
   },
   "alphaDailyQuota": {
     "date": "2026-07-26",
-    "resultCalls": 1
-  }
+    "resultCalls": 3
+  },
+  "missingScheduledCounts": {}
 }
