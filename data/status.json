@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-07-26T15:42:03Z",
+  "updatedAt": "2026-07-26T16:15:55Z",
   "ok": true,
-  "message": "5202개 일정 · 정상 소스 8/11",
+  "message": "5246개 일정 · 정상 소스 8/12",
   "counts": {
     "macro": 46,
     "central_bank": 77,
-    "earnings": 5014,
+    "earnings": 5058,
     "industry": 65
   },
   "sources": {
@@ -37,7 +37,7 @@
       "name": "금융감독원·한국거래소 기업설명회 공시",
       "ok": true,
       "count": 300,
-      "message": "IR 공시 854건 · 실적 일정 300개 · 새 원문 854건 · 파서 v132"
+      "message": "IR 공시 854건 · 실적 일정 300개 · 새 원문 0건 · 파서 v132"
     },
     "kind": {
       "name": "한국거래소(KIND)",
@@ -48,26 +48,32 @@
     "dart": {
       "name": "금융감독원 전자공시(OpenDART)",
       "ok": true,
-      "count": 16,
-      "message": ""
+      "count": 56,
+      "message": "결과 공시 68건 · 저장 결과 56개 · 이번 분석 68건"
     },
     "nasdaq": {
       "name": "나스닥 전체 실적 달력",
       "ok": true,
-      "count": 4033,
-      "message": "향후 45일 전체 실적 4033개"
+      "count": 0,
+      "message": "이전 전체 달력 유지 0개"
     },
     "alpha": {
       "name": "미국 기업 실적 데이터",
       "ok": true,
       "count": 4702,
-      "message": "전체 실적 일정 4702개 · 오늘 결과 확인 11/20"
+      "message": "이전 전체 달력 유지 4702개"
     },
     "spacex": {
       "name": "우주 발사 일정 데이터",
       "ok": true,
       "count": 65,
       "message": ""
+    },
+    "us_results": {
+      "name": "미국 기업 실적 결과(SEC·Alpha Vantage)",
+      "ok": false,
+      "count": 0,
+      "message": "403 Client Error: Forbidden for url: https://www.sec.gov/files/company_tickers.json"
     },
     "bls_results": {
       "name": "미국 노동통계 발표 결과",
@@ -79,6 +85,7 @@
   "failedSources": [
     "미국 노동통계국(BLS)",
     "한국은행",
-    "한국거래소(KIND)"
+    "한국거래소(KIND)",
+    "미국 기업 실적 결과(SEC·Alpha Vantage)"
   ]
 }
