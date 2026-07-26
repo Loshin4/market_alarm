@@ -48,34 +48,61 @@ ZZZZ,Example Small Company,2026-08-03,2026-06-30,,USD,United States,
         self.assertIn("샌디스크(SNDK)", titles["SNDK"])
         self.assertEqual(titles["ZZZZ"], "ZZZZ 실적 발표")
 
-    def test_kind_collects_all_earnings_and_deduplicates_english_copy(self):
+    def test_kind_collects_all_pages_and_deduplicates_english_copy(self):
         page1 = """
         <table><tbody>
+          <tr><td>4</td><td>유가증권 삼성전자</td><td>2026년 2분기 경영실적 발표</td><td>-</td><td>2026-07-30</td><td>10:00</td></tr>
           <tr><td>3</td><td>유가증권 SK하이닉스</td><td>2026년 2분기 경영실적 발표</td><td>-</td><td>2026-07-29</td><td>09:00</td></tr>
+        </tbody></table><div>전체 4건 : 1/2</div>
+        """
+        page2 = """
+        <table><tbody>
           <tr><td>2</td><td>유가증권 SK하이닉스</td><td>Earnings Release on Second Quarter of 2026</td><td>-</td><td>2026-07-29</td><td>09:00</td></tr>
           <tr><td>1</td><td>코스닥 한미반도체</td><td>2026년 2분기 실적설명회</td><td>-</td><td>2026-07-30</td><td>--:--</td></tr>
-        </tbody></table>
+        </tbody></table><div>전체 4건 : 2/2</div>
         """
-        empty = "<table><tbody></tbody></table>"
 
-        def fake_get(url, params=None, timeout=30):
-            page = int((params or {}).get("pageIndex", 1))
-            return FakeResponse(text=page1 if page == 1 else empty)
-
-        with patch.object(collector, "http_get", side_effect=fake_get):
+        with patch.object(collector, "fetch_kind_page", side_effect=[page1, page2]):
             result = collector.collect_kind({})
-        self.assertEqual(len(result.events), 2)
+        self.assertEqual(len(result.events), 3)
         titles = [e["title"] for e in result.events]
+        self.assertTrue(any("삼성전자" in t for t in titles))
         self.assertTrue(any("SK하이닉스" in t and "경영실적" in t for t in titles))
         self.assertTrue(any("한미반도체" in t for t in titles))
         hanmi = next(e for e in result.events if "한미반도체" in e["title"])
         self.assertTrue(hanmi["allDay"])
         self.assertGreaterEqual(hanmi["importance"], 4)
 
-    def test_data_changes_do_not_trigger_apk_build(self):
+    def test_kind_event_id_survives_time_change(self):
+        d1 = collector.parse_kind_page("""
+        <table><tbody><tr><td>1</td><td>유가증권 SK하이닉스</td><td>2026년 2분기 경영실적 발표</td><td>-</td><td>2026-07-29</td><td>09:00</td></tr></tbody></table>
+        """, 1)[0][0]
+        d2 = collector.parse_kind_page("""
+        <table><tbody><tr><td>1</td><td>유가증권 SK하이닉스</td><td>2026년 2분기 경영실적 발표</td><td>-</td><td>2026-07-30</td><td>10:00</td></tr></tbody></table>
+        """, 1)[0][0]
+        self.assertEqual(d1["id"], d2["id"])
+        self.assertNotEqual(d1["time"], d2["time"])
+
+
+    def test_future_kind_event_is_not_deleted_after_one_partial_snapshot(self):
+        old = {
+            "id": "kr-earnings-test-2026-Q2",
+            "title": "SK하이닉스 2026년 2분기 경영실적 발표",
+            "time": collector.NOW_MS + 3 * 24 * 60 * 60 * 1000,
+            "status": "scheduled",
+            "sourceKey": "kind",
+            "importance": 5,
+        }
+        state = {}
+        merged = collector.merge_events([], [old], set(), {"kind"}, state)
+        self.assertEqual(len(merged), 1)
+        self.assertEqual(state["missingScheduledCounts"][old["id"]], 1)
+
+    def test_collector_changes_do_not_trigger_apk_build(self):
         workflow = (MODULE_PATH.parents[1] / ".github" / "workflows" / "build-apk.yml").read_text(encoding="utf-8")
-        self.assertIn('paths-ignore:', workflow)
-        self.assertIn('- "data/**"', workflow)
+        self.assertIn('paths:', workflow)
+        self.assertIn('- "app/**"', workflow)
+        self.assertNotIn('collector/**', workflow)
 
 
 if __name__ == "__main__":

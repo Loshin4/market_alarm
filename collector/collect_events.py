@@ -44,7 +44,7 @@ BEA_ICS = "https://www.bea.gov/news/schedule/ics/online-calendar-subscription.ic
 FED_CALENDAR = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
 FED_RELEASES = "https://www.federalreserve.gov/newsevents/pressreleases/{year}-press-fomc.htm"
 BOK_CALENDAR = "https://www.bok.or.kr/portal/singl/crncyPolicyDrcMtg/listYear.do?menuNo=200755&mtgSe=A"
-KIND_IR = "https://kind.krx.co.kr/corpgeneral/irschedule.do?gubun=iRSchedule&method=searchIRScheduleMain"
+KIND_IR = "https://kind.krx.co.kr/corpgeneral/irschedule.do"
 DART_LIST = "https://opendart.fss.or.kr/api/list.json"
 BLS_API = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
 ALPHA = "https://www.alphavantage.co/query"
@@ -519,87 +519,154 @@ def company_lookup(config: dict[str, Any]) -> tuple[dict[str, str], dict[str, st
     return name_to_code, code_to_name
 
 
-def collect_kind(config: dict[str, Any] | None = None) -> SourceResult:
-    """KIND에 공개된 전체 실적·경영실적 발표 일정을 수집한다.
 
-    관심 종목 목록으로 제한하지 않는다. 같은 회사·시각에 한국어/영어 공지가
-    함께 올라오는 경우 하나로 통합하고 한국어 제목을 우선한다.
+def earnings_period_key(raw_title: str, event_date: date) -> str:
+    """Return a stable earnings period key so a time/date correction updates one event."""
+    text = clean_text(raw_title)
+    year_match = re.search(r"(20\d{2})", text)
+    year = int(year_match.group(1)) if year_match else event_date.year
+    quarter_patterns = [
+        (r"(?:제?\s*)?1\s*분기|\b1Q\s*\d{0,4}\b|\bQ1\b|first\s+quarter", "Q1"),
+        (r"(?:제?\s*)?2\s*분기|\b2Q\s*\d{0,4}\b|\bQ2\b|second\s+quarter", "Q2"),
+        (r"(?:제?\s*)?3\s*분기|\b3Q\s*\d{0,4}\b|\bQ3\b|third\s+quarter", "Q3"),
+        (r"(?:제?\s*)?4\s*분기|\b4Q\s*\d{0,4}\b|\bQ4\b|fourth\s+quarter", "Q4"),
+        (r"상반기|반기|\bH1\b|first\s+half", "H1"),
+        (r"하반기|\bH2\b|second\s+half", "H2"),
+        (r"연간|연도|사업연도|\bFY\b|full\s+year|annual", "FY"),
+    ]
+    low = text.lower()
+    for pattern, label in quarter_patterns:
+        if re.search(pattern, low, re.I):
+            return f"{year}-{label}"
+    # A stable month bucket is safer than including the exact date/time.
+    return f"{year}-M{event_date.month:02d}"
+
+
+def parse_kind_page(html: str, page: int) -> tuple[list[dict[str, Any]], int | None, int | None, tuple[str, ...]]:
+    """Parse one KIND IR page and return earnings events plus pagination metadata."""
+    soup = BeautifulSoup(html, "html.parser")
+    rows = soup.select("table tbody tr") or soup.find_all("tr")
+    events: list[dict[str, Any]] = []
+    row_keys: list[str] = []
+    for row in rows:
+        cells = [clean_text(cell.get_text(" ")) for cell in row.find_all(["td", "th"])]
+        date_index = next((i for i, cell in enumerate(cells)
+                           if re.fullmatch(r"20\d{2}[.-]\d{1,2}[.-]\d{1,2}", cell)), -1)
+        if date_index < 3:
+            continue
+        date_text = cells[date_index].replace(".", "-")
+        try:
+            d = datetime.strptime(date_text, "%Y-%m-%d").date()
+        except ValueError:
+            continue
+        company = re.sub(r"^(유가증권|코스닥|코넥스)\s*", "", cells[date_index - 3]).strip()
+        raw_title = cells[date_index - 2]
+        if not company or not raw_title:
+            continue
+        time_text = cells[date_index + 1] if date_index + 1 < len(cells) else ""
+        row_number = cells[0] if cells and re.fullmatch(r"\d+", cells[0]) else ""
+        row_keys.append(row_number or stable_id(company, raw_title, date_text, time_text))
+        low = raw_title.lower()
+        is_earnings = any(k in low for k in (
+            "실적", "경영실적", "잠정", "earnings", "financial results",
+            "results announcement", "results release", "quarter earnings",
+        ))
+        if not is_earnings:
+            continue
+        title = koreanize_earnings_title(raw_title, d.year)
+        tm = re.search(r"(\d{1,2}):(\d{2})", time_text)
+        hour, minute = (int(tm.group(1)), int(tm.group(2))) if tm else (12, 0)
+        all_day = tm is None
+        when = datetime(d.year, d.month, d.day, hour, minute, tzinfo=KST)
+        link = row.find("a", href=True)
+        source_url = urljoin(KIND_IR, link["href"]) if link else f"{KIND_IR}?gubun=iRSchedule&method=searchIRScheduleMain"
+        compact_company = re.sub(r"\s+", "", company)
+        period = earnings_period_key(raw_title, d)
+        eid = f"kr-earnings-{stable_id(compact_company)}-{period}"
+        parsed_item = event(
+            event_id=eid,
+            title=f"{company} {title}",
+            when=when,
+            source_key="kind",
+            source=SOURCE_LABELS["kind"],
+            source_url=source_url,
+            category="earnings",
+            importance=kr_importance(company),
+            market="KR",
+            all_day=all_day,
+            confidence="official_schedule",
+        )
+        parsed_item["_rawTitleHasKorean"] = bool(re.search(r"[가-힣]", raw_title))
+        events.append(parsed_item)
+    text = clean_text(soup.get_text(" "))
+    page_match = re.search(r"전체\s*[\d,]+건\s*:\s*(\d+)\s*/\s*(\d+)", text)
+    current_page = int(page_match.group(1)) if page_match else None
+    total_pages = int(page_match.group(2)) if page_match else None
+    return events, current_page, total_pages, tuple(row_keys)
+
+
+def fetch_kind_page(page: int) -> str:
+    """KIND pagination is form-based; POST is required for pageIndex to take effect."""
+    payload = {
+        "gubun": "iRSchedule",
+        "method": "searchIRScheduleMain",
+        "pageIndex": str(page),
+    }
+    response = SESSION.post(KIND_IR, data=payload, timeout=30)
+    response.raise_for_status()
+    return response.text
+
+
+def collect_kind(config: dict[str, Any] | None = None) -> SourceResult:
+    """Collect all earnings-related IR schedules from every KIND result page.
+
+    The old implementation sent pageIndex with GET, but KIND pagination is form-based,
+    so page 1 was repeatedly downloaded. This implementation uses POST, validates the
+    page marker, and rejects incomplete/repeated snapshots instead of deleting good data.
     """
     out_by_id: dict[str, dict[str, Any]] = {}
-    empty_pages = 0
-    for page in range(1, 101):
-        params = {
-            "gubun": "iRSchedule",
-            "method": "searchIRScheduleMain",
-            "pageIndex": page,
-        }
-        html = http_get(KIND_IR, params=params).text
-        soup = BeautifulSoup(html, "html.parser")
-        rows = soup.select("table tbody tr") or soup.find_all("tr")
-        page_added = 0
-        for row in rows:
-            cells = [clean_text(cell.get_text(" ")) for cell in row.find_all(["td", "th"])]
-            date_index = next((i for i, cell in enumerate(cells)
-                               if re.fullmatch(r"20\d{2}[.-]\d{1,2}[.-]\d{1,2}", cell)), -1)
-            if date_index < 3:
-                continue
-            date_text = cells[date_index].replace(".", "-")
-            try:
-                d = datetime.strptime(date_text, "%Y-%m-%d").date()
-            except ValueError:
-                continue
-            # 공식 표 구조: 번호 / 회사명 / 제목 / 장소 / 일자 / 시작시간
-            company = re.sub(r"^(유가증권|코스닥|코넥스)\s*", "", cells[date_index - 3]).strip()
-            raw_title = cells[date_index - 2]
-            if not company or not raw_title:
-                continue
-            low = raw_title.lower()
-            is_earnings = any(k in low for k in (
-                "실적", "경영실적", "잠정", "earnings", "financial results",
-                "results announcement", "results release", "quarter earnings",
-            ))
-            if not is_earnings:
-                continue
-            title = koreanize_earnings_title(raw_title, d.year)
-            time_text = cells[date_index + 1] if date_index + 1 < len(cells) else ""
-            tm = re.search(r"(\d{1,2}):(\d{2})", time_text)
-            hour, minute = (int(tm.group(1)), int(tm.group(2))) if tm else (12, 0)
-            all_day = tm is None
-            when = datetime(d.year, d.month, d.day, hour, minute, tzinfo=KST)
-            link = row.find("a", href=True)
-            source_url = urljoin(KIND_IR, link["href"]) if link else KIND_IR
-            compact_company = re.sub(r"\s+", "", company)
-            eid = f"kr-earnings-{stable_id(compact_company)}-{d.isoformat()}-{hour:02d}{minute:02d}"
-            item = event(
-                event_id=eid,
-                title=f"{company} {title}",
-                when=when,
-                source_key="kind",
-                source=SOURCE_LABELS["kind"],
-                source_url=source_url,
-                category="earnings",
-                importance=kr_importance(company),
-                market="KR",
-                all_day=all_day,
-                confidence="official_schedule",
-            )
+    seen_signatures: set[tuple[str, ...]] = set()
+    expected_total_pages: int | None = None
+    raw_rows = 0
+    page = 1
+    while True:
+        html = fetch_kind_page(page)
+        parsed, current_page, total_pages, signature = parse_kind_page(html, page)
+        if expected_total_pages is None and total_pages:
+            expected_total_pages = total_pages
+        if page > 1 and current_page is not None and current_page != page:
+            raise RuntimeError(f"KIND 페이지 이동 실패: 요청 {page}, 응답 {current_page}")
+        if page > 1 and signature and signature in seen_signatures:
+            raise RuntimeError(f"KIND {page}페이지가 이전 페이지와 중복됨")
+        if signature:
+            seen_signatures.add(signature)
+            raw_rows += len(signature)
+        for item in parsed:
+            eid = str(item.get("id"))
             old = out_by_id.get(eid)
-            # 영문 중복보다 한글 제목을 우선한다.
-            old_korean = bool(old and re.search(r"[가-힣]", old.get("title", "")))
-            new_korean = bool(re.search(r"[가-힣]", item.get("title", "")))
-            if old is None or (new_korean and not old_korean):
+            old_korean = bool(old and old.get("_rawTitleHasKorean"))
+            new_korean = bool(item.get("_rawTitleHasKorean"))
+            # Prefer Korean duplicates; otherwise prefer the latest schedule time.
+            if (
+                old is None
+                or (new_korean and not old_korean)
+                or (new_korean == old_korean and int(item.get("time", 0)) >= int(old.get("time", 0)))
+            ):
                 out_by_id[eid] = item
-            page_added += 1
-        if page_added == 0:
-            empty_pages += 1
-        else:
-            empty_pages = 0
-        if page > 1 and empty_pages >= 2:
+        last_page = expected_total_pages or total_pages or 1
+        if page >= last_page:
             break
+        page += 1
+        if page > 100:
+            raise RuntimeError("KIND 페이지 수가 비정상적으로 많음")
     out = list(out_by_id.values())
+    for item in out:
+        item.pop("_rawTitleHasKorean", None)
     if not out:
         raise RuntimeError("KIND 전체 실적 일정이 비어 있음")
-    return SourceResult("kind", out)
+    if expected_total_pages and len(seen_signatures) < expected_total_pages:
+        raise RuntimeError(f"KIND 수집 불완전: {len(seen_signatures)}/{expected_total_pages}페이지")
+    return SourceResult("kind", out, True, f"IR 원본 {raw_rows}건 중 실적 일정 {len(out)}개")
 
 def collect_dart(config: dict[str, Any] | None, api_key: str) -> SourceResult:
     if not api_key:
@@ -992,7 +1059,13 @@ def fmt_num(value: float | None) -> str:
     return f"{value:.3f}".rstrip("0").rstrip(".")
 
 
-def merge_events(new_events: Iterable[dict[str, Any]], old_events: list[dict[str, Any]], failed_sources: set[str]) -> list[dict[str, Any]]:
+def merge_events(
+    new_events: Iterable[dict[str, Any]],
+    old_events: list[dict[str, Any]],
+    failed_sources: set[str],
+    successful_sources: set[str],
+    state: dict[str, Any],
+) -> list[dict[str, Any]]:
     merged: dict[str, dict[str, Any]] = {}
     for item in new_events:
         eid = str(item.get("id", ""))
@@ -1001,20 +1074,40 @@ def merge_events(new_events: Iterable[dict[str, Any]], old_events: list[dict[str
         current = merged.get(eid)
         if current is None or event_score(item) >= event_score(current):
             merged[eid] = item
-    # Keep previously released history and preserve source data when that source failed.
+
+    # Do not erase a future schedule because it was absent in one partial scrape.
+    # Remove it only after three consecutive successful source snapshots miss it.
+    missing_counts = state.setdefault("missingScheduledCounts", {})
+    seen_ids = set(merged)
+    for eid in list(missing_counts):
+        if eid in seen_ids:
+            missing_counts.pop(eid, None)
+
     past_cutoff = NOW_MS - int(timedelta(days=120).total_seconds() * 1000)
     future_cutoff = NOW_MS + int(timedelta(days=400).total_seconds() * 1000)
     for old in old_events:
         eid = str(old.get("id", ""))
         when = int(old.get("time", 0))
+        source_key = str(old.get("sourceKey", ""))
         keep_history = old.get("status") == "released" and past_cutoff <= when <= future_cutoff
-        keep_failed_source = old.get("sourceKey") in failed_sources and past_cutoff <= when <= future_cutoff
-        if eid and eid not in merged and (keep_history or keep_failed_source):
+        keep_failed_source = source_key in failed_sources and past_cutoff <= when <= future_cutoff
+        keep_missing_grace = False
+        if (
+            eid
+            and eid not in merged
+            and old.get("status") == "scheduled"
+            and when >= NOW_MS - int(timedelta(days=2).total_seconds() * 1000)
+            and source_key in successful_sources
+        ):
+            count = int(missing_counts.get(eid, 0)) + 1
+            missing_counts[eid] = count
+            keep_missing_grace = count < 3
+        if eid and eid not in merged and (keep_history or keep_failed_source or keep_missing_grace):
             merged[eid] = old
+
     values = [x for x in merged.values() if past_cutoff <= int(x.get("time", 0)) <= future_cutoff]
     values.sort(key=lambda x: (int(x.get("time", 0)), -int(x.get("importance", 0)), str(x.get("title", ""))))
     return values
-
 
 def event_score(item: dict[str, Any]) -> tuple[int, int, int]:
     return (
@@ -1089,7 +1182,8 @@ def main() -> int:
         results.append(SourceResult("bls_results", [], False, str(exc)))
         print(f"[bls_results] ERROR: {exc}", file=sys.stderr)
 
-    merged = merge_events(all_events, old_events, failed_sources)
+    successful_sources = {result.key for result in results if result.ok}
+    merged = merge_events(all_events, old_events, failed_sources, successful_sources, state)
     changes = detect_changes(old_events, merged)
     counts: dict[str, int] = {}
     for item in merged:
