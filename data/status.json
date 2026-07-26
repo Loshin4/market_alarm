@@ -1,7 +1,63 @@
 {
-  "updatedAt": null,
-  "ok": false,
-  "message": "Update Market Data workflow를 먼저 실행하세요.",
-  "counts": {},
-  "sources": {}
+  "updatedAt": "2026-07-26T12:57:24Z",
+  "ok": true,
+  "message": "211개 일정 · 정상 소스 6/9",
+  "counts": {
+    "macro": 46,
+    "central_bank": 77,
+    "industry": 65,
+    "earnings": 23
+  },
+  "sources": {
+    "bls": {
+      "ok": false,
+      "count": 0,
+      "message": "403 Client Error: Forbidden for url: https://www.bls.gov/schedule/news_release/bls.ics"
+    },
+    "bea": {
+      "ok": true,
+      "count": 119,
+      "message": ""
+    },
+    "fomc": {
+      "ok": true,
+      "count": 180,
+      "message": ""
+    },
+    "bok": {
+      "ok": false,
+      "count": 0,
+      "message": "한국은행 일정을 해석하지 못함"
+    },
+    "kind": {
+      "ok": false,
+      "count": 0,
+      "message": "KIND 일정이 비어 있음"
+    },
+    "dart": {
+      "ok": true,
+      "count": 16,
+      "message": ""
+    },
+    "alpha": {
+      "ok": true,
+      "count": 11,
+      "message": ""
+    },
+    "spacex": {
+      "ok": true,
+      "count": 66,
+      "message": ""
+    },
+    "bls_results": {
+      "ok": true,
+      "count": 0,
+      "message": ""
+    }
+  },
+  "failedSources": [
+    "bls",
+    "bok",
+    "kind"
+  ]
 }
