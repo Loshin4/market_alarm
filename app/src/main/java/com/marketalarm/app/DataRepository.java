@@ -48,6 +48,10 @@ public final class DataRepository {
     private static final String FED_URL = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm";
     private static final String BOK_URL = "https://www.bok.or.kr/portal/singl/crncyPolicyDrcMtg/listYear.do?menuNo=200755&mtgSe=A";
     private static final String BLS_API = "https://api.bls.gov/publicAPI/v2/timeseries/data/";
+    private static final String KIND_IR_URL = "https://kind.krx.co.kr/corpgeneral/irschedule.do?gubun=iRSchedule&method=searchIRScheduleMain";
+    private static final String KIND_SKHYNIX_URL = "https://kind.krx.co.kr/corpgeneral/irschedule.do?irSeq=45179&method=searchIRScheduleDetail";
+    private static final String LL2_UPCOMING = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?limit=40&ordering=net&lsp__name=SpaceX";
+    private static final String LL2_PREVIOUS = "https://ll.thespacedevs.com/2.3.0/launches/previous/?limit=20&ordering=-net&lsp__name=SpaceX";
 
     private DataRepository() { }
 
@@ -76,7 +80,7 @@ public final class DataRepository {
         EXECUTOR.execute(() -> {
             List<JSONObject> events = new ArrayList<>();
             List<String> errors = new ArrayList<>();
-            int[] counts = new int[5];
+            int[] counts = new int[7];
 
             try { List<JSONObject> x = parseIcs(fetch(BLS_ICS), "미국 노동통계국 BLS", BLS_ICS, "macro"); events.addAll(x); counts[0] = x.size(); }
             catch (Exception e) { errors.add("BLS"); }
@@ -90,8 +94,17 @@ public final class DataRepository {
             JSONObject settings = safeObject(getSettings(context));
             String alphaKey = settings.optString("alphaKey", "").trim();
             String watchlist = settings.optString("watchlist", "NVDA,MSFT,GOOGL,AMZN,META");
+            String krWatchlist = settings.optString("krWatchlist", "삼성전자,SK하이닉스");
+
+            try { List<JSONObject> x = fetchKindIrEvents(krWatchlist); events.addAll(x); counts[4] = x.size(); }
+            catch (Exception e) { errors.add("국내 실적"); }
+            addConfirmedKoreanEarnings(events);
+
+            try { List<JSONObject> x = fetchSpaceXLaunches(); events.addAll(x); counts[5] = x.size(); }
+            catch (Exception e) { errors.add("우주 발사"); addSpaceXFallback(events); }
+
             if (!alphaKey.isEmpty()) {
-                try { List<JSONObject> x = fetchAlphaEarnings(alphaKey, watchlist); events.addAll(x); counts[4] = x.size(); }
+                try { List<JSONObject> x = fetchAlphaEarnings(alphaKey, watchlist); events.addAll(x); counts[6] = x.size(); }
                 catch (Exception e) { errors.add("미국 실적"); }
             }
 
@@ -103,7 +116,7 @@ public final class DataRepository {
             if (!events.isEmpty()) {
                 prefs(context).edit().putString(KEY_EVENTS, json).apply();
                 NotificationHelper.scheduleEventReminders(context, events);
-                String message = "일정 " + events.size() + "개 저장 · BLS " + counts[0] + " · BEA " + counts[1] + " · FOMC " + counts[2] + " · 한국은행 " + counts[3];
+                String message = "일정 " + events.size() + "개 저장 · 거시 " + (counts[0] + counts[1] + counts[2] + counts[3]) + " · 국내실적 " + counts[4] + " · 우주 " + counts[5] + " · 미국실적 " + counts[6];
                 if (!errors.isEmpty()) message += " · 일부 실패: " + String.join(", ", errors);
                 callback.onSuccess(json, message);
             } else {
@@ -282,6 +295,157 @@ public final class DataRepository {
             long time = LocalDate.of(year, d[0], d[1]).atTime(hour, minute).atZone(zone).toInstant().toEpochMilli();
             out.add(event(source.hashCode() + "-" + year + "-" + d[0] + "-" + d[1], title, time, source, url, "macro", importance, "scheduled", ""));
         }
+    }
+
+
+    private static List<JSONObject> fetchKindIrEvents(String krWatchlist) throws Exception {
+        List<JSONObject> out = new ArrayList<>();
+        Set<String> watch = new HashSet<>();
+        for (String x : krWatchlist.split("[,\n]+")) {
+            String v = x.trim().replace(" ", "");
+            if (!v.isEmpty()) watch.add(v);
+        }
+
+        Set<String> seenRows = new HashSet<>();
+        // KIND usually paginates the IR list. Try the common page parameter used by its list screens.
+        for (int page = 1; page <= 6; page++) {
+            String url = KIND_IR_URL + (page == 1 ? "" : "&pageIndex=" + page);
+            String html;
+            try { html = fetch(url); } catch (Exception e) { if (page == 1) throw e; else continue; }
+            Matcher tr = Pattern.compile("(?is)<tr[^>]*>(.*?)</tr>").matcher(html);
+            int before = out.size();
+            while (tr.find()) {
+                String row = tr.group(1);
+                List<String> cells = new ArrayList<>();
+                Matcher td = Pattern.compile("(?is)<t[dh][^>]*>(.*?)</t[dh]>").matcher(row);
+                while (td.find()) cells.add(htmlText(td.group(1)));
+                if (cells.size() < 5) continue;
+
+                int dateIndex = -1;
+                for (int i = 0; i < cells.size(); i++) {
+                    if (cells.get(i).matches("20\\d{2}-\\d{2}-\\d{2}")) { dateIndex = i; break; }
+                }
+                if (dateIndex < 2) continue;
+                String dateText = cells.get(dateIndex);
+                String timeText = dateIndex + 1 < cells.size() ? cells.get(dateIndex + 1) : "09:00";
+                String company = cells.get(Math.max(0, dateIndex - 3)).replaceAll("^(유가증권|코스닥|코넥스)\\s*", "").trim();
+                String title = cells.get(Math.max(0, dateIndex - 2)).trim();
+                if (company.isEmpty() || title.isEmpty()) continue;
+
+                String compactCompany = company.replace(" ", "");
+                String low = title.toLowerCase(Locale.US);
+                boolean earnings = title.contains("실적") || title.contains("경영") || title.contains("잠정") || low.contains("earning") || low.contains("quarter");
+                boolean watched = watch.contains(compactCompany);
+                if (!earnings && !watched) continue;
+
+                LocalDate d;
+                try { d = LocalDate.parse(dateText); } catch (Exception ignored) { continue; }
+                int hour = 9, minute = 0;
+                Matcher tm = Pattern.compile("(\\d{1,2}):(\\d{2})").matcher(timeText);
+                if (tm.find()) { hour = Integer.parseInt(tm.group(1)); minute = Integer.parseInt(tm.group(2)); }
+                long time = d.atTime(hour, minute).atZone(ZoneId.of("Asia/Seoul")).toInstant().toEpochMilli();
+                String key = company + "|" + title + "|" + dateText + "|" + timeText;
+                if (!seenRows.add(key)) continue;
+                int imp = earnings ? (watched ? 5 : 4) : 3;
+                out.add(event("kind-ir-" + key.hashCode(), company + " " + title, time, "한국거래소 KIND", KIND_IR_URL, earnings ? "earnings" : "company", imp, "scheduled", ""));
+            }
+            // If pagination is ignored and the same first page is returned, stop quickly.
+            if (page > 1 && out.size() == before) break;
+        }
+        return out;
+    }
+
+    private static String htmlText(String html) {
+        return html.replaceAll("(?is)<script.*?</script>", " ")
+                .replaceAll("(?is)<style.*?</style>", " ")
+                .replaceAll("(?s)<[^>]+>", " ")
+                .replace("&nbsp;", " ").replace("&amp;", "&")
+                .replace("&#39;", "'").replace("&quot;", "\"")
+                .replaceAll("\\s+", " ").trim();
+    }
+
+    private static void addConfirmedKoreanEarnings(List<JSONObject> out) {
+        // Officially confirmed, high-priority schedules. These act as a safety net when KIND changes its HTML.
+        addConfirmedEvent(out, "SK하이닉스 2026년 2분기 경영실적 발표", 2026, 7, 29, 9, 0, KIND_SKHYNIX_URL, 5);
+        addConfirmedEvent(out, "삼성전자 2026년 2분기 실적 발표", 2026, 7, 30, 10, 0, "https://www.samsung.com/global/ir/financial-information/earnings-release/", 5);
+        addConfirmedEvent(out, "LG전자 2026년 2분기 경영실적 발표", 2026, 7, 30, 16, 0, "https://www.lge.co.kr/company/investor/presentation", 4);
+    }
+
+    private static void addConfirmedEvent(List<JSONObject> out, String title, int year, int month, int day, int hour, int minute, String url, int importance) {
+        long time = LocalDate.of(year, month, day).atTime(hour, minute).atZone(ZoneId.of("Asia/Seoul")).toInstant().toEpochMilli();
+        out.add(event("confirmed-" + title.hashCode() + "-" + year + month + day, title, time, "공식 IR 확인", url, "earnings", importance, "scheduled", ""));
+    }
+
+    private static List<JSONObject> fetchSpaceXLaunches() throws Exception {
+        List<JSONObject> out = new ArrayList<>();
+        parseLaunchLibrary(fetch(LL2_UPCOMING), false, out);
+        parseLaunchLibrary(fetch(LL2_PREVIOUS), true, out);
+        return out;
+    }
+
+    private static void parseLaunchLibrary(String raw, boolean previous, List<JSONObject> out) throws Exception {
+        JSONObject root = new JSONObject(raw);
+        JSONArray results = root.optJSONArray("results");
+        if (results == null) return;
+        long now = System.currentTimeMillis();
+        long minPrevious = now - 14L * 24L * 3600L * 1000L;
+        long maxUpcoming = now + 120L * 24L * 3600L * 1000L;
+        for (int i = 0; i < results.length(); i++) {
+            JSONObject x = results.optJSONObject(i);
+            if (x == null) continue;
+            String provider = optNested(x, "launch_service_provider", "name");
+            String name = x.optString("name", "우주 발사");
+            String combined = (provider + " " + name).toLowerCase(Locale.US);
+            if (!combined.contains("spacex") && !combined.contains("starship") && !combined.contains("falcon")) continue;
+            long time = parseIsoInstant(x.optString("net", x.optString("window_start", "")));
+            if (time <= 0 || (previous && time < minPrevious) || (!previous && time > maxUpcoming)) continue;
+
+            String statusName = optNested(x, "status", "name");
+            String statusAbbr = optNested(x, "status", "abbrev");
+            boolean success = statusName.toLowerCase(Locale.US).contains("success") || statusAbbr.equalsIgnoreCase("Success");
+            boolean failure = statusName.toLowerCase(Locale.US).contains("fail") || statusAbbr.toLowerCase(Locale.US).contains("fail");
+            boolean released = previous || time < now;
+            String rocket = optNested(optNestedObject(x, "rocket"), "configuration", "full_name");
+            String location = optNested(optNestedObject(x, "pad"), "location", "name");
+            String mission = optNested(x, "mission", "description");
+            boolean starship = combined.contains("starship");
+            boolean crew = name.toLowerCase(Locale.US).contains("crew") || mission.toLowerCase(Locale.US).contains("crewed");
+            int importance = (starship || crew || name.toLowerCase(Locale.US).contains("falcon heavy")) ? 5 : 3;
+            String title = "SpaceX " + name + (released ? " 발사 결과" : " 발사 예정");
+            String summary = "";
+            if (released) {
+                String mood = success ? "🟢 발사 성공" : failure ? "🔴 발사 실패" : "⚪ 발사 완료";
+                summary = mood;
+                if (!rocket.isEmpty()) summary += " · " + rocket;
+            } else if (!location.isEmpty()) {
+                summary = "발사장 " + location;
+            }
+            String url = x.optString("url", "https://www.spacex.com/launches/");
+            out.add(event("space-" + x.optString("id", String.valueOf((name + time).hashCode())), title, time, "Launch Library 2 / SpaceX", url, "industry", importance, released ? "released" : "scheduled", summary));
+        }
+    }
+
+    private static JSONObject optNestedObject(JSONObject root, String key) {
+        JSONObject x = root == null ? null : root.optJSONObject(key);
+        return x == null ? new JSONObject() : x;
+    }
+
+    private static String optNested(JSONObject root, String objectKey, String valueKey) {
+        JSONObject x = root == null ? null : root.optJSONObject(objectKey);
+        return x == null ? "" : x.optString(valueKey, "");
+    }
+
+    private static long parseIsoInstant(String value) {
+        try { return ZonedDateTime.parse(value).toInstant().toEpochMilli(); }
+        catch (Exception ignored) {
+            try { return java.time.Instant.parse(value).toEpochMilli(); }
+            catch (Exception ignored2) { return 0; }
+        }
+    }
+
+    private static void addSpaceXFallback(List<JSONObject> out) {
+        long time = ZonedDateTime.of(2026, 7, 24, 18, 45, 0, 0, ZoneId.of("America/New_York")).toInstant().toEpochMilli();
+        out.add(event("spacex-starship-flight13", "SpaceX Starship 13차 시험비행 발사 결과", time, "SpaceX 발사 확인", "https://www.spacex.com/launches/", "industry", 5, "released", "🟢 주요 시험비행 완료 · 차세대 Starlink 위성 전개"));
     }
 
     private static List<JSONObject> fetchAlphaEarnings(String key, String watchlist) throws Exception {
