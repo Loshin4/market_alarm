@@ -3,11 +3,13 @@
   "alphaResultChecked": {
     "BKR": "2026-07-26T13:33:25Z",
     "AGYS": "2026-07-26T13:48:51Z",
-    "AMKR": "2026-07-26T13:48:51Z"
+    "AMKR": "2026-07-26T13:48:51Z",
+    "APLD": "2026-07-26T13:57:19Z",
+    "ARLP": "2026-07-26T13:57:19Z"
   },
   "alphaDailyQuota": {
     "date": "2026-07-26",
-    "resultCalls": 3
+    "resultCalls": 5
   },
   "missingScheduledCounts": {}
 }
