@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-07-26T15:19:18Z",
+  "updatedAt": "2026-07-26T15:42:03Z",
   "ok": true,
-  "message": "4902개 일정 · 정상 소스 6/11",
+  "message": "5202개 일정 · 정상 소스 8/11",
   "counts": {
     "macro": 46,
     "central_bank": 77,
-    "industry": 65,
-    "earnings": 4714
+    "earnings": 5014,
+    "industry": 65
   },
   "sources": {
     "bls": {
@@ -35,9 +35,9 @@
     },
     "dart_schedule": {
       "name": "금융감독원·한국거래소 기업설명회 공시",
-      "ok": false,
-      "count": 0,
-      "message": "corp_code가 없는 경우 검색기간은 3개월만 가능합니다."
+      "ok": true,
+      "count": 300,
+      "message": "IR 공시 854건 · 실적 일정 300개 · 새 원문 854건 · 파서 v132"
     },
     "kind": {
       "name": "한국거래소(KIND)",
@@ -53,20 +53,20 @@
     },
     "nasdaq": {
       "name": "나스닥 전체 실적 달력",
-      "ok": false,
-      "count": 0,
-      "message": "HTTPSConnectionPool(host='api.nasdaq.com', port=443): Read timed out. (read timeout=30)"
+      "ok": true,
+      "count": 4033,
+      "message": "향후 45일 전체 실적 4033개"
     },
     "alpha": {
       "name": "미국 기업 실적 데이터",
       "ok": true,
       "count": 4702,
-      "message": "전체 실적 일정 4702개 · 오늘 결과 확인 9/20"
+      "message": "전체 실적 일정 4702개 · 오늘 결과 확인 11/20"
     },
     "spacex": {
       "name": "우주 발사 일정 데이터",
       "ok": true,
-      "count": 66,
+      "count": 65,
       "message": ""
     },
     "bls_results": {
@@ -79,8 +79,6 @@
   "failedSources": [
     "미국 노동통계국(BLS)",
     "한국은행",
-    "금융감독원·한국거래소 기업설명회 공시",
-    "한국거래소(KIND)",
-    "나스닥 전체 실적 달력"
+    "한국거래소(KIND)"
   ]
 }
