@@ -14,7 +14,7 @@ public final class SyncScheduler {
         JobInfo info = new JobInfo.Builder(JOB_ID, new ComponentName(context, SyncJobService.class))
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setPersisted(true)
-                .setPeriodic(60L * 60L * 1000L)
+                .setPeriodic(30L * 60L * 1000L)
                 .build();
         scheduler.schedule(info);
     }

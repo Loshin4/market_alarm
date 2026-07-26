@@ -1,72 +1,7 @@
 {
-  "updatedAt": "2026-07-26T13:16:02Z",
-  "ok": true,
-  "message": "211개 일정 · 정상 소스 6/9",
-  "counts": {
-    "macro": 46,
-    "central_bank": 77,
-    "industry": 65,
-    "earnings": 23
-  },
-  "sources": {
-    "bls": {
-      "name": "미국 노동통계국(BLS)",
-      "ok": false,
-      "count": 0,
-      "message": "403 Client Error: Forbidden for url: https://www.bls.gov/schedule/news_release/bls.ics"
-    },
-    "bea": {
-      "name": "미국 경제분석국(BEA)",
-      "ok": true,
-      "count": 119,
-      "message": ""
-    },
-    "fomc": {
-      "name": "미국 연방준비제도",
-      "ok": true,
-      "count": 180,
-      "message": ""
-    },
-    "bok": {
-      "name": "한국은행",
-      "ok": false,
-      "count": 0,
-      "message": "한국은행 일정을 해석하지 못함"
-    },
-    "kind": {
-      "name": "한국거래소(KIND)",
-      "ok": false,
-      "count": 0,
-      "message": "KIND 일정이 비어 있음"
-    },
-    "dart": {
-      "name": "금융감독원 전자공시(OpenDART)",
-      "ok": true,
-      "count": 16,
-      "message": ""
-    },
-    "alpha": {
-      "name": "미국 기업 실적 데이터",
-      "ok": true,
-      "count": 11,
-      "message": ""
-    },
-    "spacex": {
-      "name": "우주 발사 일정 데이터",
-      "ok": true,
-      "count": 66,
-      "message": ""
-    },
-    "bls_results": {
-      "name": "미국 노동통계 발표 결과",
-      "ok": true,
-      "count": 0,
-      "message": ""
-    }
-  },
-  "failedSources": [
-    "미국 노동통계국(BLS)",
-    "한국은행",
-    "한국거래소(KIND)"
-  ]
+  "updatedAt": null,
+  "ok": false,
+  "message": "깃허브 Actions에서 ‘Update Market Data’를 먼저 실행하세요.",
+  "counts": {},
+  "sources": {}
 }

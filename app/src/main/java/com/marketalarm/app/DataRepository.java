@@ -53,9 +53,7 @@ public final class DataRepository {
 
     public static String getSettings(Context context) {
         return prefs(context).getString(KEY_SETTINGS,
-                "{\"watchlist\":\"NVDA,MSFT,AAPL,AMZN,META,GOOGL,TSLA\","
-                        + "\"krWatchlist\":\"삼성전자,SK하이닉스\","
-                        + "\"notifyDay\":true,\"notifyHour\":true,\"notifyTen\":true,"
+                "{\"notifyNew\":true,\"notifyDay\":true,\"notifyHour\":true,\"notifyTen\":true,"
                         + "\"notifyResults\":true,\"notifyChanges\":true,"
                         + "\"dataUrl\":\"" + DEFAULT_DATA_URL + "\"}");
     }
@@ -63,7 +61,7 @@ public final class DataRepository {
     public static void saveSettings(Context context, String json) {
         JSONObject current = safeObject(getSettings(context));
         JSONObject incoming = safeObject(json);
-        String[] keys = {"watchlist", "krWatchlist", "dataUrl", "notifyDay", "notifyHour", "notifyTen", "notifyResults", "notifyChanges"};
+        String[] keys = {"dataUrl", "notifyNew", "notifyDay", "notifyHour", "notifyTen", "notifyResults", "notifyChanges"};
         for (String key : keys) {
             if (incoming.has(key)) {
                 try { current.put(key, incoming.get(key)); } catch (Exception ignored) { }
@@ -74,7 +72,7 @@ public final class DataRepository {
 
     public static boolean shouldRefresh(Context context) {
         long last = prefs(context).getLong(KEY_LAST_SYNC, 0L);
-        return System.currentTimeMillis() - last > 45L * 60L * 1000L;
+        return System.currentTimeMillis() - last > 25L * 60L * 1000L;
     }
 
     public static void refreshAll(Context context, RefreshCallback callback) {
@@ -140,7 +138,7 @@ public final class DataRepository {
         connection.setConnectTimeout(15000);
         connection.setReadTimeout(25000);
         connection.setInstanceFollowRedirects(true);
-        connection.setRequestProperty("User-Agent", "MarketAlarmAndroid/1.0");
+        connection.setRequestProperty("User-Agent", "MarketAlarmAndroid/1.2");
         connection.setRequestProperty("Accept", "application/json");
         connection.setRequestProperty("Cache-Control", "no-cache");
         int code = connection.getResponseCode();
@@ -172,9 +170,18 @@ public final class DataRepository {
             JSONObject current = newEvents.optJSONObject(i);
             if (current == null) continue;
             JSONObject old = oldMap.get(current.optString("id"));
-            boolean watched = matchesWatchlist(current, settings);
-            boolean important = current.optInt("importance", 0) >= 4 || watched;
+            boolean important = current.optInt("importance", 0) >= 4;
             if (!important) continue;
+            if (settings.optBoolean("notifyNew", true) && oldEvents.length() > 0 && old == null
+                    && !"released".equals(current.optString("status"))) {
+                long eventTime = current.optLong("time");
+                if (eventTime > now + 30L * 60L * 1000L
+                        && eventTime < now + 120L * 24L * 60L * 60L * 1000L) {
+                    NotificationHelper.notifyNewSchedule(context, current);
+                    sent++;
+                    continue;
+                }
+            }
             if (notifyResults && "released".equals(current.optString("status"))) {
                 boolean newlyReleased = old == null || !"released".equals(old.optString("status"))
                         || !current.optString("summary").equals(old.optString("summary"));
@@ -197,25 +204,7 @@ public final class DataRepository {
     }
 
     public static boolean matchesWatchlist(JSONObject event, JSONObject settings) {
-        Set<String> tokens = new HashSet<>();
-        addTokens(tokens, settings.optString("watchlist", ""));
-        addTokens(tokens, settings.optString("krWatchlist", ""));
-        String symbol = normalize(event.optString("symbol", ""));
-        String title = normalize(event.optString("title", ""));
-        if (!symbol.isEmpty() && tokens.contains(symbol)) return true;
-        for (String token : tokens) if (token.length() >= 2 && title.contains(token)) return true;
         return false;
-    }
-
-    private static void addTokens(Set<String> out, String raw) {
-        for (String value : raw.split("[,\\n]+")) {
-            String token = normalize(value);
-            if (!token.isEmpty()) out.add(token);
-        }
-    }
-
-    private static String normalize(String value) {
-        return value == null ? "" : value.replaceAll("\\s+", "").toUpperCase(Locale.US);
     }
 
     private static List<JSONObject> toList(JSONArray array) {

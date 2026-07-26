@@ -48,7 +48,7 @@ public final class NotificationHelper {
         int scheduled = 0;
         for (JSONObject event : events) {
             if (scheduled >= 240) break;
-            if (event.optInt("importance", 0) < 4 && !DataRepository.matchesWatchlist(event, settings)) continue;
+            if (event.optInt("importance", 0) < 4) continue;
             if ("released".equals(event.optString("status"))) continue;
             long eventTime = event.optLong("time");
             if (eventTime <= now || eventTime > max) continue;
@@ -97,6 +97,14 @@ public final class NotificationHelper {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY_REQUESTS, builder.toString()).apply();
     }
 
+
+    public static void notifyNewSchedule(Context context, JSONObject event) {
+        ensureChannels(context);
+        String body = formatKst(event.optLong("time")) + " · " + event.optString("source", "자동 수집");
+        post(context, CHANNEL_SCHEDULE,
+                Math.abs(("new-" + event.optString("id") + event.optLong("time")).hashCode()),
+                "➕ 새 중요 일정 · " + event.optString("title", "기업 실적 발표"), body);
+    }
     public static void notifyResult(Context context, JSONObject event) {
         ensureChannels(context);
         String title = compactRating(event) + " " + event.optString("title", "발표 결과");

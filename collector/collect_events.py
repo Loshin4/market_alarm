@@ -27,7 +27,7 @@ from dateutil import parser as dtparser
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
-CONFIG_FILE = ROOT / "config" / "watchlist.json"
+CONFIG_FILE = ROOT / "config" / "collector.json"
 EVENTS_FILE = DATA_DIR / "events.json"
 STATUS_FILE = DATA_DIR / "status.json"
 CHANGES_FILE = DATA_DIR / "changes.json"
@@ -52,7 +52,7 @@ LL2_UPCOMING = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/"
 LL2_PREVIOUS = "https://ll.thespacedevs.com/2.3.0/launches/previous/"
 
 HEADERS = {
-    "User-Agent": "MarketAlarmCollector/1.0 (+https://github.com/Loshin4/market_alarm)",
+    "User-Agent": "MarketAlarmCollector/1.2 (+https://github.com/Loshin4/market_alarm)",
     "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8",
 }
 SESSION = requests.Session()
@@ -61,11 +61,39 @@ SESSION.headers.update(HEADERS)
 
 US_COMPANY_NAMES = {
     "NVDA": "엔비디아", "MSFT": "마이크로소프트", "AAPL": "애플",
-    "AMZN": "아마존", "META": "메타", "GOOGL": "알파벳",
-    "GOOG": "알파벳", "TSLA": "테슬라", "AVGO": "브로드컴",
-    "AMD": "AMD", "MU": "마이크론", "PLTR": "팔란티어",
-    "NOW": "서비스나우", "CEG": "컨스텔레이션 에너지", "VST": "비스트라",
+    "AMZN": "아마존", "META": "메타", "GOOGL": "알파벳", "GOOG": "알파벳",
+    "TSLA": "테슬라", "AVGO": "브로드컴", "AMD": "AMD", "MU": "마이크론",
+    "INTC": "인텔", "SNDK": "샌디스크", "WDC": "웨스턴디지털", "QCOM": "퀄컴",
+    "ARM": "Arm", "TSM": "TSMC", "ASML": "ASML", "PLTR": "팔란티어",
+    "NOW": "서비스나우", "ORCL": "오라클", "CRM": "세일즈포스", "IBM": "IBM",
+    "NFLX": "넷플릭스", "ADBE": "어도비", "CSCO": "시스코", "DELL": "델",
+    "HPE": "HPE", "SMCI": "슈퍼마이크로컴퓨터", "MRVL": "마벨테크놀로지",
+    "CEG": "컨스텔레이션 에너지", "VST": "비스트라", "ETN": "이튼",
+    "NVT": "엔벤트", "GEV": "GE 버노바", "ANET": "아리스타 네트웍스",
+    "LRCX": "램리서치", "AMAT": "어플라이드 머티어리얼즈", "KLAC": "KLA",
+    "TXN": "텍사스 인스트루먼트", "NXPI": "NXP", "MCHP": "마이크로칩",
+    "COIN": "코인베이스", "HOOD": "로빈후드", "JPM": "JP모건", "BAC": "뱅크오브아메리카",
+    "GS": "골드만삭스", "MS": "모건스탠리", "WMT": "월마트", "COST": "코스트코",
+    "DIS": "디즈니", "UBER": "우버", "ABNB": "에어비앤비", "BA": "보잉",
 }
+
+VERY_IMPORTANT_US = {
+    "NVDA", "MSFT", "AAPL", "AMZN", "META", "GOOGL", "GOOG", "TSLA",
+    "AVGO", "AMD", "MU", "INTC", "TSM", "ASML",
+}
+IMPORTANT_US = {
+    "SNDK", "WDC", "QCOM", "ARM", "PLTR", "NOW", "ORCL", "CRM", "NFLX",
+    "SMCI", "MRVL", "CEG", "VST", "ETN", "NVT", "GEV", "ANET", "LRCX",
+    "AMAT", "KLAC", "TXN", "COIN", "JPM", "BAC", "GS", "MS", "BA",
+}
+
+VERY_IMPORTANT_KR = {"삼성전자", "SK하이닉스"}
+IMPORTANT_KR_KEYWORDS = {
+    "한미반도체", "LG에너지솔루션", "현대차", "기아", "NAVER", "카카오",
+    "삼성바이오로직스", "셀트리온", "두산에너빌리티", "HD현대일렉트릭",
+    "LS ELECTRIC", "한화에어로스페이스", "SK이노베이션", "LG전자",
+}
+
 
 SOURCE_LABELS = {
     "bls": "미국 노동통계국(BLS)",
@@ -287,10 +315,51 @@ def translate_macro_title(title: str) -> str:
     return out or "미국 주요 경제지표 발표"
 
 
-def company_display_name(symbol: str) -> str:
+def company_display_name(symbol: str, raw_name: str = "") -> str:
     symbol = clean_text(symbol).upper()
-    name = US_COMPANY_NAMES.get(symbol, symbol)
-    return f"{name}({symbol})" if name != symbol else symbol
+    name = US_COMPANY_NAMES.get(symbol, "")
+    if name:
+        return f"{name}({symbol})"
+    # 전체 기업을 수집하므로 번역 사전에 없는 회사는 영문 회사명 대신 종목코드만 표시한다.
+    # 이렇게 하면 앱 화면은 한국어 중심으로 유지되면서도 회사를 정확히 식별할 수 있다.
+    return symbol or clean_text(raw_name) or "미국 기업"
+
+
+def us_importance(symbol: str) -> int:
+    symbol = clean_text(symbol).upper()
+    if symbol in VERY_IMPORTANT_US:
+        return 5
+    if symbol in IMPORTANT_US:
+        return 4
+    return 3
+
+
+def kr_importance(company: str) -> int:
+    compact = re.sub(r"\s+", "", clean_text(company)).upper()
+    if any(re.sub(r"\s+", "", x).upper() in compact for x in VERY_IMPORTANT_KR):
+        return 5
+    if any(re.sub(r"\s+", "", x).upper() in compact for x in IMPORTANT_KR_KEYWORDS):
+        return 4
+    return 3
+
+
+def koreanize_earnings_title(value: str, year: int | None = None) -> str:
+    text = clean_text(value)
+    lower = text.lower()
+    y = year or NOW.astimezone(KST).year
+    quarter = ""
+    if any(k in lower for k in ("first quarter", "1q", "1st quarter")):
+        quarter = "1분기"
+    elif any(k in lower for k in ("second quarter", "2q", "2nd quarter")):
+        quarter = "2분기"
+    elif any(k in lower for k in ("third quarter", "3q", "3rd quarter")):
+        quarter = "3분기"
+    elif any(k in lower for k in ("fourth quarter", "4q", "4th quarter")):
+        quarter = "4분기"
+    if re.search(r"earnings|financial results|results announcement|results release", lower):
+        return f"{y}년 {quarter + ' ' if quarter else ''}실적 발표".strip()
+    text = re.sub(r"\bIR\b", "IR", text, flags=re.I)
+    return text
 
 
 def koreanize_space_text(value: Any) -> str:
@@ -450,83 +519,91 @@ def company_lookup(config: dict[str, Any]) -> tuple[dict[str, str], dict[str, st
     return name_to_code, code_to_name
 
 
-def collect_kind(config: dict[str, Any]) -> SourceResult:
-    name_to_code, _ = company_lookup(config)
-    watched_names = set(name_to_code)
-    out: list[dict[str, Any]] = []
-    seen: set[str] = set()
-    for page in range(1, 16):
-        params = {"gubun": "iRSchedule", "method": "searchIRScheduleMain", "pageIndex": page}
+def collect_kind(config: dict[str, Any] | None = None) -> SourceResult:
+    """KIND에 공개된 전체 실적·경영실적 발표 일정을 수집한다.
+
+    관심 종목 목록으로 제한하지 않는다. 같은 회사·시각에 한국어/영어 공지가
+    함께 올라오는 경우 하나로 통합하고 한국어 제목을 우선한다.
+    """
+    out_by_id: dict[str, dict[str, Any]] = {}
+    empty_pages = 0
+    for page in range(1, 101):
+        params = {
+            "gubun": "iRSchedule",
+            "method": "searchIRScheduleMain",
+            "pageIndex": page,
+        }
         html = http_get(KIND_IR, params=params).text
         soup = BeautifulSoup(html, "html.parser")
         rows = soup.select("table tbody tr") or soup.find_all("tr")
         page_added = 0
         for row in rows:
             cells = [clean_text(cell.get_text(" ")) for cell in row.find_all(["td", "th"])]
-            if len(cells) < 4:
+            date_index = next((i for i, cell in enumerate(cells)
+                               if re.fullmatch(r"20\d{2}[.-]\d{1,2}[.-]\d{1,2}", cell)), -1)
+            if date_index < 3:
                 continue
-            date_index = next((i for i, cell in enumerate(cells) if re.fullmatch(r"20\d{2}[.-]\d{1,2}[.-]\d{1,2}", cell)), -1)
-            if date_index < 0:
-                continue
-            date_text = re.sub(r"[.]", "-", cells[date_index])
+            date_text = cells[date_index].replace(".", "-")
             try:
                 d = datetime.strptime(date_text, "%Y-%m-%d").date()
             except ValueError:
                 continue
-            before = cells[:date_index]
-            company = ""
-            title = ""
-            for value in before:
-                compact = re.sub(r"\s+", "", value)
-                if compact in watched_names:
-                    company = value
-                if any(k in value.lower() for k in ("실적", "경영", "잠정", "earn", "quarter", "ir")):
-                    title = value
-            if not company and len(before) >= 2:
-                company = before[-2]
-            if not title and before:
-                title = before[-1]
-            company = re.sub(r"^(유가증권|코스닥|코넥스)\s*", "", company).strip()
-            compact_company = re.sub(r"\s+", "", company)
-            watched = compact_company in watched_names
-            earnings = any(k in title.lower() for k in ("실적", "경영", "잠정", "earn", "quarter"))
-            if not earnings and not watched:
+            # 공식 표 구조: 번호 / 회사명 / 제목 / 장소 / 일자 / 시작시간
+            company = re.sub(r"^(유가증권|코스닥|코넥스)\s*", "", cells[date_index - 3]).strip()
+            raw_title = cells[date_index - 2]
+            if not company or not raw_title:
                 continue
-            time_text = next((cell for cell in cells[date_index + 1:] if re.search(r"\d{1,2}:\d{2}", cell)), "")
+            low = raw_title.lower()
+            is_earnings = any(k in low for k in (
+                "실적", "경영실적", "잠정", "earnings", "financial results",
+                "results announcement", "results release", "quarter earnings",
+            ))
+            if not is_earnings:
+                continue
+            title = koreanize_earnings_title(raw_title, d.year)
+            time_text = cells[date_index + 1] if date_index + 1 < len(cells) else ""
             tm = re.search(r"(\d{1,2}):(\d{2})", time_text)
-            hour, minute = (int(tm.group(1)), int(tm.group(2))) if tm else (9, 0)
+            hour, minute = (int(tm.group(1)), int(tm.group(2))) if tm else (12, 0)
+            all_day = tm is None
             when = datetime(d.year, d.month, d.day, hour, minute, tzinfo=KST)
             link = row.find("a", href=True)
             source_url = urljoin(KIND_IR, link["href"]) if link else KIND_IR
-            symbol = name_to_code.get(compact_company, "")
-            eid = f"kr-earnings-{symbol or stable_id(compact_company)}-{d.isoformat()}"
-            if eid in seen:
-                continue
-            seen.add(eid)
-            out.append(event(
+            compact_company = re.sub(r"\s+", "", company)
+            eid = f"kr-earnings-{stable_id(compact_company)}-{d.isoformat()}-{hour:02d}{minute:02d}"
+            item = event(
                 event_id=eid,
-                title=f"{company} {title or 'IR 일정'}",
+                title=f"{company} {title}",
                 when=when,
                 source_key="kind",
                 source=SOURCE_LABELS["kind"],
                 source_url=source_url,
-                category="earnings" if earnings else "company",
-                importance=5 if watched and earnings else 4 if earnings else 3,
-                symbol=symbol,
+                category="earnings",
+                importance=kr_importance(company),
                 market="KR",
-            ))
+                all_day=all_day,
+                confidence="official_schedule",
+            )
+            old = out_by_id.get(eid)
+            # 영문 중복보다 한글 제목을 우선한다.
+            old_korean = bool(old and re.search(r"[가-힣]", old.get("title", "")))
+            new_korean = bool(re.search(r"[가-힣]", item.get("title", "")))
+            if old is None or (new_korean and not old_korean):
+                out_by_id[eid] = item
             page_added += 1
-        if page > 1 and page_added == 0:
+        if page_added == 0:
+            empty_pages += 1
+        else:
+            empty_pages = 0
+        if page > 1 and empty_pages >= 2:
             break
+    out = list(out_by_id.values())
     if not out:
-        raise RuntimeError("KIND 일정이 비어 있음")
+        raise RuntimeError("KIND 전체 실적 일정이 비어 있음")
     return SourceResult("kind", out)
 
-
-def collect_dart(config: dict[str, Any], api_key: str) -> SourceResult:
+def collect_dart(config: dict[str, Any] | None, api_key: str) -> SourceResult:
     if not api_key:
         return SourceResult("dart", [], False, "OpenDART 인증키 미설정")
-    _, code_to_name = company_lookup(config)
     begin = (NOW.astimezone(KST).date() - timedelta(days=14)).strftime("%Y%m%d")
     end = NOW.astimezone(KST).date().strftime("%Y%m%d")
     out: list[dict[str, Any]] = []
@@ -551,9 +628,6 @@ def collect_dart(config: dict[str, Any], api_key: str) -> SourceResult:
             report = clean_text(row.get("report_nm"))
             corp_name = clean_text(row.get("corp_name"))
             stock_code = clean_text(row.get("stock_code"))
-            if stock_code and code_to_name and stock_code not in code_to_name:
-                # Still include major earnings-related reports even outside the default watchlist.
-                pass
             low = report.lower()
             is_result = any(k in low for k in ("잠정실적", "영업(잠정)실적", "매출액또는손익구조", "분기보고서", "반기보고서", "사업보고서"))
             if not is_result:
@@ -577,7 +651,7 @@ def collect_dart(config: dict[str, Any], api_key: str) -> SourceResult:
                 source=SOURCE_LABELS["dart"],
                 source_url=source_url,
                 category="earnings",
-                importance=5 if stock_code in code_to_name else 4,
+                importance=kr_importance(corp_name),
                 status="released",
                 summary=summary,
                 symbol=stock_code,
@@ -601,85 +675,119 @@ def infer_report_period(report: str, d: date) -> str:
     return d.isoformat()
 
 
-def collect_alpha(config: dict[str, Any], api_key: str, state: dict[str, Any], force: bool) -> SourceResult:
+def collect_alpha(config: dict[str, Any] | None, api_key: str, state: dict[str, Any], force: bool) -> SourceResult:
+    """미국 전체 실적 달력과 제한된 결과 확인을 수집한다.
+
+    EARNINGS_CALENDAR는 symbol을 지정하지 않아 전체 목록을 받는다. 무료 호출량을
+    지키기 위해 달력은 하루 한 번, 결과는 하루 최대 20개 기업만 중요도·발표시각
+    순으로 확인한다. 일정 자체는 모든 기업이 앱에 반영된다.
+    """
     if not api_key:
         return SourceResult("alpha", [], False, "미국 실적 데이터 인증키 미설정")
-    last = parse_iso(state.get("alphaCalendarCheckedAt"))
-    should_calendar = force or not last or NOW - last >= timedelta(hours=6)
     previous_events = load_json(EVENTS_FILE, {}).get("events", [])
     out: list[dict[str, Any]] = []
-    symbols = {str(s).strip().upper() for s in config.get("us", []) if str(s).strip()}
-    calendar_rows: list[dict[str, str]] = []
+    last = parse_iso(state.get("alphaCalendarCheckedAt"))
+    should_calendar = force or not last or NOW - last >= timedelta(hours=22)
+
     if should_calendar:
         response = http_get(ALPHA, params={"function": "EARNINGS_CALENDAR", "horizon": "3month", "apikey": api_key})
         text = response.text
         if text.lstrip().startswith("{"):
             payload = response.json()
-            raise RuntimeError(payload.get("Information") or payload.get("Note") or "미국 실적 데이터 조회 오류")
-        for row in csv.DictReader(io.StringIO(text)):
-            symbol = clean_text(row.get("symbol")).upper()
-            if symbol in symbols:
-                calendar_rows.append({k: clean_text(v) for k, v in row.items()})
+            raise RuntimeError(payload.get("Information") or payload.get("Note") or "미국 전체 실적 달력 조회 오류")
+        rows = list(csv.DictReader(io.StringIO(text)))
+        for raw in rows:
+            row = {k: clean_text(v) for k, v in raw.items()}
+            symbol = row.get("symbol", "").upper()
+            report_date = row.get("reportDate", "") or row.get("report_date", "")
+            if not symbol or not report_date:
+                continue
+            country = (row.get("country") or "").lower()
+            currency = (row.get("currency") or "").upper()
+            # 미국 상장 실적 달력 중심. 국가가 비어 있는 행은 유지한다.
+            if country and not any(k in country for k in ("united states", "usa", "u.s.")) and currency not in ("USD", ""):
+                continue
+            try:
+                d = datetime.strptime(report_date, "%Y-%m-%d").date()
+            except ValueError:
+                continue
+            report_time = (row.get("reportTime") or row.get("report_time") or "").lower()
+            if any(k in report_time for k in ("after", "post")):
+                hour, all_day, timing = 16, False, "미국 장 마감 후"
+            elif any(k in report_time for k in ("before", "pre")):
+                hour, all_day, timing = 8, False, "미국 장 시작 전"
+            else:
+                hour, all_day, timing = 12, True, "발표 시간 미정"
+            when = datetime(d.year, d.month, d.day, hour, 0, tzinfo=ET)
+            estimate = row.get("estimate", "") or row.get("estimatedEPS", "")
+            fiscal = row.get("fiscalDateEnding", "")
+            raw_name = row.get("name", "")
+            summary_parts = [timing]
+            if estimate:
+                summary_parts.append(f"예상 EPS {estimate}")
+            if fiscal:
+                summary_parts.append(f"회계기간 {fiscal}")
+            out.append(event(
+                event_id=f"us-earnings-{symbol}-{d.isoformat()}",
+                title=f"{company_display_name(symbol, raw_name)} 실적 발표",
+                when=when,
+                source_key="alpha",
+                source=SOURCE_LABELS["alpha"],
+                source_url=f"https://www.alphavantage.co/query?function=EARNINGS_CALENDAR&symbol={symbol}",
+                category="earnings",
+                importance=us_importance(symbol),
+                summary=" · ".join(summary_parts),
+                symbol=symbol,
+                market="US",
+                expected=estimate,
+                all_day=all_day,
+                confidence="provider",
+            ))
         state["alphaCalendarCheckedAt"] = iso_utc()
     else:
-        # Preserve cached US earnings when skipping a quota-sensitive calendar request.
-        for item in previous_events:
-            if item.get("sourceKey") == "alpha" and item.get("status") == "scheduled":
-                out.append(item)
+        # 호출 제한으로 달력을 다시 받지 않는 시간에는 이전 전체 미국 일정을 유지한다.
+        out.extend(item for item in previous_events
+                   if item.get("sourceKey") == "alpha" and item.get("status") == "scheduled")
 
-    for row in calendar_rows:
-        symbol = row.get("symbol", "")
-        report_date = row.get("reportDate", "") or row.get("report_date", "")
-        if not report_date:
-            continue
-        try:
-            d = datetime.strptime(report_date, "%Y-%m-%d").date()
-        except ValueError:
-            continue
-        report_time = (row.get("reportTime") or row.get("report_time") or "").lower()
-        hour = 16 if "after" in report_time else 8 if "before" in report_time else 12
-        all_day = not ("after" in report_time or "before" in report_time)
-        when = datetime(d.year, d.month, d.day, hour, 0, tzinfo=ET)
-        estimate = row.get("estimate", "") or row.get("estimatedEPS", "")
-        fiscal = row.get("fiscalDateEnding", "")
-        summary = f"예상 EPS {estimate}" if estimate else "예상 EPS 자료 없음"
-        if fiscal:
-            summary += f" · 회계기간 {fiscal}"
-        out.append(event(
-            event_id=f"us-earnings-{symbol}-{d.isoformat()}",
-            title=f"{company_display_name(symbol)} 실적 발표",
-            when=when,
-            source_key="alpha",
-            source=SOURCE_LABELS["alpha"],
-            source_url=f"https://www.alphavantage.co/query?function=EARNINGS_CALENDAR&symbol={symbol}",
-            category="earnings",
-            importance=5 if symbol in {"NVDA", "MSFT", "AAPL", "AMZN", "META", "GOOGL", "TSLA"} else 4,
-            summary=summary,
-            symbol=symbol,
-            market="US",
-            expected=estimate,
-            all_day=all_day,
-            confidence="provider",
-        ))
+    # 무료 호출량: 날짜가 바뀌면 일일 결과 확인 횟수를 초기화한다.
+    today_key = NOW.astimezone(ET).date().isoformat()
+    quota = state.setdefault("alphaDailyQuota", {})
+    if quota.get("date") != today_key:
+        quota.clear()
+        quota.update({"date": today_key, "resultCalls": 0})
+    used = int(quota.get("resultCalls", 0))
+    remaining = max(0, 20 - used)
 
-    due_symbols: set[str] = set()
     cutoff_start = NOW.astimezone(ET).date() - timedelta(days=3)
     cutoff_end = NOW.astimezone(ET).date() + timedelta(days=1)
+    candidates: dict[str, dict[str, Any]] = {}
     for item in out + previous_events:
         if item.get("sourceKey") != "alpha" or item.get("status") != "scheduled":
             continue
         symbol = clean_text(item.get("symbol")).upper()
+        if not symbol:
+            continue
         d = datetime.fromtimestamp(int(item.get("time", 0)) / 1000, UTC).astimezone(ET).date()
-        if symbol and cutoff_start <= d <= cutoff_end:
-            due_symbols.add(symbol)
+        if cutoff_start <= d <= cutoff_end:
+            current = candidates.get(symbol)
+            if current is None or (int(item.get("importance", 0)), -int(item.get("time", 0))) > (int(current.get("importance", 0)), -int(current.get("time", 0))):
+                candidates[symbol] = item
+
     checked = state.setdefault("alphaResultChecked", {})
-    for symbol in sorted(due_symbols)[:8]:
+    ordered = sorted(candidates.values(), key=lambda x: (-int(x.get("importance", 0)), int(x.get("time", 0)), str(x.get("symbol", ""))))
+    for scheduled in ordered:
+        if remaining <= 0:
+            break
+        symbol = clean_text(scheduled.get("symbol")).upper()
         checked_at = parse_iso(checked.get(symbol))
         if not force and checked_at and NOW - checked_at < timedelta(hours=8):
             continue
         payload = http_get(ALPHA, params={"function": "EARNINGS", "symbol": symbol, "apikey": api_key}).json()
+        checked[symbol] = iso_utc()
+        quota["resultCalls"] = int(quota.get("resultCalls", 0)) + 1
+        remaining -= 1
         if payload.get("Information") or payload.get("Note"):
-            continue
+            break
         quarters = payload.get("quarterlyEarnings") or []
         if not quarters:
             continue
@@ -693,7 +801,7 @@ def collect_alpha(config: dict[str, Any], api_key: str, state: dict[str, Any], f
         actual = safe_float(latest.get("reportedEPS"))
         estimate = safe_float(latest.get("estimatedEPS"))
         surprise = safe_float(latest.get("surprisePercentage"))
-        if not surprise and estimate not in (None, 0) and actual is not None:
+        if surprise is None and estimate not in (None, 0) and actual is not None:
             surprise = (actual - estimate) / abs(estimate) * 100
         rating = 2 if surprise is not None and surprise >= 5 else 1 if surprise is not None and surprise > 0 else -2 if surprise is not None and surprise <= -5 else -1 if surprise is not None and surprise < 0 else 0
         summary = f"{rating_text(rating)} · EPS {fmt_num(actual)} / 예상 {fmt_num(estimate)}"
@@ -708,7 +816,7 @@ def collect_alpha(config: dict[str, Any], api_key: str, state: dict[str, Any], f
             source=SOURCE_LABELS["alpha"],
             source_url=f"https://www.alphavantage.co/query?function=EARNINGS&symbol={symbol}",
             category="earnings",
-            importance=5 if symbol in {"NVDA", "MSFT", "AAPL", "AMZN", "META", "GOOGL", "TSLA"} else 4,
+            importance=us_importance(symbol),
             status="released",
             summary=summary,
             symbol=symbol,
@@ -719,9 +827,7 @@ def collect_alpha(config: dict[str, Any], api_key: str, state: dict[str, Any], f
             official=False,
             confidence="provider",
         ))
-        checked[symbol] = iso_utc()
-    return SourceResult("alpha", out)
-
+    return SourceResult("alpha", out, True, f"전체 실적 일정 {sum(1 for x in out if x.get('status') == 'scheduled')}개 · 오늘 결과 확인 {quota.get('resultCalls', 0)}/20")
 
 def collect_spacex() -> SourceResult:
     params_upcoming = {"limit": 60, "ordering": "net", "lsp__name": "SpaceX"}
@@ -939,7 +1045,7 @@ def detect_changes(old_events: list[dict[str, Any]], new_events: list[dict[str, 
 
 def main() -> int:
     force = os.getenv("FORCE_REFRESH", "").lower() in {"1", "true", "yes"}
-    config = load_json(CONFIG_FILE, {"us": [], "kr": []})
+    config = load_json(CONFIG_FILE, {})
     old_root = load_json(EVENTS_FILE, {"events": []})
     old_events = old_root.get("events", []) if isinstance(old_root, dict) else []
     state = load_json(STATE_FILE, {})
@@ -1007,7 +1113,7 @@ def main() -> int:
         "sources": sources,
         "failedSources": [SOURCE_LABELS.get(key, key) for key in sorted(failed_sources)],
     }
-    save_json(EVENTS_FILE, {"schemaVersion": 1, "updatedAt": iso_utc(), "events": merged})
+    save_json(EVENTS_FILE, {"schemaVersion": 2, "updatedAt": iso_utc(), "events": merged})
     previous_changes = load_json(CHANGES_FILE, {"changes": []}).get("changes", [])
     combined_changes = (previous_changes + changes)[-300:]
     save_json(CHANGES_FILE, {"updatedAt": iso_utc(), "changes": combined_changes})
