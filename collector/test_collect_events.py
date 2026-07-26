@@ -157,5 +157,48 @@ ZZZZ,Example Small Company,2026-08-03,2026-06-30,,USD,United States,
         self.assertIn('- "data/**"', workflow)
 
 
+    def test_tentative_result_parser_extracts_market_wide_financials(self):
+        html = """
+        <html><body><p>(단위 : 백만원)</p><table>
+          <tr><th>구분</th><th>당기실적</th><th>전기실적</th><th>전년동기실적</th></tr>
+          <tr><td>매출액 당해실적</td><td>17,000,000</td><td>16,000,000</td><td>15,000,000</td></tr>
+          <tr><td>영업이익 당해실적</td><td>9,000,000</td><td>8,000,000</td><td>7,000,000</td></tr>
+          <tr><td>당기순이익 당해실적</td><td>6,000,000</td><td>5,000,000</td><td>4,000,000</td></tr>
+        </table></body></html>
+        """
+        import io, zipfile
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            zf.writestr("document.xml", html)
+        item = collector.parse_tentative_result_document(
+            buf.getvalue(), corp_name="어떤회사", stock_code="123456",
+            receipt_no="20260726000003", receipt_date=collector.date(2026, 7, 26),
+            report="영업(잠정)실적(공정공시)",
+        )
+        self.assertIn("매출", item["summary"])
+        self.assertIn("영업익", item["summary"])
+        self.assertEqual(item["market"], "KR")
+        self.assertEqual(item["status"], "released")
+        self.assertGreater(item["rating"], 0)
+
+    def test_sec_companyfacts_extracts_revenue_operating_and_previous(self):
+        payload = {
+            "facts": {"us-gaap": {
+                "RevenueFromContractWithCustomerExcludingAssessedTax": {"units": {"USD": [
+                    {"start": "2025-04-01", "end": "2025-06-30", "filed": "2025-07-25", "form": "10-Q", "val": 10000000000, "accn": "0001-25-000001"},
+                    {"start": "2026-04-01", "end": "2026-06-30", "filed": "2026-07-26", "form": "10-Q", "val": 12000000000, "accn": "0001-26-000001"},
+                ]}},
+                "OperatingIncomeLoss": {"units": {"USD": [
+                    {"start": "2025-04-01", "end": "2025-06-30", "filed": "2025-07-25", "form": "10-Q", "val": 1000000000, "accn": "0001-25-000001"},
+                    {"start": "2026-04-01", "end": "2026-06-30", "filed": "2026-07-26", "form": "10-Q", "val": 1500000000, "accn": "0001-26-000001"},
+                ]}},
+            }}
+        }
+        result = collector.extract_sec_company_result(payload, collector.date(2026, 7, 26))
+        self.assertEqual(result["revenue"], 12000000000)
+        self.assertEqual(result["revenue_previous"], 10000000000)
+        self.assertEqual(result["operating"], 1500000000)
+
+
 if __name__ == "__main__":
     unittest.main()

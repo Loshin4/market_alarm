@@ -41,6 +41,8 @@ UTC = timezone.utc
 NOW = datetime.now(UTC)
 NOW_MS = int(NOW.timestamp() * 1000)
 DART_IR_PARSER_VERSION = 132
+DART_RESULT_PARSER_VERSION = 140
+US_RESULT_PARSER_VERSION = 140
 
 BLS_ICS = "https://www.bls.gov/schedule/news_release/bls.ics"
 BEA_ICS = "https://www.bea.gov/news/schedule/ics/online-calendar-subscription.ics"
@@ -50,11 +52,14 @@ BOK_CALENDAR = "https://www.bok.or.kr/portal/singl/crncyPolicyDrcMtg/listYear.do
 KIND_IR = "https://kind.krx.co.kr/corpgeneral/irschedule.do?gubun=iRSchedule&method=searchIRScheduleMain"
 DART_LIST = "https://opendart.fss.or.kr/api/list.json"
 DART_DOCUMENT = "https://opendart.fss.or.kr/api/document.xml"
+DART_FINANCIAL = "https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json"
 NASDAQ_EARNINGS = "https://api.nasdaq.com/api/calendar/earnings"
 BLS_API = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
 ALPHA = "https://www.alphavantage.co/query"
 LL2_UPCOMING = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/"
 LL2_PREVIOUS = "https://ll.thespacedevs.com/2.3.0/launches/previous/"
+SEC_TICKERS = "https://www.sec.gov/files/company_tickers.json"
+SEC_COMPANY_FACTS = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik:010d}.json"
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36 MarketAlarm/1.3.2",
@@ -112,6 +117,7 @@ SOURCE_LABELS = {
     "alpha": "미국 기업 실적 데이터",
     "spacex": "우주 발사 일정 데이터",
     "bls_results": "미국 노동통계 발표 결과",
+    "us_results": "미국 기업 실적 결과(SEC·Alpha Vantage)",
 }
 
 
@@ -971,14 +977,329 @@ def collect_nasdaq_earnings(state: dict[str, Any], force: bool) -> SourceResult:
     state["nasdaqCalendarCheckedAt"] = iso_utc()
     return SourceResult("nasdaq", out, True, f"향후 45일 전체 실적 {len(out)}개")
 
-def collect_dart(config: dict[str, Any] | None, api_key: str) -> SourceResult:
+
+def extract_dart_document_parts(payload: bytes) -> tuple[str, list[list[str]]]:
+    """Return flattened text and table rows from an OpenDART original-document ZIP."""
+    if payload[:1] in (b"{", b"<") and b"PK" not in payload[:8]:
+        preview = decode_document_bytes(payload[:2000])
+        if "status" in preview and "message" in preview:
+            raise RuntimeError(clean_text(BeautifulSoup(preview, "html.parser").get_text(" ")))
+    try:
+        archive = zipfile.ZipFile(io.BytesIO(payload))
+    except zipfile.BadZipFile as exc:
+        raise RuntimeError("OpenDART 원문 ZIP 형식이 아님") from exc
+    text_chunks: list[str] = []
+    rows: list[list[str]] = []
+    members = sorted(
+        (info for info in archive.infolist() if not info.is_dir()),
+        key=lambda info: info.file_size,
+        reverse=True,
+    )
+    for info in members[:16]:
+        if info.file_size <= 0:
+            continue
+        decoded = decode_document_bytes(archive.read(info))
+        soup = BeautifulSoup(decoded, "html.parser")
+        text = clean_text(html_lib.unescape(soup.get_text(" ")))
+        if text:
+            text_chunks.append(text)
+        for tr in soup.find_all("tr"):
+            cells = [clean_text(html_lib.unescape(td.get_text(" "))) for td in tr.find_all(["th", "td"])]
+            cells = [cell for cell in cells if cell]
+            if len(cells) >= 2:
+                rows.append(cells)
+    return clean_text(" ".join(text_chunks)), rows
+
+
+def parse_number(value: Any) -> float | None:
+    text = clean_text(value)
+    if not text or text in {"-", "--", "N/A", "해당없음"}:
+        return None
+    negative = text.startswith("(") and text.endswith(")")
+    text = re.sub(r"[^0-9.\-]", "", text.replace(",", ""))
+    if not text or text in {"-", "."}:
+        return None
+    try:
+        number = float(text)
+    except ValueError:
+        return None
+    return -abs(number) if negative else number
+
+
+def detect_krw_multiplier(text: str) -> float:
+    compact = re.sub(r"\s+", "", text)
+    if "단위:억원" in compact or "단위：억원" in compact:
+        return 100_000_000.0
+    if "단위:백만원" in compact or "단위：백만원" in compact:
+        return 1_000_000.0
+    if "단위:천원" in compact or "단위：천원" in compact:
+        return 1_000.0
+    if "단위:원" in compact or "단위：원" in compact:
+        return 1.0
+    # Most tentative-results filings use KRW millions when the unit is near the table.
+    if "백만원" in compact[:1200]:
+        return 1_000_000.0
+    if "억원" in compact[:1200]:
+        return 100_000_000.0
+    return 1.0
+
+
+def format_krw(value: float | None) -> str:
+    if value is None:
+        return "-"
+    sign = "-" if value < 0 else ""
+    amount = abs(value)
+    if amount >= 1_000_000_000_000:
+        jo = amount / 1_000_000_000_000
+        return f"{sign}{jo:.2f}조 원".replace(".00", "")
+    if amount >= 100_000_000:
+        eok = amount / 100_000_000
+        return f"{sign}{eok:,.1f}억 원".replace(".0억", "억")
+    if amount >= 10_000:
+        man = amount / 10_000
+        return f"{sign}{man:,.1f}만 원".replace(".0만", "만")
+    return f"{sign}{amount:,.0f}원"
+
+
+def format_usd(value: float | None) -> str:
+    if value is None:
+        return "-"
+    sign = "-" if value < 0 else ""
+    amount = abs(value)
+    if amount >= 1_000_000_000_000:
+        return f"{sign}{amount / 1_000_000_000_000:.2f}조 달러".replace(".00", "")
+    if amount >= 100_000_000:
+        return f"{sign}{amount / 100_000_000:,.1f}억 달러".replace(".0억", "억")
+    if amount >= 10_000:
+        return f"{sign}{amount / 10_000:,.1f}만 달러".replace(".0만", "만")
+    return f"{sign}{amount:,.0f}달러"
+
+
+def pct_change(actual: float | None, previous: float | None) -> float | None:
+    if actual is None or previous in (None, 0):
+        return None
+    return (actual - previous) / abs(previous) * 100
+
+
+def result_rating(primary_pct: float | None, secondary_pct: float | None = None) -> int:
+    pct = primary_pct if primary_pct is not None else secondary_pct
+    if pct is None:
+        return 0
+    if pct >= 10:
+        return 2
+    if pct > 0:
+        return 1
+    if pct <= -10:
+        return -2
+    if pct < 0:
+        return -1
+    return 0
+
+
+KR_RESULT_METRICS = {
+    "revenue": ("매출액", "영업수익", "수익(매출액)", "매출"),
+    "operating": ("영업이익", "영업손실"),
+    "net": ("당기순이익", "분기순이익", "반기순이익", "연결당기순이익", "순이익"),
+}
+
+
+def row_metric_values(rows: list[list[str]], aliases: tuple[str, ...], multiplier: float) -> tuple[float | None, float | None, float | None]:
+    """Parse actual, previous quarter and prior-year values from a tentative-results row."""
+    best: tuple[int, tuple[float | None, float | None, float | None]] | None = None
+    for cells in rows:
+        joined = " ".join(cells)
+        compact = re.sub(r"\s+", "", joined)
+        if not any(alias in compact for alias in aliases):
+            continue
+        numbers: list[float] = []
+        for cell in cells:
+            # Ignore percentages and dates. Amount columns are plain numbers.
+            if "%" in cell or re.search(r"20\d{2}[./-]\d{1,2}", cell):
+                continue
+            value = parse_number(cell)
+            if value is not None:
+                numbers.append(value * multiplier)
+        if not numbers:
+            continue
+        # In standard DART tables: actual, previous quarter, previous-year quarter.
+        actual = numbers[0]
+        previous_q = numbers[1] if len(numbers) >= 2 else None
+        previous_y = numbers[2] if len(numbers) >= 3 else previous_q
+        score = (3 if "당해실적" in compact else 0) + min(len(numbers), 3)
+        candidate = (actual, previous_q, previous_y)
+        if best is None or score > best[0]:
+            best = (score, candidate)
+    return best[1] if best else (None, None, None)
+
+
+def financial_metric_from_rows(rows: list[dict[str, Any]], aliases: tuple[str, ...]) -> tuple[float | None, float | None, str]:
+    candidates: list[tuple[int, float | None, float | None, str]] = []
+    for row in rows:
+        account = clean_text(row.get("account_nm"))
+        account_compact = re.sub(r"\s+", "", account)
+        if not any(alias in account_compact for alias in aliases):
+            continue
+        sj = clean_text(row.get("sj_div"))
+        if sj not in {"IS", "CIS"}:
+            continue
+        actual = parse_number(row.get("thstrm_amount"))
+        previous = parse_number(row.get("frmtrm_q_amount") or row.get("frmtrm_amount"))
+        currency = clean_text(row.get("currency")) or "KRW"
+        exact = 3 if account_compact in aliases else 1
+        consolidated = 1 if clean_text(row.get("fs_div")) == "CFS" else 0
+        candidates.append((exact + consolidated, actual, previous, currency))
+    if not candidates:
+        return None, None, "KRW"
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    _, actual, previous, currency = candidates[0]
+    return actual, previous, currency
+
+
+def report_financial_params(report: str, receipt_date: date) -> tuple[int, str] | None:
+    year_match = re.search(r"\((20\d{2})[.\-/]", report)
+    year = int(year_match.group(1)) if year_match else receipt_date.year
+    if "1분기보고서" in report:
+        return year, "11013"
+    if "반기보고서" in report:
+        return year, "11012"
+    if "3분기보고서" in report:
+        return year, "11014"
+    if "사업보고서" in report:
+        return year - 1 if not year_match else year, "11011"
+    return None
+
+
+def build_kr_result_event(
+    *, corp_name: str, stock_code: str, receipt_no: str, receipt_date: date,
+    report: str, revenue: float | None, revenue_prev: float | None,
+    operating: float | None, operating_prev: float | None,
+    net_income: float | None, net_prev: float | None,
+) -> dict[str, Any]:
+    operating_yoy = pct_change(operating, operating_prev)
+    revenue_yoy = pct_change(revenue, revenue_prev)
+    net_yoy = pct_change(net_income, net_prev)
+    rating = result_rating(operating_yoy, revenue_yoy if revenue_yoy is not None else net_yoy)
+    parts = [rating_text(rating)]
+    if revenue is not None:
+        text = f"매출 {format_krw(revenue)}"
+        if revenue_yoy is not None:
+            text += f" ({revenue_yoy:+.1f}%)"
+        parts.append(text)
+    if operating is not None:
+        text = f"영업익 {format_krw(operating)}"
+        if operating_yoy is not None:
+            text += f" ({operating_yoy:+.1f}%)"
+        parts.append(text)
+    if net_income is not None:
+        text = f"순익 {format_krw(net_income)}"
+        if net_yoy is not None:
+            text += f" ({net_yoy:+.1f}%)"
+        parts.append(text)
+    if len(parts) == 1:
+        parts.append(f"{report} 공식 공시 확인")
+    parts.append("예상치 없음")
+    actual_parts = []
+    if revenue is not None:
+        actual_parts.append(f"매출 {format_krw(revenue)}")
+    if operating is not None:
+        actual_parts.append(f"영업익 {format_krw(operating)}")
+    if net_income is not None:
+        actual_parts.append(f"순익 {format_krw(net_income)}")
+    previous_parts = []
+    if revenue_prev is not None:
+        previous_parts.append(f"매출 {format_krw(revenue_prev)}")
+    if operating_prev is not None:
+        previous_parts.append(f"영업익 {format_krw(operating_prev)}")
+    if net_prev is not None:
+        previous_parts.append(f"순익 {format_krw(net_prev)}")
+    when = datetime(receipt_date.year, receipt_date.month, receipt_date.day, 18, 0, tzinfo=KST)
+    period = infer_report_period(report, receipt_date)
+    return event(
+        event_id=f"kr-result-{stock_code or stable_id(corp_name)}-{period}",
+        title=f"{corp_name} 실적 결과",
+        when=when,
+        source_key="dart",
+        source=SOURCE_LABELS["dart"],
+        source_url=f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={receipt_no}",
+        category="earnings",
+        importance=kr_importance(corp_name),
+        status="released",
+        summary=" · ".join(parts),
+        symbol=stock_code,
+        market="KR",
+        actual=", ".join(actual_parts),
+        expected="",
+        previous=", ".join(previous_parts),
+        rating=rating,
+        official=True,
+        confidence="official_financials" if actual_parts else "official_filing",
+    )
+
+
+def parse_tentative_result_document(payload: bytes, *, corp_name: str, stock_code: str,
+                                    receipt_no: str, receipt_date: date, report: str) -> dict[str, Any]:
+    text, rows = extract_dart_document_parts(payload)
+    multiplier = detect_krw_multiplier(text)
+    revenue, _, revenue_prev = row_metric_values(rows, KR_RESULT_METRICS["revenue"], multiplier)
+    operating, _, operating_prev = row_metric_values(rows, KR_RESULT_METRICS["operating"], multiplier)
+    net_income, _, net_prev = row_metric_values(rows, KR_RESULT_METRICS["net"], multiplier)
+    return build_kr_result_event(
+        corp_name=corp_name, stock_code=stock_code, receipt_no=receipt_no,
+        receipt_date=receipt_date, report=report, revenue=revenue,
+        revenue_prev=revenue_prev, operating=operating,
+        operating_prev=operating_prev, net_income=net_income, net_prev=net_prev,
+    )
+
+
+def fetch_periodic_result(api_key: str, *, corp_code: str, corp_name: str, stock_code: str,
+                          receipt_no: str, receipt_date: date, report: str) -> dict[str, Any]:
+    params = report_financial_params(report, receipt_date)
+    if not params:
+        raise RuntimeError("정기보고서 코드 판별 실패")
+    year, report_code = params
+    rows: list[dict[str, Any]] = []
+    for fs_div in ("CFS", "OFS"):
+        payload = http_get(DART_FINANCIAL, params={
+            "crtfc_key": api_key,
+            "corp_code": corp_code,
+            "bsns_year": str(year),
+            "reprt_code": report_code,
+            "fs_div": fs_div,
+        }, timeout=40).json()
+        status = payload.get("status")
+        if status == "000" and payload.get("list"):
+            rows = payload["list"]
+            for row in rows:
+                row["fs_div"] = fs_div
+            break
+        if status not in {"013", "000", None}:
+            raise RuntimeError(payload.get("message", f"DART 재무제표 status {status}"))
+    revenue, revenue_prev, _ = financial_metric_from_rows(rows, KR_RESULT_METRICS["revenue"])
+    operating, operating_prev, _ = financial_metric_from_rows(rows, KR_RESULT_METRICS["operating"])
+    net_income, net_prev, _ = financial_metric_from_rows(rows, KR_RESULT_METRICS["net"])
+    return build_kr_result_event(
+        corp_name=corp_name, stock_code=stock_code, receipt_no=receipt_no,
+        receipt_date=receipt_date, report=report, revenue=revenue,
+        revenue_prev=revenue_prev, operating=operating,
+        operating_prev=operating_prev, net_income=net_income, net_prev=net_prev,
+    )
+
+
+def collect_dart(config: dict[str, Any] | None, api_key: str, state: dict[str, Any], force: bool) -> SourceResult:
+    """Collect official Korean earnings results for every listed company.
+
+    Tentative-results filings are parsed from the original document. Periodic reports
+    use OpenDART's full-financial-statement endpoint. Results are cached by receipt
+    number, and new filings are processed over successive 30-minute runs.
+    """
     if not api_key:
         return SourceResult("dart", [], False, "OpenDART 인증키 미설정")
-    begin = (NOW.astimezone(KST).date() - timedelta(days=14)).strftime("%Y%m%d")
-    end = NOW.astimezone(KST).date().strftime("%Y%m%d")
-    out: list[dict[str, Any]] = []
+    today = NOW.astimezone(KST).date()
+    begin = (today - timedelta(days=21)).strftime("%Y%m%d")
+    end = today.strftime("%Y%m%d")
+    filings: list[dict[str, Any]] = []
     page = 1
-    while page <= 5:
+    while page <= 30:
         params = {
             "crtfc_key": api_key,
             "bgn_de": begin,
@@ -991,49 +1312,125 @@ def collect_dart(config: dict[str, Any] | None, api_key: str) -> SourceResult:
         }
         payload = http_get(DART_LIST, params=params).json()
         status = payload.get("status")
+        if status == "013":
+            break
         if status not in ("000", None):
             raise RuntimeError(payload.get("message", f"DART status {status}"))
-        rows = payload.get("list") or []
-        for row in rows:
+        for row in payload.get("list") or []:
             report = clean_text(row.get("report_nm"))
-            corp_name = clean_text(row.get("corp_name"))
-            stock_code = clean_text(row.get("stock_code"))
             low = report.lower()
-            is_result = any(k in low for k in ("잠정실적", "영업(잠정)실적", "매출액또는손익구조", "분기보고서", "반기보고서", "사업보고서"))
-            if not is_result:
-                continue
-            receipt = clean_text(row.get("rcept_no"))
-            receipt_date = clean_text(row.get("rcept_dt"))
-            try:
-                d = datetime.strptime(receipt_date, "%Y%m%d").date()
-            except ValueError:
-                continue
-            when = datetime(d.year, d.month, d.day, 18, 0, tzinfo=KST)
-            source_url = f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={receipt}"
-            period = infer_report_period(report, d)
-            eid = f"kr-result-{stock_code or stable_id(corp_name)}-{period}"
-            summary = f"⚪ {report} 공식 공시 확인"
-            out.append(event(
-                event_id=eid,
-                title=f"{corp_name} 실적 결과",
-                when=when,
-                source_key="dart",
-                source=SOURCE_LABELS["dart"],
-                source_url=source_url,
-                category="earnings",
-                importance=kr_importance(corp_name),
-                status="released",
-                summary=summary,
-                symbol=stock_code,
-                market="KR",
-                official=True,
+            is_result = any(k in low for k in (
+                "잠정실적", "영업(잠정)실적", "영업실적", "매출액또는손익구조",
+                "1분기보고서", "반기보고서", "3분기보고서", "사업보고서",
             ))
+            if is_result and clean_text(row.get("stock_code")):
+                filings.append(row)
         total_page = int(payload.get("total_page") or 1)
         if page >= total_page:
             break
         page += 1
-    return SourceResult("dart", out)
 
+    if int(state.get("dartResultParserVersion") or 0) != DART_RESULT_PARSER_VERSION:
+        state["dartResultCache"] = {}
+        state["dartResultParserVersion"] = DART_RESULT_PARSER_VERSION
+    cache = state.setdefault("dartResultCache", {})
+    previous_events = load_json(EVENTS_FILE, {}).get("events", [])
+    out_by_id: dict[str, dict[str, Any]] = {
+        item["id"]: item for item in previous_events
+        if item.get("sourceKey") == "dart" and item.get("status") == "released" and item.get("id")
+    }
+
+    # Larger and market-moving companies are parsed first, but every company remains
+    # eligible and is processed in later scheduled runs.
+    filings.sort(key=lambda row: (
+        -kr_importance(clean_text(row.get("corp_name"))),
+        clean_text(row.get("rcept_dt")),
+        clean_text(row.get("rcept_no")),
+    ))
+    processed_new = 0
+    parse_errors = 0
+    max_new_per_run = 80
+    for row in filings:
+        receipt = clean_text(row.get("rcept_no"))
+        report = clean_text(row.get("report_nm"))
+        corp_name = clean_text(row.get("corp_name"))
+        stock_code = clean_text(row.get("stock_code"))
+        corp_code = clean_text(row.get("corp_code"))
+        receipt_raw = clean_text(row.get("rcept_dt"))
+        if not receipt or not corp_name:
+            continue
+        try:
+            receipt_date = datetime.strptime(receipt_raw, "%Y%m%d").date()
+        except ValueError:
+            receipt_date = today
+        cached = cache.get(receipt)
+        cache_current = (
+            isinstance(cached, dict)
+            and int(cached.get("parserVersion") or 0) == DART_RESULT_PARSER_VERSION
+            and "event" in cached
+            and not cached.get("error")
+        )
+        parsed: dict[str, Any] | None = cached.get("event") if cache_current and not force else None
+        if parsed is None and (force or not cache_current):
+            if processed_new >= max_new_per_run:
+                continue
+            try:
+                if any(k in report for k in ("잠정실적", "영업(잠정)실적", "영업실적", "매출액또는손익구조")):
+                    response = http_get(DART_DOCUMENT, params={"crtfc_key": api_key, "rcept_no": receipt}, timeout=60)
+                    parsed = parse_tentative_result_document(
+                        response.content,
+                        corp_name=corp_name,
+                        stock_code=stock_code,
+                        receipt_no=receipt,
+                        receipt_date=receipt_date,
+                        report=report,
+                    )
+                else:
+                    parsed = fetch_periodic_result(
+                        api_key,
+                        corp_code=corp_code,
+                        corp_name=corp_name,
+                        stock_code=stock_code,
+                        receipt_no=receipt,
+                        receipt_date=receipt_date,
+                        report=report,
+                    )
+                cache[receipt] = {
+                    "checkedAt": iso_utc(),
+                    "receiptDate": receipt_raw,
+                    "parserVersion": DART_RESULT_PARSER_VERSION,
+                    "event": parsed,
+                }
+                processed_new += 1
+                time.sleep(0.04)
+            except Exception as exc:
+                parse_errors += 1
+                processed_new += 1
+                cache[receipt] = {
+                    "checkedAt": iso_utc(),
+                    "receiptDate": receipt_raw,
+                    "parserVersion": DART_RESULT_PARSER_VERSION,
+                    "event": None,
+                    "error": str(exc)[:240],
+                }
+                continue
+        if parsed:
+            out_by_id[parsed["id"]] = parsed
+
+    cutoff = today - timedelta(days=150)
+    for receipt in list(cache):
+        cached_date = parse_korean_date(str(cache[receipt].get("receiptDate", "")))
+        if cached_date and cached_date < cutoff:
+            cache.pop(receipt, None)
+    out = list(out_by_id.values())
+    out.sort(key=lambda item: int(item.get("time", 0)))
+    pending = sum(1 for row in filings if clean_text(row.get("rcept_no")) not in cache)
+    message = f"결과 공시 {len(filings)}건 · 저장 결과 {len(out)}개 · 이번 분석 {processed_new}건"
+    if pending:
+        message += f" · 다음 실행 대기 {pending}건"
+    if parse_errors:
+        message += f" · 분석 오류 {parse_errors}건"
+    return SourceResult("dart", out, True, message)
 
 def infer_report_period(report: str, d: date) -> str:
     if "사업보고서" in report:
@@ -1046,158 +1443,333 @@ def infer_report_period(report: str, d: date) -> str:
 
 
 def collect_alpha(config: dict[str, Any] | None, api_key: str, state: dict[str, Any], force: bool) -> SourceResult:
-    """미국 전체 실적 달력과 제한된 결과 확인을 수집한다.
-
-    EARNINGS_CALENDAR는 symbol을 지정하지 않아 전체 목록을 받는다. 무료 호출량을
-    지키기 위해 달력은 하루 한 번, 결과는 하루 최대 20개 기업만 중요도·발표시각
-    순으로 확인한다. 일정 자체는 모든 기업이 앱에 반영된다.
-    """
+    """Collect the full U.S. earnings calendar without a watchlist."""
     if not api_key:
         return SourceResult("alpha", [], False, "미국 실적 데이터 인증키 미설정")
     previous_events = load_json(EVENTS_FILE, {}).get("events", [])
     out: list[dict[str, Any]] = []
     last = parse_iso(state.get("alphaCalendarCheckedAt"))
     should_calendar = force or not last or NOW - last >= timedelta(hours=22)
+    if not should_calendar:
+        cached = [item for item in previous_events if item.get("sourceKey") == "alpha" and item.get("status") == "scheduled"]
+        return SourceResult("alpha", cached, True, f"이전 전체 달력 유지 {len(cached)}개")
 
-    if should_calendar:
-        response = http_get(ALPHA, params={"function": "EARNINGS_CALENDAR", "horizon": "3month", "apikey": api_key})
-        text = response.text
-        if text.lstrip().startswith("{"):
-            payload = response.json()
-            raise RuntimeError(payload.get("Information") or payload.get("Note") or "미국 전체 실적 달력 조회 오류")
-        rows = list(csv.DictReader(io.StringIO(text)))
-        for raw in rows:
-            row = {k: clean_text(v) for k, v in raw.items()}
-            symbol = row.get("symbol", "").upper()
-            report_date = row.get("reportDate", "") or row.get("report_date", "")
-            if not symbol or not report_date:
-                continue
-            country = (row.get("country") or "").lower()
-            currency = (row.get("currency") or "").upper()
-            # 미국 상장 실적 달력 중심. 국가가 비어 있는 행은 유지한다.
-            if country and not any(k in country for k in ("united states", "usa", "u.s.")) and currency not in ("USD", ""):
-                continue
-            try:
-                d = datetime.strptime(report_date, "%Y-%m-%d").date()
-            except ValueError:
-                continue
-            report_time = (row.get("reportTime") or row.get("report_time") or "").lower()
-            if any(k in report_time for k in ("after", "post")):
-                hour, all_day, timing = 16, False, "미국 장 마감 후"
-            elif any(k in report_time for k in ("before", "pre")):
-                hour, all_day, timing = 8, False, "미국 장 시작 전"
-            else:
-                hour, all_day, timing = 12, True, "발표 시간 미정"
-            when = datetime(d.year, d.month, d.day, hour, 0, tzinfo=ET)
-            estimate = row.get("estimate", "") or row.get("estimatedEPS", "")
-            fiscal = row.get("fiscalDateEnding", "")
-            raw_name = row.get("name", "")
-            summary_parts = [timing]
-            if estimate:
-                summary_parts.append(f"예상 EPS {estimate}")
-            if fiscal:
-                summary_parts.append(f"회계기간 {fiscal}")
-            out.append(event(
-                event_id=f"us-earnings-{symbol}-{d.isoformat()}",
-                title=f"{company_display_name(symbol, raw_name)} 실적 발표",
-                when=when,
-                source_key="alpha",
-                source=SOURCE_LABELS["alpha"],
-                source_url=f"https://www.alphavantage.co/query?function=EARNINGS_CALENDAR&symbol={symbol}",
-                category="earnings",
-                importance=us_importance(symbol),
-                summary=" · ".join(summary_parts),
-                symbol=symbol,
-                market="US",
-                expected=estimate,
-                all_day=all_day,
-                confidence="provider",
-            ))
-        state["alphaCalendarCheckedAt"] = iso_utc()
-    else:
-        # 호출 제한으로 달력을 다시 받지 않는 시간에는 이전 전체 미국 일정을 유지한다.
-        out.extend(item for item in previous_events
-                   if item.get("sourceKey") == "alpha" and item.get("status") == "scheduled")
+    response = http_get(ALPHA, params={"function": "EARNINGS_CALENDAR", "horizon": "3month", "apikey": api_key})
+    text = response.text
+    if text.lstrip().startswith("{"):
+        payload = response.json()
+        raise RuntimeError(payload.get("Information") or payload.get("Note") or "미국 전체 실적 달력 조회 오류")
+    rows = list(csv.DictReader(io.StringIO(text)))
+    for raw in rows:
+        row = {k: clean_text(v) for k, v in raw.items()}
+        symbol = row.get("symbol", "").upper()
+        report_date = row.get("reportDate", "") or row.get("report_date", "")
+        if not symbol or not report_date:
+            continue
+        country = (row.get("country") or "").lower()
+        currency = (row.get("currency") or "").upper()
+        if country and not any(k in country for k in ("united states", "usa", "u.s.")) and currency not in ("USD", ""):
+            continue
+        try:
+            d = datetime.strptime(report_date, "%Y-%m-%d").date()
+        except ValueError:
+            continue
+        report_time = (row.get("reportTime") or row.get("report_time") or "").lower()
+        if any(k in report_time for k in ("after", "post")):
+            hour, all_day, timing = 16, False, "미국 장 마감 후"
+        elif any(k in report_time for k in ("before", "pre")):
+            hour, all_day, timing = 8, False, "미국 장 시작 전"
+        else:
+            hour, all_day, timing = 12, True, "발표 시간 미정"
+        estimate = row.get("estimate", "") or row.get("estimatedEPS", "")
+        fiscal = row.get("fiscalDateEnding", "")
+        parts = [timing]
+        if estimate:
+            parts.append(f"예상 EPS {estimate}")
+        if fiscal:
+            parts.append(f"회계기간 {fiscal}")
+        out.append(event(
+            event_id=f"us-earnings-{symbol}-{d.isoformat()}",
+            title=f"{company_display_name(symbol, row.get('name', ''))} 실적 발표",
+            when=datetime(d.year, d.month, d.day, hour, 0, tzinfo=ET),
+            source_key="alpha",
+            source=SOURCE_LABELS["alpha"],
+            source_url=f"https://www.alphavantage.co/query?function=EARNINGS_CALENDAR&symbol={symbol}",
+            category="earnings",
+            importance=us_importance(symbol),
+            summary=" · ".join(parts),
+            symbol=symbol,
+            market="US",
+            expected=estimate,
+            all_day=all_day,
+            confidence="provider",
+        ))
+    state["alphaCalendarCheckedAt"] = iso_utc()
+    return SourceResult("alpha", out, True, f"향후 3개월 전체 실적 {len(out)}개")
 
-    # 무료 호출량: 날짜가 바뀌면 일일 결과 확인 횟수를 초기화한다.
-    today_key = NOW.astimezone(ET).date().isoformat()
-    quota = state.setdefault("alphaDailyQuota", {})
-    if quota.get("date") != today_key:
-        quota.clear()
-        quota.update({"date": today_key, "resultCalls": 0})
-    used = int(quota.get("resultCalls", 0))
-    remaining = max(0, 20 - used)
 
-    cutoff_start = NOW.astimezone(ET).date() - timedelta(days=3)
-    cutoff_end = NOW.astimezone(ET).date() + timedelta(days=1)
-    candidates: dict[str, dict[str, Any]] = {}
-    for item in out + previous_events:
-        if item.get("sourceKey") != "alpha" or item.get("status") != "scheduled":
+def sec_headers() -> dict[str, str]:
+    user_agent = os.getenv("SEC_USER_AGENT", "MarketAlarm/1.4 market-alarm-bot@users.noreply.github.com").strip()
+    return {"User-Agent": user_agent, "Accept-Encoding": "gzip, deflate", "Host": "data.sec.gov"}
+
+
+def load_sec_ticker_map(state: dict[str, Any], force: bool) -> dict[str, int]:
+    checked = parse_iso(state.get("secTickerMapCheckedAt"))
+    cached = state.get("secTickerMap")
+    if isinstance(cached, dict) and cached and not force and checked and NOW - checked < timedelta(days=7):
+        return {str(k).upper(): int(v) for k, v in cached.items()}
+    response = requests.get(
+        SEC_TICKERS,
+        headers={"User-Agent": sec_headers()["User-Agent"], "Accept-Encoding": "gzip, deflate"},
+        timeout=40,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    mapping: dict[str, int] = {}
+    rows = payload.values() if isinstance(payload, dict) else payload
+    for row in rows:
+        symbol = clean_text(row.get("ticker")).upper()
+        cik = row.get("cik_str")
+        if symbol and cik is not None:
+            mapping[symbol] = int(cik)
+    state["secTickerMap"] = mapping
+    state["secTickerMapCheckedAt"] = iso_utc()
+    return mapping
+
+
+SEC_REVENUE_TAGS = (
+    "RevenueFromContractWithCustomerExcludingAssessedTax",
+    "Revenues",
+    "SalesRevenueNet",
+    "SalesRevenueGoodsNet",
+)
+SEC_OPERATING_TAGS = ("OperatingIncomeLoss",)
+SEC_NET_TAGS = ("NetIncomeLoss", "ProfitLoss")
+SEC_EPS_TAGS = ("EarningsPerShareDiluted", "EarningsPerShareBasicAndDiluted")
+
+
+def sec_fact_entries(payload: dict[str, Any], tags: tuple[str, ...], units: tuple[str, ...]) -> list[dict[str, Any]]:
+    facts = ((payload.get("facts") or {}).get("us-gaap") or {})
+    out: list[dict[str, Any]] = []
+    for tag in tags:
+        node = facts.get(tag) or {}
+        unit_map = node.get("units") or {}
+        for unit in units:
+            for row in unit_map.get(unit) or []:
+                clone = dict(row)
+                clone["tag"] = tag
+                clone["unit"] = unit
+                out.append(clone)
+    return out
+
+
+def sec_choose_current(entries: list[dict[str, Any]], scheduled_date: date) -> dict[str, Any] | None:
+    candidates: list[tuple[tuple[int, int, int, int], dict[str, Any]]] = []
+    for row in entries:
+        form = clean_text(row.get("form"))
+        if form not in {"10-Q", "10-K", "8-K", "20-F", "6-K"}:
+            continue
+        filed = parse_korean_date(clean_text(row.get("filed")))
+        end = parse_korean_date(clean_text(row.get("end")))
+        start = parse_korean_date(clean_text(row.get("start")))
+        if not filed or not end:
+            continue
+        if not (scheduled_date - timedelta(days=3) <= filed <= NOW.astimezone(ET).date() + timedelta(days=1)):
+            continue
+        if not (scheduled_date - timedelta(days=220) <= end <= scheduled_date + timedelta(days=45)):
+            continue
+        duration = (end - start).days if start else 999
+        quarter_like = 1 if 65 <= duration <= 120 else 0
+        annual_like = 1 if 280 <= duration <= 400 else 0
+        form_score = 3 if form == "10-Q" else 2 if form in {"8-K", "6-K"} else 1
+        score = (quarter_like * 5 + annual_like, form_score, -abs((filed - scheduled_date).days), int(end.strftime("%Y%m%d")))
+        candidates.append((score, row))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    return candidates[0][1]
+
+
+def sec_previous_matching(entries: list[dict[str, Any]], current: dict[str, Any]) -> float | None:
+    current_end = parse_korean_date(clean_text(current.get("end")))
+    current_start = parse_korean_date(clean_text(current.get("start")))
+    if not current_end:
+        return None
+    current_duration = (current_end - current_start).days if current_start else None
+    candidates: list[tuple[int, float]] = []
+    for row in entries:
+        end = parse_korean_date(clean_text(row.get("end")))
+        start = parse_korean_date(clean_text(row.get("start")))
+        value = safe_float(row.get("val"))
+        if not end or value is None:
+            continue
+        day_gap = abs((current_end - end).days - 365)
+        if day_gap > 45:
+            continue
+        duration = (end - start).days if start else None
+        duration_gap = abs((duration or 999) - (current_duration or 999))
+        candidates.append((day_gap * 10 + duration_gap, value))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: item[0])
+    return candidates[0][1]
+
+
+def extract_sec_company_result(payload: dict[str, Any], scheduled_date: date) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for name, tags, units in (
+        ("revenue", SEC_REVENUE_TAGS, ("USD",)),
+        ("operating", SEC_OPERATING_TAGS, ("USD",)),
+        ("net", SEC_NET_TAGS, ("USD",)),
+        ("eps", SEC_EPS_TAGS, ("USD/shares",)),
+    ):
+        entries = sec_fact_entries(payload, tags, units)
+        current = sec_choose_current(entries, scheduled_date)
+        if not current:
+            continue
+        result[name] = safe_float(current.get("val"))
+        result[name + "_previous"] = sec_previous_matching(entries, current)
+        result.setdefault("filed", clean_text(current.get("filed")))
+        result.setdefault("accn", clean_text(current.get("accn")))
+        result.setdefault("period_end", clean_text(current.get("end")))
+    return result
+
+
+def sec_filing_url(cik: int, accn: str) -> str:
+    clean_accn = accn.replace("-", "")
+    return f"https://www.sec.gov/Archives/edgar/data/{cik}/{clean_accn}/{accn}-index.html" if accn else "https://www.sec.gov/edgar/search/"
+
+
+def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dict[str, Any], force: bool) -> SourceResult:
+    """Track recently due U.S. earnings and combine EPS surprise with SEC financial facts."""
+    today_et = NOW.astimezone(ET).date()
+    candidate_by_symbol: dict[str, dict[str, Any]] = {}
+    for item in schedules + load_json(EVENTS_FILE, {}).get("events", []):
+        if item.get("market") != "US" or item.get("category") != "earnings" or item.get("status") != "scheduled":
             continue
         symbol = clean_text(item.get("symbol")).upper()
         if not symbol:
             continue
-        d = datetime.fromtimestamp(int(item.get("time", 0)) / 1000, UTC).astimezone(ET).date()
-        if cutoff_start <= d <= cutoff_end:
-            current = candidates.get(symbol)
-            if current is None or (int(item.get("importance", 0)), -int(item.get("time", 0))) > (int(current.get("importance", 0)), -int(current.get("time", 0))):
-                candidates[symbol] = item
+        try:
+            d = datetime.fromtimestamp(int(item.get("time", 0)) / 1000, UTC).astimezone(ET).date()
+        except Exception:
+            continue
+        if today_et - timedelta(days=4) <= d <= today_et:
+            old = candidate_by_symbol.get(symbol)
+            if old is None or int(item.get("importance", 0)) > int(old.get("importance", 0)):
+                candidate_by_symbol[symbol] = item
+    if not candidate_by_symbol:
+        return SourceResult("us_results", [], True, "확인할 최근 미국 실적 없음")
 
-    checked = state.setdefault("alphaResultChecked", {})
-    ordered = sorted(candidates.values(), key=lambda x: (-int(x.get("importance", 0)), int(x.get("time", 0)), str(x.get("symbol", ""))))
-    for scheduled in ordered:
-        if remaining <= 0:
-            break
+    ticker_map = load_sec_ticker_map(state, force)
+    checked = state.setdefault("usResultChecked", {})
+    quota = state.setdefault("alphaResultQuota", {})
+    quota_date = today_et.isoformat()
+    if quota.get("date") != quota_date:
+        quota.clear()
+        quota.update({"date": quota_date, "calls": 0})
+    alpha_remaining = max(0, 20 - int(quota.get("calls", 0)))
+    out: list[dict[str, Any]] = []
+    checked_count = 0
+    ordered = sorted(candidate_by_symbol.values(), key=lambda x: (-int(x.get("importance", 0)), int(x.get("time", 0))))
+    for scheduled in ordered[:40]:
         symbol = clean_text(scheduled.get("symbol")).upper()
         checked_at = parse_iso(checked.get(symbol))
-        if not force and checked_at and NOW - checked_at < timedelta(hours=8):
+        if not force and checked_at and NOW - checked_at < timedelta(hours=4):
             continue
-        payload = http_get(ALPHA, params={"function": "EARNINGS", "symbol": symbol, "apikey": api_key}).json()
+        scheduled_date = datetime.fromtimestamp(int(scheduled.get("time", 0)) / 1000, UTC).astimezone(ET).date()
+        eps_actual = eps_estimate = surprise = None
+        if api_key and alpha_remaining > 0:
+            payload = http_get(ALPHA, params={"function": "EARNINGS", "symbol": symbol, "apikey": api_key}).json()
+            quota["calls"] = int(quota.get("calls", 0)) + 1
+            alpha_remaining -= 1
+            if not payload.get("Information") and not payload.get("Note"):
+                for quarter in payload.get("quarterlyEarnings") or []:
+                    reported = parse_korean_date(clean_text(quarter.get("reportedDate")))
+                    if reported and abs((reported - scheduled_date).days) <= 7:
+                        eps_actual = safe_float(quarter.get("reportedEPS"))
+                        eps_estimate = safe_float(quarter.get("estimatedEPS"))
+                        surprise = safe_float(quarter.get("surprisePercentage"))
+                        if surprise is None and eps_estimate not in (None, 0) and eps_actual is not None:
+                            surprise = (eps_actual - eps_estimate) / abs(eps_estimate) * 100
+                        break
+
+        sec_data: dict[str, Any] = {}
+        cik = ticker_map.get(symbol)
+        if cik:
+            try:
+                response = requests.get(SEC_COMPANY_FACTS.format(cik=cik), headers=sec_headers(), timeout=45)
+                response.raise_for_status()
+                sec_data = extract_sec_company_result(response.json(), scheduled_date)
+                time.sleep(0.12)
+            except Exception:
+                sec_data = {}
         checked[symbol] = iso_utc()
-        quota["resultCalls"] = int(quota.get("resultCalls", 0)) + 1
-        remaining -= 1
-        if payload.get("Information") or payload.get("Note"):
-            break
-        quarters = payload.get("quarterlyEarnings") or []
-        if not quarters:
+        checked_count += 1
+        if eps_actual is None and not any(sec_data.get(k) is not None for k in ("revenue", "operating", "net", "eps")):
             continue
-        latest = quarters[0]
-        try:
-            d = datetime.strptime(latest.get("reportedDate", ""), "%Y-%m-%d").date()
-        except ValueError:
-            continue
-        if d < cutoff_start - timedelta(days=5):
-            continue
-        actual = safe_float(latest.get("reportedEPS"))
-        estimate = safe_float(latest.get("estimatedEPS"))
-        surprise = safe_float(latest.get("surprisePercentage"))
-        if surprise is None and estimate not in (None, 0) and actual is not None:
-            surprise = (actual - estimate) / abs(estimate) * 100
-        rating = 2 if surprise is not None and surprise >= 5 else 1 if surprise is not None and surprise > 0 else -2 if surprise is not None and surprise <= -5 else -1 if surprise is not None and surprise < 0 else 0
-        summary = f"{rating_text(rating)} · EPS {fmt_num(actual)} / 예상 {fmt_num(estimate)}"
-        if surprise is not None:
-            summary += f" · {surprise:+.1f}%"
-        when = datetime(d.year, d.month, d.day, 16, 5, tzinfo=ET)
+        if eps_actual is None:
+            eps_actual = sec_data.get("eps")
+        if eps_estimate is None:
+            eps_estimate = safe_float(scheduled.get("expected"))
+        if surprise is None and eps_estimate not in (None, 0) and eps_actual is not None:
+            surprise = (eps_actual - eps_estimate) / abs(eps_estimate) * 100
+        operating_yoy = pct_change(sec_data.get("operating"), sec_data.get("operating_previous"))
+        revenue_yoy = pct_change(sec_data.get("revenue"), sec_data.get("revenue_previous"))
+        rating = result_rating(surprise, operating_yoy if operating_yoy is not None else revenue_yoy)
+        parts = [rating_text(rating)]
+        if eps_actual is not None:
+            eps_text = f"EPS {fmt_num(eps_actual)}"
+            if eps_estimate is not None:
+                eps_text += f" / 예상 {fmt_num(eps_estimate)}"
+            if surprise is not None:
+                eps_text += f" ({surprise:+.1f}%)"
+            parts.append(eps_text)
+        if sec_data.get("revenue") is not None:
+            text = f"매출 {format_usd(sec_data['revenue'])}"
+            if revenue_yoy is not None:
+                text += f" ({revenue_yoy:+.1f}%)"
+            parts.append(text)
+        if sec_data.get("operating") is not None:
+            text = f"영업익 {format_usd(sec_data['operating'])}"
+            if operating_yoy is not None:
+                text += f" ({operating_yoy:+.1f}%)"
+            parts.append(text)
+        actual_parts = []
+        if eps_actual is not None:
+            actual_parts.append(f"EPS {fmt_num(eps_actual)}")
+        if sec_data.get("revenue") is not None:
+            actual_parts.append(f"매출 {format_usd(sec_data['revenue'])}")
+        if sec_data.get("operating") is not None:
+            actual_parts.append(f"영업익 {format_usd(sec_data['operating'])}")
+        previous_parts = []
+        if sec_data.get("revenue_previous") is not None:
+            previous_parts.append(f"매출 {format_usd(sec_data['revenue_previous'])}")
+        if sec_data.get("operating_previous") is not None:
+            previous_parts.append(f"영업익 {format_usd(sec_data['operating_previous'])}")
+        when = datetime(scheduled_date.year, scheduled_date.month, scheduled_date.day, 16, 5, tzinfo=ET)
+        source_url = sec_filing_url(cik, clean_text(sec_data.get("accn"))) if cik and sec_data else f"https://www.alphavantage.co/query?function=EARNINGS&symbol={symbol}"
         out.append(event(
-            event_id=f"us-earnings-{symbol}-{d.isoformat()}",
+            event_id=f"us-result-{symbol}-{scheduled_date.isoformat()}",
             title=f"{company_display_name(symbol)} 실적 결과",
             when=when,
-            source_key="alpha",
-            source=SOURCE_LABELS["alpha"],
-            source_url=f"https://www.alphavantage.co/query?function=EARNINGS&symbol={symbol}",
+            source_key="us_results",
+            source=SOURCE_LABELS["us_results"],
+            source_url=source_url,
             category="earnings",
             importance=us_importance(symbol),
             status="released",
-            summary=summary,
+            summary=" · ".join(parts),
             symbol=symbol,
             market="US",
-            actual=fmt_num(actual),
-            expected=fmt_num(estimate),
+            actual=", ".join(actual_parts),
+            expected=f"EPS {fmt_num(eps_estimate)}" if eps_estimate is not None else "",
+            previous=", ".join(previous_parts),
             rating=rating,
-            official=False,
-            confidence="provider",
+            official=bool(sec_data),
+            confidence="official_sec_plus_provider" if sec_data and eps_estimate is not None else "official_sec" if sec_data else "provider",
         ))
-    return SourceResult("alpha", out, True, f"전체 실적 일정 {sum(1 for x in out if x.get('status') == 'scheduled')}개 · 오늘 결과 확인 {quota.get('resultCalls', 0)}/20")
+    return SourceResult("us_results", out, True, f"최근 미국 실적 {len(out)}개 반영 · 이번 확인 {checked_count}개 · Alpha {quota.get('calls', 0)}/20")
 
 def collect_spacex() -> SourceResult:
     params_upcoming = {"limit": 60, "ordering": "net", "lsp__name": "SpaceX"}
@@ -1469,7 +2041,7 @@ def main() -> int:
         ("bok", collect_bok),
         ("dart_schedule", lambda: collect_dart_schedules(dart_key, state, force)),
         ("kind", lambda: collect_kind(config)),
-        ("dart", lambda: collect_dart(config, dart_key)),
+        ("dart", lambda: collect_dart(config, dart_key, state, force)),
         ("nasdaq", lambda: collect_nasdaq_earnings(state, force)),
         ("alpha", lambda: collect_alpha(config, alpha_key, state, force)),
         ("spacex", collect_spacex),
@@ -1489,6 +2061,17 @@ def main() -> int:
             failed_sources.add(key)
             results.append(SourceResult(key, [], False, str(exc)))
             print(f"[{key}] ERROR: {exc}", file=sys.stderr)
+
+    # Recently due U.S. earnings: EPS surprise plus SEC revenue/operating income.
+    try:
+        us_result = collect_us_results(all_events, alpha_key, state, force)
+        results.append(us_result)
+        all_events.extend(us_result.events)
+        print(f"[us_results] {len(us_result.events)} updates" + (f" ({us_result.message})" if us_result.message else ""))
+    except Exception as exc:
+        failed_sources.add("us_results")
+        results.append(SourceResult("us_results", [], False, str(exc)))
+        print(f"[us_results] ERROR: {exc}", file=sys.stderr)
 
     # BLS official actual/previous values replace matching released schedules.
     try:
