@@ -1,0 +1,21 @@
+{
+  "us": [
+    "NVDA", "MSFT", "AAPL", "AMZN", "META", "GOOGL", "TSLA",
+    "AVGO", "AMD", "MU", "PLTR", "NOW", "CEG", "VST"
+  ],
+  "kr": [
+    {"name": "삼성전자", "code": "005930"},
+    {"name": "SK하이닉스", "code": "000660"},
+    {"name": "LG전자", "code": "066570"},
+    {"name": "삼성전기", "code": "009150"},
+    {"name": "한미반도체", "code": "042700"},
+    {"name": "NAVER", "code": "035420"},
+    {"name": "카카오", "code": "035720"},
+    {"name": "현대차", "code": "005380"},
+    {"name": "기아", "code": "000270"},
+    {"name": "셀트리온", "code": "068270"}
+  ],
+  "industry_keywords": [
+    "SpaceX", "Starship", "Falcon Heavy", "Crew Dragon", "Starlink"
+  ]
+}

@@ -4,28 +4,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,566 +21,230 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public final class DataRepository {
     private static final String PREFS = "market_alarm";
     private static final String KEY_EVENTS = "events";
+    private static final String KEY_STATUS = "status";
     private static final String KEY_SETTINGS = "settings";
+    private static final String KEY_LAST_SYNC = "last_sync";
+    private static final String DEFAULT_DATA_URL = "https://raw.githubusercontent.com/Loshin4/market_alarm/main/data/events.json";
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
-
-    private static final String BLS_ICS = "https://www.bls.gov/schedule/news_release/bls.ics";
-    private static final String BEA_ICS = "https://www.bea.gov/news/schedule/ics/online-calendar-subscription.ics";
-    private static final String FED_URL = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm";
-    private static final String BOK_URL = "https://www.bok.or.kr/portal/singl/crncyPolicyDrcMtg/listYear.do?menuNo=200755&mtgSe=A";
-    private static final String BLS_API = "https://api.bls.gov/publicAPI/v2/timeseries/data/";
-    private static final String KIND_IR_URL = "https://kind.krx.co.kr/corpgeneral/irschedule.do?gubun=iRSchedule&method=searchIRScheduleMain";
-    private static final String KIND_SKHYNIX_URL = "https://kind.krx.co.kr/corpgeneral/irschedule.do?irSeq=45179&method=searchIRScheduleDetail";
-    private static final String LL2_UPCOMING = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?limit=40&ordering=net&lsp__name=SpaceX";
-    private static final String LL2_PREVIOUS = "https://ll.thespacedevs.com/2.3.0/launches/previous/?limit=20&ordering=-net&lsp__name=SpaceX";
 
     private DataRepository() { }
 
     public interface RefreshCallback {
-        void onSuccess(String eventsJson, String message);
-        void onError(String eventsJson, String message);
+        void onSuccess(String eventsJson, String statusJson, String message);
+        void onError(String eventsJson, String statusJson, String message);
+    }
+
+    private static SharedPreferences prefs(Context context) {
+        return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
     public static String getCachedEvents(Context context) {
         return prefs(context).getString(KEY_EVENTS, "[]");
     }
 
+    public static String getCachedStatus(Context context) {
+        return prefs(context).getString(KEY_STATUS,
+                "{\"updatedAt\":null,\"ok\":false,\"message\":\"데이터 업데이트 대기 중\",\"counts\":{},\"sources\":{}}");
+    }
+
     public static String getSettings(Context context) {
-        return prefs(context).getString(KEY_SETTINGS, "{\"watchlist\":\"NVDA,MSFT,GOOGL,AMZN,META\",\"krWatchlist\":\"삼성전자,SK하이닉스\"}");
+        return prefs(context).getString(KEY_SETTINGS,
+                "{\"watchlist\":\"NVDA,MSFT,AAPL,AMZN,META,GOOGL,TSLA\","
+                        + "\"krWatchlist\":\"삼성전자,SK하이닉스\","
+                        + "\"notifyDay\":true,\"notifyHour\":true,\"notifyTen\":true,"
+                        + "\"notifyResults\":true,\"notifyChanges\":true,"
+                        + "\"dataUrl\":\"" + DEFAULT_DATA_URL + "\"}");
     }
 
     public static void saveSettings(Context context, String json) {
-        prefs(context).edit().putString(KEY_SETTINGS, json == null ? "{}" : json).apply();
+        JSONObject current = safeObject(getSettings(context));
+        JSONObject incoming = safeObject(json);
+        String[] keys = {"watchlist", "krWatchlist", "dataUrl", "notifyDay", "notifyHour", "notifyTen", "notifyResults", "notifyChanges"};
+        for (String key : keys) {
+            if (incoming.has(key)) {
+                try { current.put(key, incoming.get(key)); } catch (Exception ignored) { }
+            }
+        }
+        prefs(context).edit().putString(KEY_SETTINGS, current.toString()).apply();
     }
 
-    private static SharedPreferences prefs(Context c) {
-        return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+    public static boolean shouldRefresh(Context context) {
+        long last = prefs(context).getLong(KEY_LAST_SYNC, 0L);
+        return System.currentTimeMillis() - last > 45L * 60L * 1000L;
     }
 
     public static void refreshAll(Context context, RefreshCallback callback) {
         EXECUTOR.execute(() -> {
-            List<JSONObject> events = new ArrayList<>();
-            List<String> errors = new ArrayList<>();
-            int[] counts = new int[7];
+            String cachedEvents = getCachedEvents(context);
+            String cachedStatus = getCachedStatus(context);
+            try {
+                JSONObject settings = safeObject(getSettings(context));
+                String dataUrl = settings.optString("dataUrl", DEFAULT_DATA_URL).trim();
+                if (!dataUrl.startsWith("https://")) dataUrl = DEFAULT_DATA_URL;
+                String statusUrl = deriveStatusUrl(dataUrl);
+                String rootText = fetch(addCacheBuster(dataUrl));
+                JSONObject root = new JSONObject(rootText);
+                JSONArray newEvents = root.optJSONArray("events");
+                if (newEvents == null) throw new IllegalStateException("events 배열 없음");
+                JSONObject status;
+                try { status = new JSONObject(fetch(addCacheBuster(statusUrl))); }
+                catch (Exception ignored) {
+                    status = new JSONObject();
+                    status.put("updatedAt", root.optString("updatedAt", ""));
+                    status.put("ok", true);
+                    status.put("message", "일정 데이터는 정상 수신됨");
+                }
 
-            try { List<JSONObject> x = parseIcs(fetch(BLS_ICS), "미국 노동통계국 BLS", BLS_ICS, "macro"); events.addAll(x); counts[0] = x.size(); }
-            catch (Exception e) { errors.add("BLS"); }
-            try { List<JSONObject> x = parseIcs(fetch(BEA_ICS), "미국 경제분석국 BEA", BEA_ICS, "macro"); events.addAll(x); counts[1] = x.size(); }
-            catch (Exception e) { errors.add("BEA"); }
-            try { List<JSONObject> x = fetchFomc(); events.addAll(x); counts[2] = x.size(); }
-            catch (Exception e) { errors.add("FOMC"); addFomcFallback(events); }
-            try { List<JSONObject> x = fetchBok(); events.addAll(x); counts[3] = x.size(); }
-            catch (Exception e) { errors.add("한국은행"); addBokFallback(events); }
+                JSONArray oldEvents = safeArray(cachedEvents);
+                notifyMeaningfulChanges(context, oldEvents, newEvents, settings);
+                prefs(context).edit()
+                        .putString(KEY_EVENTS, newEvents.toString())
+                        .putString(KEY_STATUS, status.toString())
+                        .putLong(KEY_LAST_SYNC, System.currentTimeMillis())
+                        .apply();
+                NotificationHelper.scheduleEventReminders(context, toList(newEvents), settings);
 
-            JSONObject settings = safeObject(getSettings(context));
-            String alphaKey = settings.optString("alphaKey", "").trim();
-            String watchlist = settings.optString("watchlist", "NVDA,MSFT,GOOGL,AMZN,META");
-            String krWatchlist = settings.optString("krWatchlist", "삼성전자,SK하이닉스");
-
-            try { List<JSONObject> x = fetchKindIrEvents(krWatchlist); events.addAll(x); counts[4] = x.size(); }
-            catch (Exception e) { errors.add("국내 실적"); }
-            addConfirmedKoreanEarnings(events);
-
-            try { List<JSONObject> x = fetchSpaceXLaunches(); events.addAll(x); counts[5] = x.size(); }
-            catch (Exception e) { errors.add("우주 발사"); addSpaceXFallback(events); }
-
-            if (!alphaKey.isEmpty()) {
-                try { List<JSONObject> x = fetchAlphaEarnings(alphaKey, watchlist); events.addAll(x); counts[6] = x.size(); }
-                catch (Exception e) { errors.add("미국 실적"); }
-            }
-
-            try { attachBlsResults(events); }
-            catch (Exception ignored) { }
-
-            deduplicateAndSort(events);
-            String json = toJson(events).toString();
-            if (!events.isEmpty()) {
-                prefs(context).edit().putString(KEY_EVENTS, json).apply();
-                NotificationHelper.scheduleEventReminders(context, events);
-                String message = "일정 " + events.size() + "개 저장 · 거시 " + (counts[0] + counts[1] + counts[2] + counts[3]) + " · 국내실적 " + counts[4] + " · 우주 " + counts[5] + " · 미국실적 " + counts[6];
-                if (!errors.isEmpty()) message += " · 일부 실패: " + String.join(", ", errors);
-                callback.onSuccess(json, message);
-            } else {
-                String cached = getCachedEvents(context);
-                callback.onError(cached, "일정을 불러오지 못했어. 인터넷 연결을 확인해줘.");
+                String updated = status.optString("updatedAt", root.optString("updatedAt", ""));
+                String message = "일정 " + newEvents.length() + "개 업데이트";
+                if (!updated.isEmpty()) message += " · " + compactTime(updated);
+                callback.onSuccess(newEvents.toString(), status.toString(), message);
+            } catch (Exception e) {
+                callback.onError(cachedEvents, cachedStatus, "업데이트 실패 · " + readableError(e));
             }
         });
     }
 
     public static void refreshInBackground(Context context) {
         refreshAll(context, new RefreshCallback() {
-            @Override public void onSuccess(String eventsJson, String message) { }
-            @Override public void onError(String eventsJson, String message) { }
+            @Override public void onSuccess(String eventsJson, String statusJson, String message) { }
+            @Override public void onError(String eventsJson, String statusJson, String message) { }
         });
     }
 
-    private static JSONObject safeObject(String json) {
-        try { return new JSONObject(json); } catch (Exception e) { return new JSONObject(); }
+    private static String deriveStatusUrl(String dataUrl) {
+        int slash = dataUrl.lastIndexOf('/');
+        return slash >= 0 ? dataUrl.substring(0, slash + 1) + "status.json" : dataUrl;
+    }
+
+    private static String addCacheBuster(String url) {
+        long bucket = System.currentTimeMillis() / (10L * 60L * 1000L);
+        return url + (url.contains("?") ? "&" : "?") + "v=" + bucket;
     }
 
     private static String fetch(String url) throws Exception {
-        HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
-        c.setConnectTimeout(15000);
-        c.setReadTimeout(25000);
-        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Android) MarketAlarm/0.4");
-        c.setRequestProperty("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8");
-        c.setInstanceFollowRedirects(true);
-        int code = c.getResponseCode();
-        if (code < 200 || code >= 300) throw new Exception("HTTP " + code);
-        return readAll(c.getInputStream());
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        connection.setConnectTimeout(15000);
+        connection.setReadTimeout(25000);
+        connection.setInstanceFollowRedirects(true);
+        connection.setRequestProperty("User-Agent", "MarketAlarmAndroid/1.0");
+        connection.setRequestProperty("Accept", "application/json");
+        connection.setRequestProperty("Cache-Control", "no-cache");
+        int code = connection.getResponseCode();
+        if (code < 200 || code >= 300) throw new IllegalStateException("HTTP " + code);
+        return readAll(connection.getInputStream());
     }
 
-    private static String postJson(String url, JSONObject body) throws Exception {
-        HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
-        c.setConnectTimeout(15000);
-        c.setReadTimeout(25000);
-        c.setRequestMethod("POST");
-        c.setDoOutput(true);
-        c.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-        c.setRequestProperty("User-Agent", "MarketAlarm/0.4");
-        try (BufferedWriter w = new BufferedWriter(new OutputStreamWriter(c.getOutputStream(), StandardCharsets.UTF_8))) { w.write(body.toString()); }
-        int code = c.getResponseCode();
-        if (code < 200 || code >= 300) throw new Exception("HTTP " + code);
-        return readAll(c.getInputStream());
-    }
-
-    private static String readAll(InputStream in) throws Exception {
-        StringBuilder b = new StringBuilder();
-        try (BufferedReader r = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
-            char[] buf = new char[8192]; int n;
-            while ((n = r.read(buf)) >= 0) b.append(buf, 0, n);
+    private static String readAll(InputStream inputStream) throws Exception {
+        StringBuilder builder = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            char[] buffer = new char[8192];
+            int read;
+            while ((read = reader.read(buffer)) >= 0) builder.append(buffer, 0, read);
         }
-        return b.toString();
+        return builder.toString();
     }
 
-    private static List<JSONObject> parseIcs(String raw, String source, String sourceUrl, String category) throws Exception {
-        String text = raw.replace("\r\n ", "").replace("\n ", "");
-        List<JSONObject> out = new ArrayList<>();
-        String[] blocks = text.split("BEGIN:VEVENT");
-        for (int i = 1; i < blocks.length; i++) {
-            String block = blocks[i];
-            String summary = field(block, "SUMMARY");
-            String dtLine = lineStarting(block, "DTSTART");
-            if (summary.isEmpty() || dtLine.isEmpty()) continue;
-            long time = parseIcsDate(dtLine);
-            if (time <= 0) continue;
-            summary = cleanIcs(summary);
-            int importance = importance(summary);
-            out.add(event(source + "-" + time + "-" + summary.hashCode(), translate(summary), time, source, sourceUrl, category, importance, "scheduled", ""));
+    private static void notifyMeaningfulChanges(Context context, JSONArray oldEvents, JSONArray newEvents, JSONObject settings) {
+        Map<String, JSONObject> oldMap = new HashMap<>();
+        for (int i = 0; i < oldEvents.length(); i++) {
+            JSONObject item = oldEvents.optJSONObject(i);
+            if (item != null) oldMap.put(item.optString("id"), item);
         }
-        return out;
-    }
-
-    private static String field(String block, String name) {
-        for (String line : block.split("\r?\n")) {
-            if (line.startsWith(name + ":")) return line.substring(name.length() + 1);
-            if (line.startsWith(name + ";")) {
-                int p = line.indexOf(':'); if (p >= 0) return line.substring(p + 1);
-            }
-        }
-        return "";
-    }
-
-    private static String lineStarting(String block, String name) {
-        for (String line : block.split("\r?\n")) if (line.startsWith(name)) return line;
-        return "";
-    }
-
-    private static String cleanIcs(String s) {
-        return s.replace("\\,", ",").replace("\\n", " ").replace("\\;", ";").trim();
-    }
-
-    private static long parseIcsDate(String line) {
-        try {
-            String value = line.substring(line.indexOf(':') + 1).trim();
-            if (value.matches("\\d{8}T\\d{6}Z")) {
-                return ZonedDateTime.parse(value, DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssX")).toInstant().toEpochMilli();
-            }
-            if (value.matches("\\d{8}T\\d{4}Z")) {
-                return ZonedDateTime.parse(value, DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmX")).toInstant().toEpochMilli();
-            }
-            ZoneId zone = line.contains("America/New_York") ? ZoneId.of("America/New_York") : ZoneId.of("Asia/Seoul");
-            if (value.matches("\\d{8}T\\d{6}")) return LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")).atZone(zone).toInstant().toEpochMilli();
-            if (value.matches("\\d{8}T\\d{4}")) return LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmm")).atZone(zone).toInstant().toEpochMilli();
-            if (value.matches("\\d{8}")) return LocalDate.parse(value, DateTimeFormatter.BASIC_ISO_DATE).atTime(9, 0).atZone(zone).toInstant().toEpochMilli();
-        } catch (Exception ignored) { }
-        return 0;
-    }
-
-    private static List<JSONObject> fetchFomc() throws Exception {
-        String html = fetch(FED_URL);
-        String text = html.replaceAll("(?is)<script.*?</script>", " ").replaceAll("(?is)<style.*?</style>", " ").replaceAll("(?s)<[^>]+>", " ").replace("&nbsp;", " ");
-        text = text.replaceAll("\\s+", " ");
-        List<JSONObject> out = new ArrayList<>();
-        for (int year = LocalDate.now().getYear() - 1; year <= LocalDate.now().getYear() + 1; year++) {
-            int start = text.indexOf(year + " FOMC Meetings");
-            if (start < 0) continue;
-            int end = text.indexOf((year - 1) + " FOMC Meetings", start + 10);
-            if (end < 0) end = text.indexOf((year + 1) + " FOMC Meetings", start + 10);
-            if (end < 0) end = Math.min(text.length(), start + 4000);
-            String section = text.substring(start, Math.min(end, text.length()));
-            Pattern p = Pattern.compile("(January|February|March|April|May|June|July|August|September|October|November|December)\\s+(\\d{1,2})(?:-(\\d{1,2}))?\\*?");
-            Matcher m = p.matcher(section);
-            while (m.find()) {
-                Month month = Month.valueOf(m.group(1).toUpperCase(Locale.US));
-                int day = m.group(3) == null ? Integer.parseInt(m.group(2)) : Integer.parseInt(m.group(3));
-                LocalDate date = LocalDate.of(year, month, day);
-                long time = date.atTime(14, 0).atZone(ZoneId.of("America/New_York")).toInstant().toEpochMilli();
-                out.add(event("fomc-" + year + "-" + month + "-" + day, "미국 FOMC 금리결정", time, "미국 연방준비제도", FED_URL, "macro", 5, "scheduled", ""));
-            }
-        }
-        if (out.isEmpty()) throw new Exception("parse");
-        return out;
-    }
-
-    private static void addFomcFallback(List<JSONObject> out) {
-        int[][] dates2026 = {{1,28},{3,18},{4,29},{6,17},{7,29},{9,16},{10,28},{12,9}};
-        int[][] dates2027 = {{1,27},{3,17},{4,28},{6,9},{7,28},{9,15},{10,27},{12,8}};
-        addFixedDates(out, 2026, dates2026, "미국 FOMC 금리결정", "미국 연방준비제도", FED_URL, ZoneId.of("America/New_York"), 14, 0, 5);
-        addFixedDates(out, 2027, dates2027, "미국 FOMC 금리결정", "미국 연방준비제도", FED_URL, ZoneId.of("America/New_York"), 14, 0, 5);
-    }
-
-    private static List<JSONObject> fetchBok() throws Exception {
-        String html = fetch(BOK_URL);
-        String text = html.replaceAll("(?is)<script.*?</script>", " ").replaceAll("(?is)<style.*?</style>", " ").replaceAll("(?s)<[^>]+>", " ").replace("&nbsp;", " ");
-        text = text.replaceAll("\\s+", " ");
-        List<JSONObject> out = new ArrayList<>();
-        Pattern yearP = Pattern.compile("(20\\d{2})년");
-        Matcher ym = yearP.matcher(text);
-        int year = LocalDate.now().getYear();
-        int start = text.indexOf(year + "년");
-        if (start < 0) start = 0;
-        String section = text.substring(start, Math.min(text.length(), start + 15000));
-        Matcher m = Pattern.compile("(\\d{1,2})월\\s*(\\d{1,2})일").matcher(section);
-        Set<String> seen = new HashSet<>();
-        while (m.find()) {
-            int month = Integer.parseInt(m.group(1)), day = Integer.parseInt(m.group(2));
-            String k = month + "-" + day;
-            if (!seen.add(k)) continue;
-            try {
-                long time = LocalDate.of(year, month, day).atTime(10, 0).atZone(ZoneId.of("Asia/Seoul")).toInstant().toEpochMilli();
-                out.add(event("bok-" + year + "-" + k, "한국은행 기준금리 결정", time, "한국은행", BOK_URL, "macro", 5, "scheduled", ""));
-            } catch (Exception ignored) { }
-        }
-        if (out.size() < 4) throw new Exception("parse");
-        return out;
-    }
-
-    private static void addBokFallback(List<JSONObject> out) {
-        int[][] dates2026 = {{1,15},{2,26},{4,10},{5,28},{7,16},{8,27},{10,22},{11,26}};
-        addFixedDates(out, 2026, dates2026, "한국은행 기준금리 결정", "한국은행", BOK_URL, ZoneId.of("Asia/Seoul"), 10, 0, 5);
-    }
-
-    private static void addFixedDates(List<JSONObject> out, int year, int[][] md, String title, String source, String url, ZoneId zone, int hour, int minute, int importance) {
-        for (int[] d : md) {
-            long time = LocalDate.of(year, d[0], d[1]).atTime(hour, minute).atZone(zone).toInstant().toEpochMilli();
-            out.add(event(source.hashCode() + "-" + year + "-" + d[0] + "-" + d[1], title, time, source, url, "macro", importance, "scheduled", ""));
-        }
-    }
-
-
-    private static List<JSONObject> fetchKindIrEvents(String krWatchlist) throws Exception {
-        List<JSONObject> out = new ArrayList<>();
-        Set<String> watch = new HashSet<>();
-        for (String x : krWatchlist.split("[,\n]+")) {
-            String v = x.trim().replace(" ", "");
-            if (!v.isEmpty()) watch.add(v);
-        }
-
-        Set<String> seenRows = new HashSet<>();
-        // KIND usually paginates the IR list. Try the common page parameter used by its list screens.
-        for (int page = 1; page <= 6; page++) {
-            String url = KIND_IR_URL + (page == 1 ? "" : "&pageIndex=" + page);
-            String html;
-            try { html = fetch(url); } catch (Exception e) { if (page == 1) throw e; else continue; }
-            Matcher tr = Pattern.compile("(?is)<tr[^>]*>(.*?)</tr>").matcher(html);
-            int before = out.size();
-            while (tr.find()) {
-                String row = tr.group(1);
-                List<String> cells = new ArrayList<>();
-                Matcher td = Pattern.compile("(?is)<t[dh][^>]*>(.*?)</t[dh]>").matcher(row);
-                while (td.find()) cells.add(htmlText(td.group(1)));
-                if (cells.size() < 5) continue;
-
-                int dateIndex = -1;
-                for (int i = 0; i < cells.size(); i++) {
-                    if (cells.get(i).matches("20\\d{2}-\\d{2}-\\d{2}")) { dateIndex = i; break; }
-                }
-                if (dateIndex < 2) continue;
-                String dateText = cells.get(dateIndex);
-                String timeText = dateIndex + 1 < cells.size() ? cells.get(dateIndex + 1) : "09:00";
-                String company = cells.get(Math.max(0, dateIndex - 3)).replaceAll("^(유가증권|코스닥|코넥스)\\s*", "").trim();
-                String title = cells.get(Math.max(0, dateIndex - 2)).trim();
-                if (company.isEmpty() || title.isEmpty()) continue;
-
-                String compactCompany = company.replace(" ", "");
-                String low = title.toLowerCase(Locale.US);
-                boolean earnings = title.contains("실적") || title.contains("경영") || title.contains("잠정") || low.contains("earning") || low.contains("quarter");
-                boolean watched = watch.contains(compactCompany);
-                if (!earnings && !watched) continue;
-
-                LocalDate d;
-                try { d = LocalDate.parse(dateText); } catch (Exception ignored) { continue; }
-                int hour = 9, minute = 0;
-                Matcher tm = Pattern.compile("(\\d{1,2}):(\\d{2})").matcher(timeText);
-                if (tm.find()) { hour = Integer.parseInt(tm.group(1)); minute = Integer.parseInt(tm.group(2)); }
-                long time = d.atTime(hour, minute).atZone(ZoneId.of("Asia/Seoul")).toInstant().toEpochMilli();
-                String key = company + "|" + title + "|" + dateText + "|" + timeText;
-                if (!seenRows.add(key)) continue;
-                int imp = earnings ? (watched ? 5 : 4) : 3;
-                out.add(event("kind-ir-" + key.hashCode(), company + " " + title, time, "한국거래소 KIND", KIND_IR_URL, earnings ? "earnings" : "company", imp, "scheduled", ""));
-            }
-            // If pagination is ignored and the same first page is returned, stop quickly.
-            if (page > 1 && out.size() == before) break;
-        }
-        return out;
-    }
-
-    private static String htmlText(String html) {
-        return html.replaceAll("(?is)<script.*?</script>", " ")
-                .replaceAll("(?is)<style.*?</style>", " ")
-                .replaceAll("(?s)<[^>]+>", " ")
-                .replace("&nbsp;", " ").replace("&amp;", "&")
-                .replace("&#39;", "'").replace("&quot;", "\"")
-                .replaceAll("\\s+", " ").trim();
-    }
-
-    private static void addConfirmedKoreanEarnings(List<JSONObject> out) {
-        // Officially confirmed, high-priority schedules. These act as a safety net when KIND changes its HTML.
-        addConfirmedEvent(out, "SK하이닉스 2026년 2분기 경영실적 발표", 2026, 7, 29, 9, 0, KIND_SKHYNIX_URL, 5);
-        addConfirmedEvent(out, "삼성전자 2026년 2분기 실적 발표", 2026, 7, 30, 10, 0, "https://www.samsung.com/global/ir/financial-information/earnings-release/", 5);
-        addConfirmedEvent(out, "LG전자 2026년 2분기 경영실적 발표", 2026, 7, 30, 16, 0, "https://www.lge.co.kr/company/investor/presentation", 4);
-    }
-
-    private static void addConfirmedEvent(List<JSONObject> out, String title, int year, int month, int day, int hour, int minute, String url, int importance) {
-        long time = LocalDate.of(year, month, day).atTime(hour, minute).atZone(ZoneId.of("Asia/Seoul")).toInstant().toEpochMilli();
-        out.add(event("confirmed-" + title.hashCode() + "-" + year + month + day, title, time, "공식 IR 확인", url, "earnings", importance, "scheduled", ""));
-    }
-
-    private static List<JSONObject> fetchSpaceXLaunches() throws Exception {
-        List<JSONObject> out = new ArrayList<>();
-        parseLaunchLibrary(fetch(LL2_UPCOMING), false, out);
-        parseLaunchLibrary(fetch(LL2_PREVIOUS), true, out);
-        return out;
-    }
-
-    private static void parseLaunchLibrary(String raw, boolean previous, List<JSONObject> out) throws Exception {
-        JSONObject root = new JSONObject(raw);
-        JSONArray results = root.optJSONArray("results");
-        if (results == null) return;
+        boolean notifyResults = settings.optBoolean("notifyResults", true);
+        boolean notifyChanges = settings.optBoolean("notifyChanges", true);
         long now = System.currentTimeMillis();
-        long minPrevious = now - 14L * 24L * 3600L * 1000L;
-        long maxUpcoming = now + 120L * 24L * 3600L * 1000L;
-        for (int i = 0; i < results.length(); i++) {
-            JSONObject x = results.optJSONObject(i);
-            if (x == null) continue;
-            String provider = optNested(x, "launch_service_provider", "name");
-            String name = x.optString("name", "우주 발사");
-            String combined = (provider + " " + name).toLowerCase(Locale.US);
-            if (!combined.contains("spacex") && !combined.contains("starship") && !combined.contains("falcon")) continue;
-            long time = parseIsoInstant(x.optString("net", x.optString("window_start", "")));
-            if (time <= 0 || (previous && time < minPrevious) || (!previous && time > maxUpcoming)) continue;
-
-            String statusName = optNested(x, "status", "name");
-            String statusAbbr = optNested(x, "status", "abbrev");
-            boolean success = statusName.toLowerCase(Locale.US).contains("success") || statusAbbr.equalsIgnoreCase("Success");
-            boolean failure = statusName.toLowerCase(Locale.US).contains("fail") || statusAbbr.toLowerCase(Locale.US).contains("fail");
-            boolean released = previous || time < now;
-            String rocket = optNested(optNestedObject(x, "rocket"), "configuration", "full_name");
-            String location = optNested(optNestedObject(x, "pad"), "location", "name");
-            String mission = optNested(x, "mission", "description");
-            boolean starship = combined.contains("starship");
-            boolean crew = name.toLowerCase(Locale.US).contains("crew") || mission.toLowerCase(Locale.US).contains("crewed");
-            int importance = (starship || crew || name.toLowerCase(Locale.US).contains("falcon heavy")) ? 5 : 3;
-            String title = "SpaceX " + name + (released ? " 발사 결과" : " 발사 예정");
-            String summary = "";
-            if (released) {
-                String mood = success ? "🟢 발사 성공" : failure ? "🔴 발사 실패" : "⚪ 발사 완료";
-                summary = mood;
-                if (!rocket.isEmpty()) summary += " · " + rocket;
-            } else if (!location.isEmpty()) {
-                summary = "발사장 " + location;
-            }
-            String url = x.optString("url", "https://www.spacex.com/launches/");
-            out.add(event("space-" + x.optString("id", String.valueOf((name + time).hashCode())), title, time, "Launch Library 2 / SpaceX", url, "industry", importance, released ? "released" : "scheduled", summary));
-        }
-    }
-
-    private static JSONObject optNestedObject(JSONObject root, String key) {
-        JSONObject x = root == null ? null : root.optJSONObject(key);
-        return x == null ? new JSONObject() : x;
-    }
-
-    private static String optNested(JSONObject root, String objectKey, String valueKey) {
-        JSONObject x = root == null ? null : root.optJSONObject(objectKey);
-        return x == null ? "" : x.optString(valueKey, "");
-    }
-
-    private static long parseIsoInstant(String value) {
-        try { return ZonedDateTime.parse(value).toInstant().toEpochMilli(); }
-        catch (Exception ignored) {
-            try { return java.time.Instant.parse(value).toEpochMilli(); }
-            catch (Exception ignored2) { return 0; }
-        }
-    }
-
-    private static void addSpaceXFallback(List<JSONObject> out) {
-        long time = ZonedDateTime.of(2026, 7, 24, 18, 45, 0, 0, ZoneId.of("America/New_York")).toInstant().toEpochMilli();
-        out.add(event("spacex-starship-flight13", "SpaceX Starship 13차 시험비행 발사 결과", time, "SpaceX 발사 확인", "https://www.spacex.com/launches/", "industry", 5, "released", "🟢 주요 시험비행 완료 · 차세대 Starlink 위성 전개"));
-    }
-
-    private static List<JSONObject> fetchAlphaEarnings(String key, String watchlist) throws Exception {
-        List<JSONObject> out = new ArrayList<>();
-        String[] symbols = watchlist.split("[,\\s]+");
-        int limit = Math.min(symbols.length, 8);
-        for (int i = 0; i < limit; i++) {
-            String symbol = symbols[i].trim().toUpperCase(Locale.US);
-            if (symbol.isEmpty()) continue;
-            String url = "https://www.alphavantage.co/query?function=EARNINGS_CALENDAR&symbol=" + URLEncoder.encode(symbol, "UTF-8") + "&horizon=3month&apikey=" + URLEncoder.encode(key, "UTF-8");
-            String csv = fetch(url);
-            String[] lines = csv.split("\\r?\\n");
-            for (int r = 1; r < lines.length; r++) {
-                List<String> cols = parseCsvLine(lines[r]);
-                if (cols.size() < 4 || cols.get(0).isEmpty() || cols.get(2).isEmpty()) continue;
-                LocalDate date = LocalDate.parse(cols.get(2));
-                String reportTime = cols.size() > 3 ? cols.get(3) : "";
-                int hour = "AfterMarket".equalsIgnoreCase(reportTime) ? 16 : 8;
-                ZoneId ny = ZoneId.of("America/New_York");
-                long time = date.atTime(hour, 0).atZone(ny).toInstant().toEpochMilli();
-                String estimate = cols.size() > 6 ? cols.get(6) : "";
-                String summary = estimate.isEmpty() ? "" : "예상 EPS " + estimate;
-                out.add(event("earn-" + symbol + "-" + date, symbol + " 실적 발표", time, "Alpha Vantage 무료", url, "earnings", 4, "scheduled", summary));
-            }
-
-            try {
-                String earningsUrl = "https://www.alphavantage.co/query?function=EARNINGS&symbol=" + URLEncoder.encode(symbol, "UTF-8") + "&apikey=" + URLEncoder.encode(key, "UTF-8");
-                JSONObject j = new JSONObject(fetch(earningsUrl));
-                JSONArray q = j.optJSONArray("quarterlyEarnings");
-                if (q != null && q.length() > 0) {
-                    JSONObject latest = q.getJSONObject(0);
-                    LocalDate date = LocalDate.parse(latest.optString("reportedDate"));
-                    double actual = parseDouble(latest.optString("reportedEPS"));
-                    double estimate = parseDouble(latest.optString("estimatedEPS"));
-                    double surprise = estimate == 0 ? 0 : (actual - estimate) / Math.abs(estimate) * 100.0;
-                    String mood = surprise >= 5 ? "🟢🟢 매우 좋음" : surprise > 0 ? "🟢 좋음" : surprise <= -5 ? "🔴🔴 매우 나쁨" : surprise < 0 ? "🔴 나쁨" : "⚪ 중립";
-                    String summary = mood + "\nEPS " + fmt(actual) + " / 예상 " + fmt(estimate) + " · " + (surprise >= 0 ? "+" : "") + String.format(Locale.US, "%.1f%%", surprise);
-                    long time = date.atTime(16, 5).atZone(ZoneId.of("America/New_York")).toInstant().toEpochMilli();
-                    out.add(event("earn-result-" + symbol + "-" + date, symbol + " 실적 결과", time, "Alpha Vantage 무료", earningsUrl, "earnings", 4, "released", summary));
+        int sent = 0;
+        for (int i = 0; i < newEvents.length() && sent < 8; i++) {
+            JSONObject current = newEvents.optJSONObject(i);
+            if (current == null) continue;
+            JSONObject old = oldMap.get(current.optString("id"));
+            boolean watched = matchesWatchlist(current, settings);
+            boolean important = current.optInt("importance", 0) >= 4 || watched;
+            if (!important) continue;
+            if (notifyResults && "released".equals(current.optString("status"))) {
+                boolean newlyReleased = old == null || !"released".equals(old.optString("status"))
+                        || !current.optString("summary").equals(old.optString("summary"));
+                long eventTime = current.optLong("time");
+                if (newlyReleased && eventTime > now - 7L * 24L * 60L * 60L * 1000L) {
+                    NotificationHelper.notifyResult(context, current);
+                    sent++;
+                    continue;
                 }
-            } catch (Exception ignored) { }
-        }
-        return out;
-    }
-
-    private static List<String> parseCsvLine(String line) {
-        List<String> out = new ArrayList<>(); StringBuilder b = new StringBuilder(); boolean quote = false;
-        for (int i = 0; i < line.length(); i++) {
-            char c = line.charAt(i);
-            if (c == '"') { if (quote && i + 1 < line.length() && line.charAt(i + 1) == '"') { b.append('"'); i++; } else quote = !quote; }
-            else if (c == ',' && !quote) { out.add(b.toString().trim()); b.setLength(0); }
-            else b.append(c);
-        }
-        out.add(b.toString().trim()); return out;
-    }
-
-    private static void attachBlsResults(List<JSONObject> events) throws Exception {
-        int year = LocalDate.now().getYear();
-        JSONArray ids = new JSONArray();
-        ids.put("CUUR0000SA0");       // CPI all items
-        ids.put("WPUFD4");            // Final demand PPI
-        ids.put("LNS14000000");       // unemployment rate
-        ids.put("CES0000000001");     // total nonfarm payroll
-        JSONObject body = new JSONObject();
-        body.put("seriesid", ids); body.put("startyear", String.valueOf(year - 1)); body.put("endyear", String.valueOf(year));
-        JSONObject root = new JSONObject(postJson(BLS_API, body));
-        JSONArray series = root.getJSONObject("Results").getJSONArray("series");
-        Map<String, String> resultMap = new HashMap<>();
-        for (int i = 0; i < series.length(); i++) {
-            JSONObject s = series.getJSONObject(i);
-            String id = s.optString("seriesID"); JSONArray data = s.optJSONArray("data");
-            if (data == null || data.length() < 2) continue;
-            JSONObject latest = data.getJSONObject(0), prev = data.getJSONObject(1);
-            double a = parseDouble(latest.optString("value")), b = parseDouble(prev.optString("value"));
-            String label; String unit; boolean higherGood;
-            switch (id) {
-                case "CUUR0000SA0": label = "CPI"; unit = ""; higherGood = false; break;
-                case "WPUFD4": label = "PPI"; unit = ""; higherGood = false; break;
-                case "LNS14000000": label = "실업률"; unit = "%"; higherGood = false; break;
-                default: label = "비농업 고용"; unit = "K"; a /= 1000.0; b /= 1000.0; higherGood = true;
             }
-            double diff = a - b;
-            String mood = Math.abs(diff) < 0.0001 ? "⚪" : ((diff > 0) == higherGood ? "🟢" : "🔴");
-            resultMap.put(label, mood + " " + label + " " + fmt(a) + unit + " · 이전 " + fmt(b) + unit);
-        }
-        for (JSONObject e : events) {
-            String title = e.optString("title"); String key = null;
-            if (title.contains("소비자물가") || title.toLowerCase(Locale.US).contains("consumer price")) key = "CPI";
-            else if (title.contains("생산자물가") || title.toLowerCase(Locale.US).contains("producer price")) key = "PPI";
-            else if (title.contains("고용보고서") || title.toLowerCase(Locale.US).contains("employment situation")) key = "비농업 고용";
-            if (key != null && resultMap.containsKey(key) && e.optLong("time") < System.currentTimeMillis()) {
-                e.put("status", "released"); e.put("summary", resultMap.get(key));
+            if (notifyChanges && old != null && !"released".equals(current.optString("status"))) {
+                long oldTime = old.optLong("time");
+                long newTime = current.optLong("time");
+                if (newTime > now && Math.abs(oldTime - newTime) >= 5L * 60L * 1000L) {
+                    NotificationHelper.notifyScheduleChange(context, current, oldTime);
+                    sent++;
+                }
             }
         }
     }
 
-    private static JSONObject event(String id, String title, long time, String source, String sourceUrl, String category, int importance, String status, String summary) {
-        JSONObject j = new JSONObject();
+    public static boolean matchesWatchlist(JSONObject event, JSONObject settings) {
+        Set<String> tokens = new HashSet<>();
+        addTokens(tokens, settings.optString("watchlist", ""));
+        addTokens(tokens, settings.optString("krWatchlist", ""));
+        String symbol = normalize(event.optString("symbol", ""));
+        String title = normalize(event.optString("title", ""));
+        if (!symbol.isEmpty() && tokens.contains(symbol)) return true;
+        for (String token : tokens) if (token.length() >= 2 && title.contains(token)) return true;
+        return false;
+    }
+
+    private static void addTokens(Set<String> out, String raw) {
+        for (String value : raw.split("[,\\n]+")) {
+            String token = normalize(value);
+            if (!token.isEmpty()) out.add(token);
+        }
+    }
+
+    private static String normalize(String value) {
+        return value == null ? "" : value.replaceAll("\\s+", "").toUpperCase(Locale.US);
+    }
+
+    private static List<JSONObject> toList(JSONArray array) {
+        List<JSONObject> list = new ArrayList<>();
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject item = array.optJSONObject(i);
+            if (item != null) list.add(item);
+        }
+        return list;
+    }
+
+    private static JSONObject safeObject(String json) {
+        try { return new JSONObject(json); } catch (Exception ignored) { return new JSONObject(); }
+    }
+
+    private static JSONArray safeArray(String json) {
+        try { return new JSONArray(json); } catch (Exception ignored) { return new JSONArray(); }
+    }
+
+    private static String compactTime(String iso) {
         try {
-            j.put("id", id); j.put("title", title); j.put("time", time); j.put("source", source); j.put("sourceUrl", sourceUrl);
-            j.put("category", category); j.put("importance", importance); j.put("status", status); j.put("summary", summary);
-        } catch (JSONException ignored) { }
-        return j;
+            String text = iso.replace("T", " ").replace("Z", " UTC");
+            return text.length() > 16 ? text.substring(0, 16) : text;
+        } catch (Exception ignored) { return iso; }
     }
 
-    private static int importance(String s) {
-        String x = s.toLowerCase(Locale.US);
-        if (x.contains("consumer price") || x.contains("employment situation") || x.contains("gross domestic product") || x.contains("personal income and outlays")) return 5;
-        if (x.contains("producer price") || x.contains("job openings") || x.contains("employment cost") || x.contains("retail") || x.contains("trade")) return 4;
-        return 3;
-    }
-
-    private static String translate(String s) {
-        String x = s;
-        x = x.replace("Consumer Price Index", "미국 소비자물가 CPI");
-        x = x.replace("Producer Price Index", "미국 생산자물가 PPI");
-        x = x.replace("The Employment Situation", "미국 고용보고서");
-        x = x.replace("Job Openings and Labor Turnover Survey", "미국 JOLTS 구인·이직");
-        x = x.replace("Gross Domestic Product", "미국 GDP");
-        x = x.replace("Personal Income and Outlays", "미국 개인소득·소비/PCE");
-        x = x.replace("U.S. International Trade in Goods and Services", "미국 무역수지");
-        return x;
-    }
-
-    private static void deduplicateAndSort(List<JSONObject> list) {
-        Map<String, JSONObject> map = new HashMap<>();
-        long min = LocalDate.now().minusMonths(18).atStartOfDay(ZoneId.of("Asia/Seoul")).toInstant().toEpochMilli();
-        long max = LocalDate.now().plusMonths(18).atStartOfDay(ZoneId.of("Asia/Seoul")).toInstant().toEpochMilli();
-        for (JSONObject j : list) {
-            long t = j.optLong("time"); if (t < min || t > max) continue;
-            String k = j.optString("title").toLowerCase(Locale.US).replaceAll("\\s+", " ") + "|" + (t / 3600000L);
-            JSONObject old = map.get(k);
-            if (old == null || j.optInt("importance") > old.optInt("importance")) map.put(k, j);
-        }
-        list.clear(); list.addAll(map.values());
-        Collections.sort(list, Comparator.comparingLong(o -> o.optLong("time")));
-    }
-
-    private static JSONArray toJson(List<JSONObject> list) {
-        JSONArray a = new JSONArray(); for (JSONObject j : list) a.put(j); return a;
-    }
-
-    private static double parseDouble(String s) {
-        try { return Double.parseDouble(s.replace(",", "")); } catch (Exception e) { return 0; }
-    }
-
-    private static String fmt(double v) {
-        if (Math.abs(v - Math.rint(v)) < 0.00001) return String.format(Locale.US, "%.0f", v);
-        return String.format(Locale.US, "%.2f", v).replaceAll("0+$", "").replaceAll("\\.$", "");
+    private static String readableError(Exception e) {
+        String message = e.getMessage();
+        if (message == null || message.trim().isEmpty()) return e.getClass().getSimpleName();
+        return message.length() > 100 ? message.substring(0, 100) : message;
     }
 }
