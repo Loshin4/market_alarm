@@ -40,6 +40,7 @@ ET = ZoneInfo("America/New_York")
 UTC = timezone.utc
 NOW = datetime.now(UTC)
 NOW_MS = int(NOW.timestamp() * 1000)
+DART_IR_PARSER_VERSION = 132
 
 BLS_ICS = "https://www.bls.gov/schedule/news_release/bls.ics"
 BEA_ICS = "https://www.bea.gov/news/schedule/ics/online-calendar-subscription.ics"
@@ -56,7 +57,7 @@ LL2_UPCOMING = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/"
 LL2_PREVIOUS = "https://ll.thespacedevs.com/2.3.0/launches/previous/"
 
 HEADERS = {
-    "User-Agent": "MarketAlarmCollector/1.2 (+https://github.com/Loshin4/market_alarm)",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36 MarketAlarm/1.3.2",
     "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8",
 }
 SESSION = requests.Session()
@@ -138,6 +139,12 @@ def save_json(path: Path, value: Any) -> None:
 
 def http_get(url: str, *, params: dict[str, Any] | None = None, timeout: int = 30) -> requests.Response:
     response = SESSION.get(url, params=params, timeout=timeout)
+    response.raise_for_status()
+    return response
+
+
+def http_post(url: str, *, data: dict[str, Any] | None = None, timeout: int = 30) -> requests.Response:
+    response = SESSION.post(url, data=data, timeout=timeout, headers={"Referer": KIND_IR})
     response.raise_for_status()
     return response
 
@@ -533,13 +540,23 @@ def collect_kind(config: dict[str, Any] | None = None) -> SourceResult:
     """
     out_by_id: dict[str, dict[str, Any]] = {}
     empty_pages = 0
+    seen_pages: set[str] = set()
     for page in range(1, 101):
         params = {
             "gubun": "iRSchedule",
             "method": "searchIRScheduleMain",
-            "pageIndex": page,
+            "pageIndex": str(page),
+            "currentPageSize": "15",
         }
-        html = http_get(KIND_IR, params=params).text
+        # KIND는 환경에 따라 GET 페이지 번호를 무시하므로 POST를 우선하고 GET을 보조로 사용한다.
+        try:
+            html = http_post(KIND_IR, data=params).text
+        except Exception:
+            html = http_get(KIND_IR, params=params).text
+        fingerprint = stable_id(re.sub(r"\s+", " ", html[:50000]))
+        if page > 1 and fingerprint in seen_pages:
+            break
+        seen_pages.add(fingerprint)
         soup = BeautifulSoup(html, "html.parser")
         rows = soup.select("table tbody tr") or soup.find_all("tr")
         page_added = 0
@@ -743,8 +760,8 @@ def extract_ir_schedule_from_document(
     # Prefer the official purpose/content text as the title fragment.
     title_fragment = "실적 발표"
     title_patterns = (
-        r"개최목적\s*[:：]?\s*(.{3,150}?)(?=개최방법|주요\s*설명회내용|IR\s*자료|\d+\.)",
-        r"주요\s*설명회내용(?:\(요약\))?\s*[:：]?\s*(.{3,150}?)(?=IR\s*자료|기타\s*투자판단|\d+\.)",
+        r"(?:개최목적|실시목적)\s*[:：]?\s*(.{3,180}?)(?=개최방법|실시방법|주요\s*설명회내용|주요내용|IR\s*자료|\d+\.)",
+        r"(?:주요\s*설명회내용(?:\(요약\))?|주요내용)\s*[:：]?\s*(.{3,180}?)(?=IR\s*자료|기타\s*투자판단|후원기관|\d+\.)",
         r"((?:20\d{2}년\s*)?(?:\d분기|상반기|하반기|연간)?\s*(?:경영)?실적\s*(?:발표|설명회|설명))",
     )
     for pattern in title_patterns:
@@ -783,7 +800,8 @@ def collect_dart_schedules(api_key: str, state: dict[str, Any], force: bool) -> 
     if not api_key:
         return SourceResult("dart_schedule", [], False, "OpenDART 인증키 미설정")
     today = NOW.astimezone(KST).date()
-    begin = (today - timedelta(days=120)).strftime("%Y%m%d")
+    # OpenDART는 corp_code 없이 조회할 때 검색기간을 최대 3개월로 제한한다.
+    begin = (today - timedelta(days=89)).strftime("%Y%m%d")
     end = today.strftime("%Y%m%d")
     filings: list[dict[str, Any]] = []
     page = 1
@@ -792,7 +810,7 @@ def collect_dart_schedules(api_key: str, state: dict[str, Any], force: bool) -> 
             "crtfc_key": api_key,
             "bgn_de": begin,
             "end_de": end,
-            "last_reprt_at": "Y",
+            "last_reprt_at": "N",
             "pblntf_ty": "I",
             "page_no": page,
             "page_count": 100,
@@ -819,6 +837,11 @@ def collect_dart_schedules(api_key: str, state: dict[str, Any], force: bool) -> 
             break
         page += 1
 
+    # 이전 버전에서 잘못 저장된 '파싱 실패(None)' 캐시를 자동 폐기한다.
+    # 사용자가 별도의 force_refresh 옵션을 찾거나 누를 필요가 없다.
+    if int(state.get("dartIrParserVersion") or 0) != DART_IR_PARSER_VERSION:
+        state["dartIrScheduleCache"] = {}
+        state["dartIrParserVersion"] = DART_IR_PARSER_VERSION
     cache = state.setdefault("dartIrScheduleCache", {})
     out_by_id: dict[str, dict[str, Any]] = {}
     downloaded = 0
@@ -836,7 +859,13 @@ def collect_dart_schedules(api_key: str, state: dict[str, Any], force: bool) -> 
             receipt_date = today
         cached = cache.get(receipt_no)
         parsed_event: dict[str, Any] | None = None
-        if isinstance(cached, dict) and not force:
+        cache_is_current = (
+            isinstance(cached, dict)
+            and int(cached.get("parserVersion") or 0) == DART_IR_PARSER_VERSION
+            and "event" in cached
+            and not cached.get("error")
+        )
+        if cache_is_current and not force:
             parsed_event = cached.get("event")
         else:
             try:
@@ -849,12 +878,23 @@ def collect_dart_schedules(api_key: str, state: dict[str, Any], force: bool) -> 
                     receipt_no=receipt_no,
                     receipt_date=receipt_date,
                 )
-                cache[receipt_no] = {"checkedAt": iso_utc(), "receiptDate": receipt_raw, "event": parsed_event}
+                cache[receipt_no] = {
+                    "checkedAt": iso_utc(),
+                    "receiptDate": receipt_raw,
+                    "parserVersion": DART_IR_PARSER_VERSION,
+                    "event": parsed_event,
+                }
                 downloaded += 1
                 time.sleep(0.05)
             except Exception as exc:
                 parse_failed += 1
-                cache[receipt_no] = {"checkedAt": iso_utc(), "receiptDate": receipt_raw, "event": None, "error": str(exc)[:200]}
+                cache[receipt_no] = {
+                    "checkedAt": iso_utc(),
+                    "receiptDate": receipt_raw,
+                    "parserVersion": DART_IR_PARSER_VERSION,
+                    "event": None,
+                    "error": str(exc)[:200],
+                }
                 continue
         if parsed_event:
             current = out_by_id.get(parsed_event["id"])
@@ -870,7 +910,7 @@ def collect_dart_schedules(api_key: str, state: dict[str, Any], force: bool) -> 
     out = list(out_by_id.values())
     if filings and not out:
         raise RuntimeError(f"IR 공시 {len(filings)}건을 찾았지만 실적 일정 파싱 결과가 0건")
-    message = f"IR 공시 {len(filings)}건 · 실적 일정 {len(out)}개 · 새 원문 {downloaded}건"
+    message = f"IR 공시 {len(filings)}건 · 실적 일정 {len(out)}개 · 새 원문 {downloaded}건 · 파서 v{DART_IR_PARSER_VERSION}"
     if parse_failed:
         message += f" · 원문 오류 {parse_failed}건"
     return SourceResult("dart_schedule", out, True, message)
