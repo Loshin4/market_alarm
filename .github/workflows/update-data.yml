@@ -22,11 +22,13 @@ jobs:
   collect:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: main
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -48,14 +50,39 @@ jobs:
           FORCE_REFRESH: ${{ inputs.force_refresh || 'false' }}
         run: python collector/collect_events.py
 
-      - name: Commit changed data
+      - name: Commit and push changed data
+        shell: bash
         run: |
+          set -e
+
           if git diff --quiet -- data; then
             echo "No data changes"
             exit 0
           fi
+
           git config user.name "market-alarm-bot"
           git config user.email "market-alarm-bot@users.noreply.github.com"
           git add data
           git commit -m "data: automatic market schedule update"
-          git push
+
+          # 저장소에 새 커밋이 생겼더라도 최신 main을 받아 자동으로 합친 뒤 재시도합니다.
+          for attempt in 1 2 3 4 5; do
+            echo "Push attempt ${attempt}/5"
+            git fetch origin main
+
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              echo "Rebase failed"
+              exit 1
+            fi
+
+            if git push origin HEAD:main; then
+              echo "Market data pushed successfully"
+              exit 0
+            fi
+
+            sleep $((attempt * 3))
+          done
+
+          echo "Push failed after 5 attempts"
+          exit 1
