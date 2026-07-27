@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-07-27T05:56:23Z",
+  "updatedAt": "2026-07-27T08:49:06Z",
   "events": [
     {
       "id": "bea-6dc7eb14364ebeb30b60",
@@ -23,7 +23,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-04-06",
@@ -46,7 +46,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-04-07",
@@ -69,7 +69,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-04-08",
@@ -92,7 +92,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-65916fcdb819ab414b21",
@@ -115,7 +115,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-e92e5421db70bac0a974",
@@ -138,7 +138,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-04-09",
@@ -161,7 +161,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-04-10",
@@ -184,7 +184,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-04-12",
@@ -207,7 +207,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-53cd5232e855d83d5690",
@@ -230,7 +230,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-04-28",
@@ -253,7 +253,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-04-29",
@@ -276,7 +276,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-a9e3c85058c09a8787b5",
@@ -299,7 +299,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-6acc082f0ee483951fe8",
@@ -322,7 +322,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-05-01",
@@ -345,7 +345,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-05-03",
@@ -368,7 +368,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-05-04",
@@ -391,7 +391,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-20f229816118d6fd44bd",
@@ -414,7 +414,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-05-07",
@@ -437,53 +437,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
-    },
-    {
-      "id": "kr-earnings-d30f33bda5c55950ba89-2026-05-14",
-      "title": "코오롱글로벌 2026년 1분기 경영실적 발표",
-      "time": 1778720400000,
-      "allDay": false,
-      "sourceKey": "dart_schedule",
-      "source": "OpenDART·KIND 전체 실적 일정 공시",
-      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260513800881",
-      "category": "earnings",
-      "importance": 3,
-      "status": "scheduled",
-      "summary": "",
-      "symbol": "003070",
-      "market": "KR",
-      "actual": "",
-      "expected": "",
-      "previous": "",
-      "rating": 0,
-      "ratingLabel": "⚪ 중립",
-      "official": true,
-      "confidence": "official_filing",
-      "updatedAt": "2026-07-27T05:56:23Z"
-    },
-    {
-      "id": "kr-earnings-d30f33bda5c55950ba89-2026-05-15",
-      "title": "코오롱글로벌 2026년 1분기 경영실적 발표",
-      "time": 1778803200000,
-      "allDay": false,
-      "sourceKey": "dart_schedule",
-      "source": "OpenDART·KIND 전체 실적 일정 공시",
-      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260513800890",
-      "category": "earnings",
-      "importance": 3,
-      "status": "scheduled",
-      "summary": "",
-      "symbol": "003070",
-      "market": "KR",
-      "actual": "",
-      "expected": "",
-      "previous": "",
-      "rating": 0,
-      "ratingLabel": "⚪ 중립",
-      "official": true,
-      "confidence": "official_filing",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-20f0d73c2f408866b3f9-2026-05-15",
@@ -613,29 +567,6 @@
       "status": "scheduled",
       "summary": "",
       "symbol": "056190",
-      "market": "KR",
-      "actual": "",
-      "expected": "",
-      "previous": "",
-      "rating": 0,
-      "ratingLabel": "⚪ 중립",
-      "official": true,
-      "confidence": "official_filing",
-      "updatedAt": "2026-07-27T05:56:23Z"
-    },
-    {
-      "id": "kr-earnings-23ef7d1deae346ac170b-2026-05-18",
-      "title": "미래에셋생명 2026년 1분기 경영실적에 대한 설명 및 질의응답",
-      "time": 1779062400000,
-      "allDay": false,
-      "sourceKey": "dart_schedule",
-      "source": "OpenDART·KIND 전체 실적 일정 공시",
-      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260513800816",
-      "category": "earnings",
-      "importance": 3,
-      "status": "scheduled",
-      "summary": "",
-      "symbol": "085620",
       "market": "KR",
       "actual": "",
       "expected": "",
@@ -866,29 +797,6 @@
       "status": "scheduled",
       "summary": "",
       "symbol": "248070",
-      "market": "KR",
-      "actual": "",
-      "expected": "",
-      "previous": "",
-      "rating": 0,
-      "ratingLabel": "⚪ 중립",
-      "official": true,
-      "confidence": "official_filing",
-      "updatedAt": "2026-07-27T05:56:23Z"
-    },
-    {
-      "id": "kr-earnings-f4077ea648b1699393a0-2026-05-18",
-      "title": "이마트 ㅁ투자자 미팅을 통한 이해증진 및 투자유치 ㅁ경영실적 및 주요 관심사항 Q&A 진행",
-      "time": 1779073200000,
-      "allDay": true,
-      "sourceKey": "dart_schedule",
-      "source": "OpenDART·KIND 전체 실적 일정 공시",
-      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260513800744",
-      "category": "earnings",
-      "importance": 3,
-      "status": "scheduled",
-      "summary": "",
-      "symbol": "139480",
       "market": "KR",
       "actual": "",
       "expected": "",
@@ -1150,7 +1058,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-c0f1d1ae8c1a4ea91ada-2026-05-20",
@@ -1291,29 +1199,6 @@
       "updatedAt": "2026-07-27T05:56:23Z"
     },
     {
-      "id": "kr-earnings-5752fa1121b81afb3e99-2026-05-20",
-      "title": "데이원컴퍼니 2026년 1분기 경영실적 발표",
-      "time": 1779253200000,
-      "allDay": false,
-      "sourceKey": "dart_schedule",
-      "source": "OpenDART·KIND 전체 실적 일정 공시",
-      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260513901074",
-      "category": "earnings",
-      "importance": 3,
-      "status": "scheduled",
-      "summary": "",
-      "symbol": "373160",
-      "market": "KR",
-      "actual": "",
-      "expected": "",
-      "previous": "",
-      "rating": 0,
-      "ratingLabel": "⚪ 중립",
-      "official": true,
-      "confidence": "official_filing",
-      "updatedAt": "2026-07-27T05:56:23Z"
-    },
-    {
       "id": "kr-earnings-c7cf3f11b933483adba7-2026-05-20",
       "title": "롯데웰푸드 당사 경영실적 및 전망 공유 / 관련 Q&A",
       "time": 1779258600000,
@@ -1380,7 +1265,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-3fa08a504a58371231cd-2026-05-21",
@@ -1541,7 +1426,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-f5173e2bb9f37a7a0f71-2026-05-22",
@@ -1863,7 +1748,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-05-24",
@@ -1886,7 +1771,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-05-25",
@@ -1909,7 +1794,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-cd5256c9cf1652bbf378-2026-05-26",
@@ -2507,7 +2392,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-71664625075c21f99cba",
@@ -2530,7 +2415,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-05-28",
@@ -2553,7 +2438,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-9c676f864a2121618d59-2026-05-29",
@@ -2967,7 +2852,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-cb18796c5f06df76f702",
@@ -2990,7 +2875,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-11c905c77cb7b0dfb914-2026-06-10",
@@ -3082,7 +2967,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-46b85aba6aa47a92dc57-2026-06-11",
@@ -3220,7 +3105,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-06-14",
@@ -3243,7 +3128,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-e004285dec064d125046-2026-06-15",
@@ -3289,7 +3174,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-cd5256c9cf1652bbf378-2026-06-16",
@@ -3680,7 +3565,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-2fba345f12ed22133571",
@@ -3703,7 +3588,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-06-16",
@@ -3726,7 +3611,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-e7e730f153240058db76-2026-06-17",
@@ -3910,7 +3795,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-e004285dec064d125046-2026-06-18",
@@ -3956,7 +3841,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-0d51974b28874bf78122-2026-06-19",
@@ -4324,7 +4209,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-eec22ce607138c45e43c-2026-06-25",
@@ -4370,7 +4255,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-cb7c9dd349e0caafccb1",
@@ -4393,7 +4278,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-71965b8ab0255470d5f8-2026-06-26",
@@ -4439,7 +4324,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-cd5256c9cf1652bbf378-2026-06-29",
@@ -4485,7 +4370,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-83659450a544e9742218-2026-06-29",
@@ -4646,7 +4531,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-ddc70887d538f053ea2e-2026-07-02",
@@ -4738,7 +4623,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-1ef27ca1-af91-48bb-b934-3da5abd9f711",
@@ -4761,7 +4646,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-07-05",
@@ -4784,7 +4669,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-94662e6c504c27e89a1c-2026-07-06",
@@ -4876,7 +4761,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-a6db1e67-5860-47c9-a674-adc0f35b62e0",
@@ -4899,7 +4784,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-89fe4168fa1487b73f22",
@@ -4922,7 +4807,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-2b6792d054197aabac5d",
@@ -4945,7 +4830,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-07-07",
@@ -4968,7 +4853,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-6d1c61d45c92062659c2-2026-07-08",
@@ -5060,7 +4945,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-828a008877b4d7480000-2026-07-09",
@@ -5175,7 +5060,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-07-09",
@@ -5198,7 +5083,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-c04d5b168b598714cbc9-2026-07-10",
@@ -5336,7 +5221,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-135fb199-a39e-48cc-ba27-0aecd96ba9f8",
@@ -5359,7 +5244,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-1b342a45e41717a4ef56-2026-07-13",
@@ -5566,7 +5451,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-71965b8ab0255470d5f8-2026-07-14",
@@ -5658,7 +5543,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-2a62cf9af2a4cdfcb37f-2026-07-15",
@@ -6118,7 +6003,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-d9adedc4-8fa1-4a36-84f9-43b8893a6865",
@@ -6141,7 +6026,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-cd5256c9cf1652bbf378-2026-07-20",
@@ -6647,7 +6532,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-e1079d3a-c0a6-4b42-bc1d-92e48a5a78fc",
@@ -6670,7 +6555,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-0f6780cf-edae-4d7c-99d6-ce7de784d140",
@@ -6693,7 +6578,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-1c202e1d5468724cbcb7-2026-07-22",
@@ -9338,7 +9223,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-5b2f05d7-9052-49fb-9bd7-2a05d4910576",
@@ -9361,7 +9246,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-BKR-2026-07-26",
@@ -9407,7 +9292,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-24d00c4bca1d9ec61db2-2026-07-27",
@@ -9548,6 +9433,52 @@
       "updatedAt": "2026-07-27T05:56:23Z"
     },
     {
+      "id": "kr-earnings-dcd21d6ccb61810bc0c0-2026-07-27",
+      "title": "LX인터내셔널 실적 발표",
+      "time": 1785121200000,
+      "allDay": true,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800477",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "001120",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
+      "id": "kr-earnings-0bfcfaaea84a816963f4-2026-07-27",
+      "title": "LX하우시스 실적 발표",
+      "time": 1785121200000,
+      "allDay": true,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800329",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "108670",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
       "id": "kr-earnings-9fc19518078fb914a17e-2026-07-27",
       "title": "SGC에너지 2026년 2분기 경영실적 및 Q&A",
       "time": 1785121200000,
@@ -9569,6 +9500,52 @@
       "official": true,
       "confidence": "official_filing",
       "updatedAt": "2026-07-27T05:56:23Z"
+    },
+    {
+      "id": "kr-earnings-5c099e6d88d2371a9b7c-2026-07-27",
+      "title": "금호타이어 실적 발표",
+      "time": 1785121200000,
+      "allDay": true,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800637",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "073240",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
+      "id": "kr-earnings-c336f38e0105f7678ffb-2026-07-27",
+      "title": "레드캡투어 실적 발표",
+      "time": 1785121200000,
+      "allDay": true,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727900469",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "038390",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-685804df8a828ac5caa3-2026-07-27",
@@ -9594,6 +9571,29 @@
       "updatedAt": "2026-07-27T05:56:23Z"
     },
     {
+      "id": "kr-earnings-2a433dfd0d38469e9391-2026-07-27",
+      "title": "에스원 실적 발표",
+      "time": 1785121200000,
+      "allDay": true,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800605",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "012750",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
       "id": "kr-earnings-92ae63cf1b6fbee641fb-2026-07-27",
       "title": "에스티팜 2026년 2분기 실적발표 컨퍼런스콜",
       "time": 1785121200000,
@@ -9615,6 +9615,29 @@
       "official": true,
       "confidence": "official_filing",
       "updatedAt": "2026-07-27T05:56:23Z"
+    },
+    {
+      "id": "kr-earnings-6cf198cca0e8e400f725-2026-07-27",
+      "title": "에이피알 실적 발표",
+      "time": 1785121200000,
+      "allDay": true,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800459",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "278470",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-9e52123433adfece2f6c-2026-07-27",
@@ -9824,6 +9847,29 @@
       "updatedAt": "2026-07-27T05:56:23Z"
     },
     {
+      "id": "kr-result-034020-2026-07-27",
+      "title": "두산에너빌리티 실적 결과",
+      "time": 1785142800000,
+      "allDay": false,
+      "sourceKey": "dart",
+      "source": "금융감독원 전자공시(OpenDART)",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800357",
+      "category": "earnings",
+      "importance": 4,
+      "status": "released",
+      "summary": "🟢🟢 매우 좋음 · 매출 4.72조 원 (+42952700.0%) · 영업익 3,142.6억 원 (+897785.7%) · 순익 2,263.7억 원 (+81917.4%) · 예상치 없음",
+      "symbol": "034020",
+      "market": "KR",
+      "actual": "매출 4.72조 원, 영업익 3,142.6억 원, 순익 2,263.7억 원",
+      "expected": "",
+      "previous": "매출 1,100만 원, 영업익 3,500만 원, 순익 2.8억 원",
+      "rating": 2,
+      "ratingLabel": "🟢🟢 매우 좋음",
+      "official": true,
+      "confidence": "official_financials",
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
       "id": "kr-result-068270-2026-07-27",
       "title": "셀트리온 실적 결과",
       "time": 1785142800000,
@@ -9891,6 +9937,29 @@
       "official": true,
       "confidence": "official_financials",
       "updatedAt": "2026-07-27T01:02:24Z"
+    },
+    {
+      "id": "kr-result-443060-2026-07-27",
+      "title": "HD현대마린솔루션 실적 결과",
+      "time": 1785142800000,
+      "allDay": false,
+      "sourceKey": "dart",
+      "source": "금융감독원 전자공시(OpenDART)",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800323",
+      "category": "earnings",
+      "importance": 3,
+      "status": "released",
+      "summary": "🟢🟢 매우 좋음 · 매출 5,804억 원 (+580300.0%) · 영업익 976억 원 (+21588.9%) · 순익 830억 원 (+5489.6%) · 예상치 없음",
+      "symbol": "443060",
+      "market": "KR",
+      "actual": "매출 5,804억 원, 영업익 976억 원, 순익 830억 원",
+      "expected": "",
+      "previous": "매출 1억 원, 영업익 4.5억 원, 순익 -15.4억 원",
+      "rating": 2,
+      "ratingLabel": "🟢🟢 매우 좋음",
+      "official": true,
+      "confidence": "official_financials",
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-result-095340-2026-07-27",
@@ -10054,6 +10123,75 @@
       "updatedAt": "2026-07-27T05:56:23Z"
     },
     {
+      "id": "kr-result-139130-2026-07-27",
+      "title": "iM금융지주 실적 결과",
+      "time": 1785142800000,
+      "allDay": false,
+      "sourceKey": "dart",
+      "source": "금융감독원 전자공시(OpenDART)",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800396",
+      "category": "earnings",
+      "importance": 3,
+      "status": "released",
+      "summary": "🟢🟢 매우 좋음 · 매출 4.17조 원 (+17168463.8%) · 영업익 1,827.4억 원 (+3150755.2%) · 순익 1,447.8억 원 (+1703417.6%) · 예상치 없음",
+      "symbol": "139130",
+      "market": "KR",
+      "actual": "매출 4.17조 원, 영업익 1,827.4억 원, 순익 1,447.8억 원",
+      "expected": "",
+      "previous": "매출 2,430만 원, 영업익 -580만 원, 순익 -850만 원",
+      "rating": 2,
+      "ratingLabel": "🟢🟢 매우 좋음",
+      "official": true,
+      "confidence": "official_financials",
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
+      "id": "kr-result-024110-2026-07-27",
+      "title": "기업은행 실적 결과",
+      "time": 1785142800000,
+      "allDay": false,
+      "sourceKey": "dart",
+      "source": "금융감독원 전자공시(OpenDART)",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800560",
+      "category": "earnings",
+      "importance": 3,
+      "status": "released",
+      "summary": "🟢🟢 매우 좋음 · 매출 9.66조 원 (+74922456.6%) · 영업익 9,151억 원 (+48163363.2%) · 순익 6,895.1억 원 (+8111935.3%) · 예상치 없음",
+      "symbol": "024110",
+      "market": "KR",
+      "actual": "매출 9.66조 원, 영업익 9,151억 원, 순익 6,895.1억 원",
+      "expected": "",
+      "previous": "매출 -1,290만 원, 영업익 -190만 원, 순익 -850만 원",
+      "rating": 2,
+      "ratingLabel": "🟢🟢 매우 좋음",
+      "official": true,
+      "confidence": "official_financials",
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
+      "id": "kr-result-242040-2025-FY",
+      "title": "나무기술 실적 결과",
+      "time": 1785142800000,
+      "allDay": false,
+      "sourceKey": "dart",
+      "source": "금융감독원 전자공시(OpenDART)",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727000316",
+      "category": "earnings",
+      "importance": 3,
+      "status": "released",
+      "summary": "⚪ 중립 · [기재정정]사업보고서 (2025.12) 공식 공시 확인 · 예상치 없음",
+      "symbol": "242040",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
       "id": "kr-result-067990-2026-07-27",
       "title": "도이치모터스 실적 결과",
       "time": 1785142800000,
@@ -10146,6 +10284,29 @@
       "updatedAt": "2026-07-27T01:31:40Z"
     },
     {
+      "id": "kr-result-000150-2026-07-27",
+      "title": "두산 실적 결과",
+      "time": 1785142800000,
+      "allDay": false,
+      "sourceKey": "dart",
+      "source": "금융감독원 전자공시(OpenDART)",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800362",
+      "category": "earnings",
+      "importance": 3,
+      "status": "released",
+      "summary": "🟢🟢 매우 좋음 · 매출 5.59조 원 (+507727.3%) · 영업익 4,884억 원 (+11337.9%) · 순익 5,356억 원 (+1152.3%) · 예상치 없음",
+      "symbol": "000150",
+      "market": "KR",
+      "actual": "매출 5.59조 원, 영업익 4,884억 원, 순익 5,356억 원",
+      "expected": "",
+      "previous": "매출 11억 원, 영업익 42.7억 원, 순익 427.7억 원",
+      "rating": 2,
+      "ratingLabel": "🟢🟢 매우 좋음",
+      "official": true,
+      "confidence": "official_financials",
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
       "id": "kr-result-300120-2026-07-27",
       "title": "라온피플 실적 결과",
       "time": 1785142800000,
@@ -10167,6 +10328,29 @@
       "official": true,
       "confidence": "official_financials",
       "updatedAt": "2026-07-27T04:55:03Z"
+    },
+    {
+      "id": "kr-result-206640-2025-FY",
+      "title": "바디텍메드 실적 결과",
+      "time": 1785142800000,
+      "allDay": false,
+      "sourceKey": "dart",
+      "source": "금융감독원 전자공시(OpenDART)",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727000339",
+      "category": "earnings",
+      "importance": 3,
+      "status": "released",
+      "summary": "⚪ 중립 · [기재정정]사업보고서 (2025.12) 공식 공시 확인 · 예상치 없음",
+      "symbol": "206640",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-result-188040-2026-07-27",
@@ -10353,6 +10537,29 @@
       "updatedAt": "2026-07-27T05:56:23Z"
     },
     {
+      "id": "kr-result-298690-2026-07-27",
+      "title": "에어부산 실적 결과",
+      "time": 1785142800000,
+      "allDay": false,
+      "sourceKey": "dart",
+      "source": "금융감독원 전자공시(OpenDART)",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800462",
+      "category": "earnings",
+      "importance": 3,
+      "status": "released",
+      "summary": "🔴🔴 매우 나쁨 · 매출 2,353억 원 (+27146.0%) · 영업익 -355억 원 (-219.8%) · 순익 -618억 원 (-118.4%) · 예상치 없음",
+      "symbol": "298690",
+      "market": "KR",
+      "actual": "매출 2,353억 원, 영업익 -355억 원, 순익 -618억 원",
+      "expected": "",
+      "previous": "매출 -8.7억 원, 영업익 -111억 원, 순익 -283억 원",
+      "rating": -2,
+      "ratingLabel": "🔴🔴 매우 나쁨",
+      "official": true,
+      "confidence": "official_financials",
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
       "id": "kr-result-008120-2025-FY",
       "title": "엠소닉 실적 결과",
       "time": 1785142800000,
@@ -10397,6 +10604,29 @@
       "official": true,
       "confidence": "official_financials",
       "updatedAt": "2026-07-27T05:56:23Z"
+    },
+    {
+      "id": "kr-result-237820-2026-07-27",
+      "title": "플레이디 실적 결과",
+      "time": 1785142800000,
+      "allDay": false,
+      "sourceKey": "dart",
+      "source": "금융감독원 전자공시(OpenDART)",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727900663",
+      "category": "earnings",
+      "importance": 3,
+      "status": "released",
+      "summary": "🟢🟢 매우 좋음 · 매출 78.7억 원 (+167389.4%) · 영업익 12.6억 원 (+2276.2%) · 순익 13.1억 원 (+3392.0%) · 예상치 없음",
+      "symbol": "237820",
+      "market": "KR",
+      "actual": "매출 78.7억 원, 영업익 12.6억 원, 순익 13.1억 원",
+      "expected": "",
+      "previous": "매출 470만 원, 영업익 5,290만 원, 순익 3,760만 원",
+      "rating": 2,
+      "ratingLabel": "🟢🟢 매우 좋음",
+      "official": true,
+      "confidence": "official_financials",
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-result-004710-2026-07-27",
@@ -12098,7 +12328,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-cd5256c9cf1652bbf378-2026-07-28",
@@ -12147,6 +12377,29 @@
       "updatedAt": "2026-07-27T05:56:23Z"
     },
     {
+      "id": "kr-earnings-d537ea904201eb053e3c-2026-07-28",
+      "title": "현대로템 26년 2분기 경영실적 및 주요 경영현황 설명",
+      "time": 1785196800000,
+      "allDay": false,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800668",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "064350",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
       "id": "kr-earnings-95fc7e29d4aa0247a291-2026-07-28",
       "title": "LG디스플레이 2026년 2분기 경영실적 및 Q&A",
       "time": 1785197400000,
@@ -12191,6 +12444,29 @@
       "official": true,
       "confidence": "official_filing",
       "updatedAt": "2026-07-27T05:56:23Z"
+    },
+    {
+      "id": "kr-earnings-61627aaa52b8174faa78-2026-07-28",
+      "title": "나노씨엠에스 1.기업설명회 내용요약 - 회사소개 - 주요 경영현황, 경영실적 및 사업내용, 사업전망 설명 - 질의응답",
+      "time": 1785200400000,
+      "allDay": false,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727900612",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "247660",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-75103e2ac0b88a9e19c3-2026-07-28",
@@ -12260,6 +12536,29 @@
       "official": true,
       "confidence": "official_filing",
       "updatedAt": "2026-07-27T05:56:23Z"
+    },
+    {
+      "id": "kr-earnings-d3714090ae4aaec4ab63-2026-07-28",
+      "title": "대우건설 실적 발표",
+      "time": 1785207600000,
+      "allDay": true,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800617",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "047040",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-fd95658713754ec721b8-2026-07-28",
@@ -15916,7 +16215,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-e24396ec0811a9a5f9bc-2026-07-29",
@@ -15965,6 +16264,29 @@
       "updatedAt": "2026-07-27T05:56:23Z"
     },
     {
+      "id": "kr-earnings-75103e2ac0b88a9e19c3-2026-07-29",
+      "title": "동아쏘시오홀딩스 2026년 2분기 경영실적 및 주요 계열회사 경영현황 설명",
+      "time": 1785283800000,
+      "allDay": false,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800348",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "000640",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
       "id": "kr-earnings-91c1c264d6bad0e5bd87-2026-07-29",
       "title": "GS건설 경영실적에 대한 투자자의 이해도 제고",
       "time": 1785286800000,
@@ -16008,7 +16330,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-9fc19518078fb914a17e-2026-07-29",
@@ -16032,6 +16354,29 @@
       "official": true,
       "confidence": "official_filing",
       "updatedAt": "2026-07-27T05:56:23Z"
+    },
+    {
+      "id": "kr-earnings-6945200e89d9f029d17b-2026-07-29",
+      "title": "iM금융지주 2026년 상반기 경영실적 등 주요 관심사항 설명",
+      "time": 1785294000000,
+      "allDay": true,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800566",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "139130",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-94662e6c504c27e89a1c-2026-07-29",
@@ -22793,7 +23138,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-94662e6c504c27e89a1c-2026-07-30",
@@ -23276,7 +23621,30 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
+      "id": "kr-earnings-5c099e6d88d2371a9b7c-2026-07-30",
+      "title": "금호타이어 2026년 2분기 경영실적 발표",
+      "time": 1785398400000,
+      "allDay": false,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800644",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "073240",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-865dd096d6d02525e997",
@@ -23299,7 +23667,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-b0b620e9f0eac542dfb2",
@@ -23322,7 +23690,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-AMZN-2026-07-30",
@@ -30429,7 +30797,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-6961e2935ec85fd0acd6-2026-07-31",
@@ -30591,6 +30959,29 @@
       "official": true,
       "confidence": "official_filing",
       "updatedAt": "2026-07-27T05:56:23Z"
+    },
+    {
+      "id": "kr-earnings-b18d554fd08ee24504f1-2026-07-31",
+      "title": "HD현대 2026년 2분기 경영실적 발표",
+      "time": 1785481200000,
+      "allDay": false,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800408",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "267250",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-cd6e2c5799a763f640f8-2026-07-31",
@@ -31717,7 +32108,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-0448d030-5175-4c1f-bd0b-4f3f87072921",
@@ -31740,7 +32131,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-5835b59c856beed14e62-2026-08-03",
@@ -35055,6 +35446,29 @@
       "updatedAt": "2026-07-26T13:33:25Z"
     },
     {
+      "id": "kr-earnings-dcd21d6ccb61810bc0c0-2026-08-04",
+      "title": "LX인터내셔널 실적 발표",
+      "time": 1785801600000,
+      "allDay": false,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800484",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "001120",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
       "id": "kr-earnings-3a48b4e41a7735f45adc-2026-08-04",
       "title": "에코프로 2026년 2분기 경영실적 발표",
       "time": 1785819600000,
@@ -35213,7 +35627,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-AMD-2026-08-04",
@@ -44046,6 +44460,29 @@
       "official": true,
       "confidence": "official_filing",
       "updatedAt": "2026-07-27T05:56:23Z"
+    },
+    {
+      "id": "kr-earnings-6cf198cca0e8e400f725-2026-08-05",
+      "title": "에이피알 2026년 2분기 경영실적 발표",
+      "time": 1785891600000,
+      "allDay": false,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800460",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "278470",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-f1b4997d1a69be019c99-2026-08-05",
@@ -55385,6 +55822,29 @@
       "official": true,
       "confidence": "official_filing",
       "updatedAt": "2026-07-27T05:56:23Z"
+    },
+    {
+      "id": "kr-earnings-6cf198cca0e8e400f725-2026-08-06",
+      "title": "에이피알 1. 2026년 2분기 경영실적 설명",
+      "time": 1785974400000,
+      "allDay": false,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800476",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "278470",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "kr-earnings-95c160228ef962d58e17-2026-08-06",
@@ -84988,6 +85448,29 @@
       "updatedAt": "2026-07-27T05:56:23Z"
     },
     {
+      "id": "kr-earnings-390f2b3e6dce65e9efe7-2026-08-13",
+      "title": "삼성생명 2026 회계연도 상반기 경영실적 발표",
+      "time": 1786597200000,
+      "allDay": false,
+      "sourceKey": "dart_schedule",
+      "source": "OpenDART·KIND 전체 실적 일정 공시",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800655",
+      "category": "earnings",
+      "importance": 3,
+      "status": "scheduled",
+      "summary": "",
+      "symbol": "032830",
+      "market": "KR",
+      "actual": "",
+      "expected": "",
+      "previous": "",
+      "rating": 0,
+      "ratingLabel": "⚪ 중립",
+      "official": true,
+      "confidence": "official_filing",
+      "updatedAt": "2026-07-27T08:49:06Z"
+    },
+    {
       "id": "kr-earnings-f0a1ce6f80112d72f727-2026-08-13",
       "title": "LG 2026년 2분기 경영실적 설명",
       "time": 1786602600000,
@@ -95174,7 +95657,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-AGRO-2026-08-17",
@@ -95910,7 +96393,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-AIHS-2026-08-18",
@@ -97175,7 +97658,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-ADI-2026-08-19",
@@ -98693,7 +99176,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-ALLR-2026-08-21",
@@ -99521,7 +100004,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-08-22",
@@ -99544,7 +100027,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-GASS-2026-08-24",
@@ -100395,7 +100878,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-181e59f1fe28f0165399",
@@ -100418,7 +100901,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-NVDA-2026-08-26",
@@ -102534,7 +103017,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-56a85c82-ea71-449b-828c-b583f6f4a18b",
@@ -102557,7 +103040,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-be8b4b0d-1989-48a5-a96d-e8e4d59ed8b3",
@@ -102580,7 +103063,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-ASO-2026-09-01",
@@ -103385,7 +103868,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-AVGO-2026-09-03",
@@ -109181,7 +109664,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-ABAT-2026-09-17",
@@ -109802,7 +110285,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-ELLKF-2026-09-18",
@@ -109871,7 +110354,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-09-20",
@@ -109894,7 +110377,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-AAVXF-2026-09-21",
@@ -110032,7 +110515,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-ABCCF-2026-09-22",
@@ -110423,7 +110906,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-MU-2026-09-23",
@@ -110883,7 +111366,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-ABLGF-2026-09-24",
@@ -113482,7 +113965,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-ad358a4d-c541-409b-9366-9c2f2da4aeb9",
@@ -113505,7 +113988,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-2d0472b9-463d-49c8-afb1-7925e49a3368",
@@ -113528,7 +114011,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-dca8749f-1552-485a-8061-f1ad79055b8d",
@@ -113551,7 +114034,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-fcbc4550-e69e-4458-a9e6-4a5b6b6b15a5",
@@ -113574,7 +114057,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-da43dc2c-00af-4cc1-8ef1-90a60b2eb9e5",
@@ -113597,7 +114080,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-4541ce85-0e38-42ac-a9a0-20474bb5f2cd",
@@ -113620,7 +114103,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-c5783e2b-d458-4b99-9936-4043c236190b",
@@ -113643,7 +114126,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-b9cf7f182f63e9ced5c9",
@@ -113666,7 +114149,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-661b7b683c7b990899f5",
@@ -113689,7 +114172,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-ACOLF-2026-09-30",
@@ -114264,7 +114747,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-1c34002ad6030217e9dc",
@@ -114287,7 +114770,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-CLGMF-2026-10-06",
@@ -115138,7 +115621,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-TPGVF-2026-10-09",
@@ -115207,7 +115690,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-10-11",
@@ -115230,7 +115713,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-FDX-2026-10-12",
@@ -115276,7 +115759,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-JPM-2026-10-13",
@@ -115805,7 +116288,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "us-earnings-ASML-2026-10-14",
@@ -121831,7 +122314,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-b3dc6a5b1b9d1585182b",
@@ -121854,7 +122337,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-7cbcc82af59c08cd9c56",
@@ -121877,7 +122360,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-10-29",
@@ -121900,7 +122383,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-67213393-7983-4c06-8b44-b8c785a5ed79",
@@ -121923,7 +122406,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-11-02",
@@ -121946,7 +122429,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-11-03",
@@ -121969,7 +122452,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-a2a33033bfd7034721a5",
@@ -121992,7 +122475,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-11-07",
@@ -122015,7 +122498,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-11-19",
@@ -122038,7 +122521,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-92e2557d71fe1aaf30f2",
@@ -122061,7 +122544,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-11-21",
@@ -122084,7 +122567,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-11-23",
@@ -122107,7 +122590,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-11-24",
@@ -122130,7 +122613,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-2536800f88df2e8b11bd",
@@ -122153,7 +122636,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-2c1303574efbb1191318",
@@ -122176,7 +122659,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-11-26",
@@ -122199,7 +122682,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-d3bd7fb2-fac6-49fc-ae52-cee07d2fde67",
@@ -122222,7 +122705,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-4a44fe9324f334ff6ef9",
@@ -122245,7 +122728,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-b6e28cc5dec28886cab9",
@@ -122268,7 +122751,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-12-09",
@@ -122291,7 +122774,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-4f32e1fede306b86e67d",
@@ -122314,7 +122797,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-12-10",
@@ -122337,7 +122820,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-12-13",
@@ -122360,7 +122843,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-12-14",
@@ -122383,7 +122866,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-12-15",
@@ -122406,7 +122889,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-babad9a49a846396d1c2",
@@ -122429,7 +122912,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-12-18",
@@ -122452,7 +122935,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-cea163369d24c674f9be",
@@ -122475,7 +122958,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "bea-74e8aadd822b80b7645b",
@@ -122498,7 +122981,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2026-12-30",
@@ -122521,7 +123004,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-bf2c3027-a314-403e-a416-2bfd5d165ad1",
@@ -122544,7 +123027,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-c1bd775a-2fff-45bb-9726-765b69817c19",
@@ -122567,7 +123050,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-387aadc6-68ca-4090-9be7-d57603ad7c79",
@@ -122590,7 +123073,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-8bf5f61e-a7e1-41e6-aede-7b87e4beebab",
@@ -122613,7 +123096,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-4d3943e9-c894-46c4-a318-84d526d0ef40",
@@ -122636,7 +123119,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-d74afbc7-0de5-491c-be05-4e9c31f736ac",
@@ -122659,7 +123142,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-e61d353c-db55-4a57-8184-0fab187231e6",
@@ -122682,7 +123165,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-01ca3653-126a-4c01-94fb-a9467b39cdac",
@@ -122705,7 +123188,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-0c26b3d4-43e3-4c1a-8976-592ff319bc51",
@@ -122728,7 +123211,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-dfd444f9-ddda-4b35-8f51-cda7cd801809",
@@ -122751,7 +123234,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-511a3ef8-799e-4723-9293-b954d9d2eb83",
@@ -122774,7 +123257,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-d08d8b46-353b-4eee-ab5e-e1385b329008",
@@ -122797,7 +123280,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-bf5c6fa2-3add-49ff-aad6-c6450148cd89",
@@ -122820,7 +123303,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-20fa8dc4-8cab-41cf-b452-98a2620f7e86",
@@ -122843,7 +123326,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-ab932c60-d808-4825-ab71-b6fe0a745f15",
@@ -122866,7 +123349,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-2f31a7f0-968a-448d-b447-333bf0341078",
@@ -122889,7 +123372,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-fa895702-687b-4ba3-95fb-9462a2c9844b",
@@ -122912,7 +123395,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-46d6822b-82aa-452c-aa34-80b6f052de84",
@@ -122935,7 +123418,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-1fa3741c-3339-4954-a026-2cd9d36161c0",
@@ -122958,7 +123441,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-7d77bd89-af23-4a5a-b632-de0034003a64",
@@ -122981,7 +123464,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-5ce7e9b6-b471-4a88-891f-2a6f21cb369f",
@@ -123004,7 +123487,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-0a07a23e-606a-4589-bf3e-c3e41bd4de51",
@@ -123027,7 +123510,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-cb1762f0-90f4-4902-a5f6-655a7ade25bf",
@@ -123050,7 +123533,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-c703fab3-2ce4-4cf1-861d-754da3f3ad42",
@@ -123073,7 +123556,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-71df1dd0-d658-4762-b0bc-0fca6886aea7",
@@ -123096,7 +123579,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-71ed4649-8d71-42e8-8548-d42ffa2c5a6e",
@@ -123119,7 +123602,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-ce1317de-ec94-4479-9b28-38ebf11f13ae",
@@ -123142,7 +123625,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-428edcbe-bbd7-4475-8eb1-3dd90b39ad75",
@@ -123165,7 +123648,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-d6615c37-dcef-45d1-96c1-3d1a5250bf13",
@@ -123188,7 +123671,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-adfc829a-6704-4d9e-b2ca-1068c38b2b83",
@@ -123211,7 +123694,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-98b905bb-4060-40a2-b299-2773b6883203",
@@ -123234,7 +123717,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-ad00f137-39e4-4780-be30-443020b2a5aa",
@@ -123257,7 +123740,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-1ce39fa1-5f79-4d7b-9aa9-9a5aad74a46a",
@@ -123280,7 +123763,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-4c78e865-8f03-4f47-a081-b507da270d19",
@@ -123303,7 +123786,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "space-fc1bd321-e502-4d0f-81f4-1926dece81c6",
@@ -123326,7 +123809,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2027-01-26",
@@ -123349,7 +123832,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2027-01-27",
@@ -123372,7 +123855,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2027-03-17",
@@ -123395,7 +123878,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2027-04-28",
@@ -123418,7 +123901,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2027-06-09",
@@ -123441,7 +123924,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2027-07-08",
@@ -123464,7 +123947,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     },
     {
       "id": "fomc-2027-07-28",
@@ -123487,7 +123970,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-07-27T05:56:23Z"
+      "updatedAt": "2026-07-27T08:49:06Z"
     }
   ]
 }
