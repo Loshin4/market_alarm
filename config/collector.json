@@ -1,4 +1,5 @@
 {
-  "schemaVersion": 1,
-  "description": "전체 시장 일정 수집. 관심 종목 제한 없음"
+  "schemaVersion": 2,
+  "description": "전체 시장 일정 수집. 회사별 하드코딩 없이 OpenDART·KIND 전체 공시에서 실적 일정을 수집합니다.",
+  "officialIrPages": []
 }
