@@ -8670,13 +8670,12 @@
       "event": null
     },
     "20260623900199": {
-      "checkedAt": "2026-07-27T01:31:40Z",
+      "checkedAt": "2026-07-27T04:55:03Z",
       "receiptDate": "20260623",
       "parserVersion": 152,
       "reportName": "기업설명회(IR)개최",
       "method": "",
-      "event": null,
-      "error": "public: HTTPSConnectionPool(host='dart.fss.or.kr', port=443): Read timed out. (read timeout=45)"
+      "event": null
     },
     "20260623900156": {
       "checkedAt": "2026-07-27T01:31:40Z",
@@ -12293,13 +12292,12 @@
       }
     },
     "20260528600234": {
-      "checkedAt": "2026-07-27T01:31:40Z",
+      "checkedAt": "2026-07-27T04:55:03Z",
       "receiptDate": "20260528",
       "parserVersion": 152,
       "reportName": "기업설명회(IR)개최",
       "method": "",
-      "event": null,
-      "error": "public: HTTPSConnectionPool(host='dart.fss.or.kr', port=443): Read timed out. (read timeout=45)"
+      "event": null
     },
     "20260528800201": {
       "checkedAt": "2026-07-27T01:31:40Z",
@@ -16454,6 +16452,96 @@
         "confidence": "official_filing",
         "updatedAt": "2026-07-27T01:31:40Z"
       }
+    },
+    "20260727800218": {
+      "checkedAt": "2026-07-27T04:55:03Z",
+      "receiptDate": "20260727",
+      "parserVersion": 152,
+      "reportName": "결산실적공시예고(안내공시)",
+      "method": "opendart_zip",
+      "event": {
+        "id": "kr-earnings-685804df8a828ac5caa3-2026-07-27",
+        "title": "씨에스윈드 실적 발표",
+        "time": 1785121200000,
+        "allDay": true,
+        "sourceKey": "dart_schedule",
+        "source": "OpenDART·KIND 전체 실적 일정 공시",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800218",
+        "category": "earnings",
+        "importance": 3,
+        "status": "scheduled",
+        "summary": "",
+        "symbol": "112610",
+        "market": "KR",
+        "actual": "",
+        "expected": "",
+        "previous": "",
+        "rating": 0,
+        "ratingLabel": "⚪ 중립",
+        "official": true,
+        "confidence": "official_filing",
+        "updatedAt": "2026-07-27T04:55:03Z"
+      }
+    },
+    "20260727800197": {
+      "checkedAt": "2026-07-27T04:55:03Z",
+      "receiptDate": "20260727",
+      "parserVersion": 152,
+      "reportName": "기업설명회(IR)개최(안내공시)",
+      "method": "opendart_zip",
+      "event": {
+        "id": "kr-earnings-98b9c3f6df453c0a0b81-2026-07-28",
+        "title": "국도화학 2026년 2분기 경영실적 발표",
+        "time": 1785214800000,
+        "allDay": false,
+        "sourceKey": "dart_schedule",
+        "source": "OpenDART·KIND 전체 실적 일정 공시",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800197",
+        "category": "earnings",
+        "importance": 3,
+        "status": "scheduled",
+        "summary": "",
+        "symbol": "007690",
+        "market": "KR",
+        "actual": "",
+        "expected": "",
+        "previous": "",
+        "rating": 0,
+        "ratingLabel": "⚪ 중립",
+        "official": true,
+        "confidence": "official_filing",
+        "updatedAt": "2026-07-27T04:55:03Z"
+      }
+    },
+    "20260727800183": {
+      "checkedAt": "2026-07-27T04:55:03Z",
+      "receiptDate": "20260727",
+      "parserVersion": 152,
+      "reportName": "결산실적공시예고(안내공시)",
+      "method": "opendart_zip",
+      "event": {
+        "id": "kr-earnings-9e52123433adfece2f6c-2026-07-27",
+        "title": "현대퓨처넷 실적 발표",
+        "time": 1785121200000,
+        "allDay": true,
+        "sourceKey": "dart_schedule",
+        "source": "OpenDART·KIND 전체 실적 일정 공시",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800183",
+        "category": "earnings",
+        "importance": 3,
+        "status": "scheduled",
+        "summary": "",
+        "symbol": "126560",
+        "market": "KR",
+        "actual": "",
+        "expected": "",
+        "previous": "",
+        "rating": 0,
+        "ratingLabel": "⚪ 중립",
+        "official": true,
+        "confidence": "official_filing",
+        "updatedAt": "2026-07-27T04:55:03Z"
+      }
     }
   },
   "dartIrParserVersion": 152,
@@ -18753,6 +18841,104 @@
         "official": true,
         "confidence": "official_financials",
         "updatedAt": "2026-07-27T01:31:40Z"
+      }
+    },
+    "20260727800185": {
+      "checkedAt": "2026-07-27T04:55:03Z",
+      "receiptDate": "20260727",
+      "parserVersion": 140,
+      "event": {
+        "id": "kr-result-029780-2026-07-27",
+        "title": "삼성카드 실적 결과",
+        "time": 1785142800000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800185",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🟢🟢 매우 좋음 · 매출 1.18조 원 (+140278.6%) · 영업익 2,086억 원 (+298100.0%) · 순익 1,542억 원 (+118715.4%) · 예상치 없음",
+        "symbol": "029780",
+        "market": "KR",
+        "actual": "매출 1.18조 원, 영업익 2,086억 원, 순익 1,542억 원",
+        "expected": "",
+        "previous": "매출 -8.4억 원, 영업익 -7,000만 원, 순익 -1.3억 원",
+        "rating": 2,
+        "ratingLabel": "🟢🟢 매우 좋음",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-27T04:55:03Z"
+      }
+    },
+    "20260727800208": {
+      "checkedAt": "2026-07-27T04:55:03Z",
+      "receiptDate": "20260727",
+      "parserVersion": 140,
+      "event": {
+        "id": "kr-result-004710-2026-07-27",
+        "title": "한솔테크닉스 실적 결과",
+        "time": 1785142800000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800208",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🟢🟢 매우 좋음 · 매출 3,351.1억 원 (+5493523.0%) · 영업익 142.3억 원 (+1581344.4%) · 순익 106.8억 원 (+120055.1%) · 예상치 없음",
+        "symbol": "004710",
+        "market": "KR",
+        "actual": "매출 3,351.1억 원, 영업익 142.3억 원, 순익 106.8억 원",
+        "expected": "",
+        "previous": "매출 610만 원, 영업익 90만 원, 순익 -890만 원",
+        "rating": 2,
+        "ratingLabel": "🟢🟢 매우 좋음",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-27T04:55:03Z"
+      }
+    },
+    "20260727800223": {
+      "checkedAt": "2026-07-27T04:55:03Z",
+      "receiptDate": "20260727",
+      "parserVersion": 140,
+      "event": null,
+      "error": "014 파일이 존재하지 않습니다."
+    },
+    "20260727800227": {
+      "checkedAt": "2026-07-27T04:55:03Z",
+      "receiptDate": "20260727",
+      "parserVersion": 140,
+      "event": null,
+      "error": "014 파일이 존재하지 않습니다."
+    },
+    "20260727900162": {
+      "checkedAt": "2026-07-27T04:55:03Z",
+      "receiptDate": "20260727",
+      "parserVersion": 140,
+      "event": {
+        "id": "kr-result-300120-2026-07-27",
+        "title": "라온피플 실적 결과",
+        "time": 1785142800000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727900162",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🟢🟢 매우 좋음 · 매출 35.3억 원 (+23944.6%) · 영업익 3억 원 (+110.5%) · 순익 10.7억 원 (+142.6%) · 예상치 없음",
+        "symbol": "300120",
+        "market": "KR",
+        "actual": "매출 35.3억 원, 영업익 3억 원, 순익 10.7억 원",
+        "expected": "",
+        "previous": "매출 -1,480만 원, 영업익 -28.6억 원, 순익 -25.1억 원",
+        "rating": 2,
+        "ratingLabel": "🟢🟢 매우 좋음",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-27T04:55:03Z"
       }
     }
   },
