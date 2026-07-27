@@ -341,5 +341,25 @@ ZZZZ,Example Small Company,2026-08-03,2026-06-30,,USD,United States,
         self.assertEqual(result["operating"], 1500000000)
 
 
+    def test_importance_uses_market_impact_not_share_price(self):
+        self.assertGreaterEqual(collector.kr_importance("삼성전기"), 4)
+        self.assertGreaterEqual(collector.us_importance("INTC"), 4)
+        self.assertEqual(collector.us_importance("ARLP"), 3)
+        self.assertEqual(collector.us_importance("AZN"), 3)
+        self.assertEqual(collector.us_importance("ZZZZ", 600_000_000_000), 5)
+        self.assertEqual(collector.us_importance("ZZZZ", 350_000_000_000), 4)
+
+    def test_market_cap_parser(self):
+        self.assertEqual(collector.parse_market_cap("$350.5B"), 350_500_000_000)
+        self.assertEqual(collector.parse_market_cap("1,234,567"), 1234567)
+        self.assertIsNone(collector.parse_market_cap("N/A"))
+
+    def test_app_hides_general_companies_and_has_market_indicators(self):
+        app = (MODULE_PATH.parents[1] / "app" / "src" / "main" / "assets" / "index.html").read_text(encoding="utf-8")
+        self.assertIn('id="indicatorGrid"', app)
+        self.assertIn('function visibleImportant', app)
+        self.assertNotIn('data-filter="all"', app)
+        self.assertNotIn('data-earn="all"', app)
+
 if __name__ == "__main__":
     unittest.main()

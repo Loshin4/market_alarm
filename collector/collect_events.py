@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterable
-from urllib.parse import urlencode, urljoin, unquote
+from urllib.parse import urlencode, urljoin, unquote, quote
 from zoneinfo import ZoneInfo
 
 import requests
@@ -40,7 +40,7 @@ ET = ZoneInfo("America/New_York")
 UTC = timezone.utc
 NOW = datetime.now(UTC)
 NOW_MS = int(NOW.timestamp() * 1000)
-DART_IR_PARSER_VERSION = 152
+DART_IR_PARSER_VERSION = 160
 KIND_DETAIL_PARSER_VERSION = 150
 DART_RESULT_PARSER_VERSION = 140
 US_RESULT_PARSER_VERSION = 140
@@ -63,9 +63,12 @@ LL2_UPCOMING = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/"
 LL2_PREVIOUS = "https://ll.thespacedevs.com/2.3.0/launches/previous/"
 SEC_TICKERS = "https://www.sec.gov/files/company_tickers.json"
 SEC_COMPANY_FACTS = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik:010d}.json"
+KRX_MARKET_CAP = "https://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd"
+FRED_CSV = "https://fred.stlouisfed.org/graph/fredgraph.csv"
+YAHOO_CHART = "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36 MarketAlarm/1.5.2",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36 MarketAlarm/1.6",
     "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8",
 }
 SESSION = requests.Session()
@@ -88,7 +91,13 @@ US_COMPANY_NAMES = {
     "COIN": "코인베이스", "HOOD": "로빈후드", "JPM": "JP모건", "BAC": "뱅크오브아메리카",
     "GS": "골드만삭스", "MS": "모건스탠리", "WMT": "월마트", "COST": "코스트코",
     "DIS": "디즈니", "UBER": "우버", "ABNB": "에어비앤비", "BA": "보잉",
+    "LLY": "일라이릴리", "V": "비자", "MA": "마스터카드", "XOM": "엑슨모빌",
+    "CVX": "셰브론", "UNH": "유나이티드헬스", "HD": "홈디포", "PG": "프록터앤드갬블",
+    "JNJ": "존슨앤드존슨", "ABBV": "애브비", "MRK": "머크", "PEP": "펩시코",
+    "KO": "코카콜라", "MCD": "맥도날드", "CAT": "캐터필러", "GE": "GE에어로스페이스",
 }
+
+ALWAYS_GENERAL_US = {"ARLP", "AZN"}
 
 VERY_IMPORTANT_US = {
     "NVDA", "MSFT", "AAPL", "AMZN", "META", "GOOGL", "GOOG", "TSLA",
@@ -98,13 +107,20 @@ IMPORTANT_US = {
     "SNDK", "WDC", "QCOM", "ARM", "PLTR", "NOW", "ORCL", "CRM", "NFLX",
     "SMCI", "MRVL", "CEG", "VST", "ETN", "NVT", "GEV", "ANET", "LRCX",
     "AMAT", "KLAC", "TXN", "COIN", "JPM", "BAC", "GS", "MS", "BA",
+    "LLY", "V", "MA", "WMT", "COST", "XOM", "CVX", "UNH", "HD", "PG",
+    "JNJ", "ABBV", "MRK", "PEP", "KO", "MCD", "CAT", "GE", "IBM", "CSCO",
+    "ADBE", "DELL", "HPE", "UBER", "DIS",
 }
+
+KR_MARKET_CAPS: dict[str, int] = {}
 
 VERY_IMPORTANT_KR = {"삼성전자", "SK하이닉스"}
 IMPORTANT_KR_KEYWORDS = {
     "한미반도체", "LG에너지솔루션", "현대차", "기아", "NAVER", "카카오",
     "삼성바이오로직스", "셀트리온", "두산에너빌리티", "HD현대일렉트릭",
-    "LS ELECTRIC", "한화에어로스페이스", "SK이노베이션", "LG전자",
+    "LS ELECTRIC", "한화에어로스페이스", "SK이노베이션", "LG전자", "삼성전기",
+    "삼성SDI", "포스코홀딩스", "POSCO홀딩스", "KB금융", "신한지주", "하나금융지주",
+    "현대모비스", "삼성물산", "SK텔레콤", "KT", "한국전력", "한화오션",
 }
 
 
@@ -122,6 +138,8 @@ SOURCE_LABELS = {
     "spacex": "우주 발사 일정 데이터",
     "bls_results": "미국 노동통계 발표 결과",
     "us_results": "미국 기업 실적 결과(SEC·Alpha Vantage)",
+    "krx_marketcap": "한국거래소 시가총액",
+    "market_indicators": "시장 핵심 지표",
 }
 
 
@@ -348,11 +366,39 @@ def company_display_name(symbol: str, raw_name: str = "") -> str:
     return symbol or clean_text(raw_name) or "미국 기업"
 
 
-def us_importance(symbol: str) -> int:
+def parse_market_cap(value: Any) -> float | None:
+    text = clean_text(value).replace(",", "").replace("$", "").upper()
+    if not text or text in {"N/A", "--", "NONE", "NULL"}:
+        return None
+    multiplier = 1.0
+    if text.endswith("T"):
+        multiplier, text = 1_000_000_000_000.0, text[:-1]
+    elif text.endswith("B"):
+        multiplier, text = 1_000_000_000.0, text[:-1]
+    elif text.endswith("M"):
+        multiplier, text = 1_000_000.0, text[:-1]
+    try:
+        return float(text) * multiplier
+    except ValueError:
+        digits = re.sub(r"[^0-9.]", "", text)
+        try:
+            return float(digits) * multiplier if digits else None
+        except ValueError:
+            return None
+
+
+def us_importance(symbol: str, market_cap_usd: float | None = None) -> int:
     symbol = clean_text(symbol).upper()
+    if symbol in ALWAYS_GENERAL_US:
+        return 3
     if symbol in VERY_IMPORTANT_US:
         return 5
+    if market_cap_usd is not None and market_cap_usd >= 500_000_000_000:
+        return 5
     if symbol in IMPORTANT_US:
+        return 4
+    # 시가총액만 큰 해외 ADR·중형주는 홈을 어지럽히지 않도록 매우 큰 회사만 자동 승격한다.
+    if market_cap_usd is not None and market_cap_usd >= 300_000_000_000:
         return 4
     return 3
 
@@ -361,9 +407,53 @@ def kr_importance(company: str) -> int:
     compact = re.sub(r"\s+", "", clean_text(company)).upper()
     if any(re.sub(r"\s+", "", x).upper() in compact for x in VERY_IMPORTANT_KR):
         return 5
+    cap = KR_MARKET_CAPS.get(compact)
+    if cap is not None and cap >= 50_000_000_000_000:
+        return 5
     if any(re.sub(r"\s+", "", x).upper() in compact for x in IMPORTANT_KR_KEYWORDS):
         return 4
+    if cap is not None and cap >= 5_000_000_000_000:
+        return 4
     return 3
+
+
+def refresh_kr_market_caps(state: dict[str, Any], force: bool = False) -> SourceResult:
+    global KR_MARKET_CAPS
+    checked = parse_iso(state.get("krMarketCapsCheckedAt"))
+    cached = state.get("krMarketCaps")
+    if isinstance(cached, dict):
+        KR_MARKET_CAPS = {str(k): int(v) for k, v in cached.items() if str(v).isdigit()}
+    if not force and KR_MARKET_CAPS and checked and NOW - checked < timedelta(hours=20):
+        return SourceResult("krx_marketcap", [], True, f"이전 시가총액 {len(KR_MARKET_CAPS)}개 사용")
+    last_error = ""
+    today = NOW.astimezone(KST).date()
+    for offset in range(0, 10):
+        d = today - timedelta(days=offset)
+        try:
+            response = http_post(KRX_MARKET_CAP, data={
+                "bld": "dbms/MDC/STAT/standard/MDCSTAT01501",
+                "locale": "ko_KR", "mktId": "ALL", "trdDd": d.strftime("%Y%m%d"),
+                "share": "1", "money": "1", "csvxls_isNo": "false",
+            }, timeout=30)
+            rows = response.json().get("OutBlock_1") or []
+            caps: dict[str, int] = {}
+            for row in rows:
+                name = re.sub(r"\s+", "", clean_text(row.get("ISU_ABBRV"))).upper()
+                raw = re.sub(r"[^0-9]", "", str(row.get("MKTCAP", "")))
+                if name and raw:
+                    cap = int(raw)
+                    if cap >= 1_000_000_000_000:
+                        caps[name] = cap
+            if caps:
+                KR_MARKET_CAPS = caps
+                state["krMarketCaps"] = caps
+                state["krMarketCapsCheckedAt"] = iso_utc()
+                return SourceResult("krx_marketcap", [], True, f"{d.isoformat()} 시가총액 {len(caps)}개")
+        except Exception as exc:
+            last_error = str(exc)
+    if KR_MARKET_CAPS:
+        return SourceResult("krx_marketcap", [], False, f"갱신 실패, 이전 시가총액 사용 · {last_error[:90]}")
+    return SourceResult("krx_marketcap", [], False, f"시가총액 조회 실패, 기본 중요기업 기준 사용 · {last_error[:90]}")
 
 
 def koreanize_earnings_title(value: str, year: int | None = None) -> str:
@@ -1365,6 +1455,7 @@ def collect_nasdaq_earnings(state: dict[str, Any], force: bool) -> SourceResult:
             if not symbol:
                 continue
             raw_name = clean_text(raw.get("name"))
+            market_cap = parse_market_cap(raw.get("marketCap"))
             timing_raw = clean_text(raw.get("time")).lower()
             if "after" in timing_raw:
                 hour, all_day, timing = 16, False, "미국 장 마감 후"
@@ -1388,7 +1479,7 @@ def collect_nasdaq_earnings(state: dict[str, Any], force: bool) -> SourceResult:
                 source=SOURCE_LABELS["nasdaq"],
                 source_url=f"https://www.nasdaq.com/market-activity/earnings?date={d.isoformat()}",
                 category="earnings",
-                importance=us_importance(symbol),
+                importance=us_importance(symbol, market_cap),
                 summary=summary,
                 symbol=symbol,
                 market="US",
@@ -2181,7 +2272,7 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
             source=SOURCE_LABELS["us_results"],
             source_url=source_url,
             category="earnings",
-            importance=us_importance(symbol),
+            importance=int(scheduled.get("importance", us_importance(symbol))),
             status="released",
             summary=" · ".join(parts),
             symbol=symbol,
@@ -2331,6 +2422,93 @@ def collect_bls_results(events: list[dict[str, Any]]) -> SourceResult:
     return SourceResult("bls_results", updated)
 
 
+def _indicator_item(key: str, label: str, value: float, previous: float | None, unit: str, updated_at: str, source: str, source_url: str) -> dict[str, Any]:
+    change = value - previous if previous is not None else None
+    change_pct = (change / previous * 100.0) if previous not in (None, 0) else None
+    return {
+        "key": key, "label": label, "value": value, "previous": previous,
+        "change": change, "changePct": change_pct, "unit": unit,
+        "updatedAt": updated_at, "source": source, "sourceUrl": source_url,
+    }
+
+
+def fetch_yahoo_indicator(symbol: str, key: str, label: str, unit: str) -> dict[str, Any] | None:
+    url = YAHOO_CHART.format(symbol=quote(symbol, safe=""))
+    payload = http_get(url, params={"range": "5d", "interval": "1d", "includePrePost": "false"}, timeout=20).json()
+    result = (((payload.get("chart") or {}).get("result")) or [None])[0]
+    if not result:
+        return None
+    meta = result.get("meta") or {}
+    value = parse_market_cap(meta.get("regularMarketPrice"))
+    previous = parse_market_cap(meta.get("chartPreviousClose") or meta.get("previousClose"))
+    if value is None:
+        closes = (((result.get("indicators") or {}).get("quote")) or [{}])[0].get("close") or []
+        valid = [float(v) for v in closes if v is not None]
+        if valid:
+            value = valid[-1]
+            previous = valid[-2] if len(valid) > 1 else previous
+    if value is None:
+        return None
+    timestamp = meta.get("regularMarketTime")
+    updated = iso_utc(datetime.fromtimestamp(int(timestamp), UTC)) if timestamp else iso_utc()
+    return _indicator_item(key, label, value, previous, unit, updated, "시장 시세 데이터", f"https://finance.yahoo.com/quote/{quote(symbol, safe='')}" )
+
+
+def fetch_fred_indicator(series: str, key: str, label: str, unit: str) -> dict[str, Any] | None:
+    response = http_get(FRED_CSV, params={"id": series}, timeout=25)
+    rows = list(csv.DictReader(io.StringIO(response.text)))
+    values: list[tuple[str, float]] = []
+    for row in rows:
+        raw = row.get(series)
+        try:
+            if raw not in (None, "", "."):
+                values.append((str(row.get("DATE") or ""), float(raw)))
+        except ValueError:
+            continue
+    if not values:
+        return None
+    current_date, value = values[-1]
+    previous = values[-2][1] if len(values) > 1 else None
+    updated = f"{current_date}T00:00:00Z" if current_date else iso_utc()
+    return _indicator_item(key, label, value, previous, unit, updated, "미국 연방준비은행 경제데이터(FRED)", f"https://fred.stlouisfed.org/series/{series}")
+
+
+def collect_market_indicators(previous: list[dict[str, Any]] | None = None) -> tuple[list[dict[str, Any]], bool, str]:
+    specs = [
+        ("WTI", "WTI 유가", "CL=F", "$/배럴", "DCOILWTICO"),
+        ("USDKRW", "원·달러 환율", "KRW=X", "원", "DEXKOUS"),
+        ("US10Y", "미국 10년물", "^TNX", "%", "DGS10"),
+        ("VIX", "공포지수(VIX)", "^VIX", "pt", "VIXCLS"),
+        ("DXY", "달러지수", "DX-Y.NYB", "pt", "DTWEXBGS"),
+        ("KOSPI", "코스피", "^KS11", "pt", None),
+        ("NASDAQ", "나스닥 종합", "^IXIC", "pt", None),
+        ("SOX", "필라델피아 반도체", "^SOX", "pt", None),
+        ("BRENT", "브렌트유", "BZ=F", "$/배럴", "DCOILBRENTEU"),
+        ("GOLD", "금", "GC=F", "$/oz", None),
+        ("COPPER", "구리", "HG=F", "$/lb", None),
+        ("BTC", "비트코인", "BTC-USD", "$", None),
+    ]
+    out: list[dict[str, Any]] = []
+    errors: list[str] = []
+    for key, label, symbol, unit, fred in specs:
+        item = None
+        try:
+            item = fetch_yahoo_indicator(symbol, key, label, unit)
+        except Exception as exc:
+            errors.append(f"{key}:시세 {exc}")
+        if item is None and fred:
+            try:
+                item = fetch_fred_indicator(fred, key, label, unit)
+            except Exception as exc:
+                errors.append(f"{key}:FRED {exc}")
+        if item:
+            out.append(item)
+        time.sleep(0.03)
+    if not out and previous:
+        return previous, False, "새 지표 조회 실패, 이전 값 유지"
+    return out, len(out) >= 6, f"핵심 지표 {len(out)}개" + (f" · 일부 실패 {len(errors)}건" if errors else "")
+
+
 def parse_iso(value: Any) -> datetime | None:
     if not value:
         return None
@@ -2454,6 +2632,7 @@ def main() -> int:
     config = load_json(CONFIG_FILE, {})
     old_root = load_json(EVENTS_FILE, {"events": []})
     old_events = old_root.get("events", []) if isinstance(old_root, dict) else []
+    old_status = load_json(STATUS_FILE, {})
     state = load_json(STATE_FILE, {})
     dart_key = os.getenv("DART_API_KEY", "").strip()
     alpha_key = os.getenv("ALPHA_VANTAGE_API_KEY", "").strip()
@@ -2471,6 +2650,13 @@ def main() -> int:
         ("spacex", collect_spacex),
     ]
     results: list[SourceResult] = []
+    try:
+        cap_result = refresh_kr_market_caps(state, force)
+        results.append(cap_result)
+        print(f"[krx_marketcap] {cap_result.message}")
+    except Exception as exc:
+        results.append(SourceResult("krx_marketcap", [], False, str(exc)))
+        print(f"[krx_marketcap] ERROR: {exc}", file=sys.stderr)
     all_events: list[dict[str, Any]] = []
     failed_sources: set[str] = set()
     for key, fn in source_functions:
@@ -2508,6 +2694,19 @@ def main() -> int:
         results.append(SourceResult("bls_results", [], False, str(exc)))
         print(f"[bls_results] ERROR: {exc}", file=sys.stderr)
 
+    previous_indicators = old_status.get("indicators", []) if isinstance(old_status, dict) else []
+    try:
+        indicators, indicators_ok, indicators_message = collect_market_indicators(previous_indicators)
+        results.append(SourceResult("market_indicators", [], indicators_ok, indicators_message))
+        if not indicators_ok:
+            failed_sources.add("market_indicators")
+        print(f"[market_indicators] {indicators_message}")
+    except Exception as exc:
+        indicators = previous_indicators
+        failed_sources.add("market_indicators")
+        results.append(SourceResult("market_indicators", [], False, str(exc)))
+        print(f"[market_indicators] ERROR: {exc}", file=sys.stderr)
+
     merged = merge_events(all_events, old_events, failed_sources)
     changes = detect_changes(old_events, merged)
     counts: dict[str, int] = {}
@@ -2531,6 +2730,7 @@ def main() -> int:
         "counts": counts,
         "sources": sources,
         "failedSources": [SOURCE_LABELS.get(key, key) for key in sorted(failed_sources)],
+        "indicators": indicators,
     }
     save_json(EVENTS_FILE, {"schemaVersion": 2, "updatedAt": iso_utc(), "events": merged})
     previous_changes = load_json(CHANGES_FILE, {"changes": []}).get("changes", [])
