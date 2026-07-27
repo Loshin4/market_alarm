@@ -2,12 +2,6 @@ name: Update Market Data
 
 on:
   workflow_dispatch:
-    inputs:
-      force_refresh:
-        description: "무료 API 대기시간을 무시하고 전체 일정을 다시 확인"
-        required: false
-        default: false
-        type: boolean
   schedule:
     - cron: "17,47 * * * *"
 
@@ -21,7 +15,7 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - name: Checkout
@@ -43,20 +37,35 @@ jobs:
       - name: Validate collector
         run: |
           python -m py_compile collector/collect_events.py
-          python -m unittest collector/test_collect_events.py -v
+          python -m unittest collector.test_collect_events -v
 
       - name: Collect schedules and results
         env:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
-          FORCE_REFRESH: ${{ inputs.force_refresh || 'false' }}
+          SEC_USER_AGENT: "MarketAlarm/1.6 market-alarm-bot@users.noreply.github.com"
         run: python collector/collect_events.py
+
+      - name: Show collection summary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          status = json.loads(Path('data/status.json').read_text(encoding='utf-8'))
+          for key in ('krx_marketcap', 'market_indicators', 'dart_schedule', 'kind', 'dart', 'alpha', 'nasdaq', 'us_results'):
+              item = status.get('sources', {}).get(key, {})
+              print(f"{key}: count={item.get('count', 0)}, ok={item.get('ok')}, message={item.get('message', '')}")
+          events = json.loads(Path('data/events.json').read_text(encoding='utf-8')).get('events', [])
+          kr_results = [e for e in events if e.get('market') == 'KR' and e.get('status') == 'released' and e.get('category') == 'earnings']
+          us_results = [e for e in events if e.get('market') == 'US' and e.get('status') == 'released' and e.get('category') == 'earnings']
+          print(f"Korean earnings results saved: {len(kr_results)}")
+          print(f"U.S. earnings results saved: {len(us_results)}")
+          PY
 
       - name: Commit and push changed data
         shell: bash
         run: |
           set -e
-
           if git diff --quiet -- data; then
             echo "No data changes"
             exit 0
@@ -65,26 +74,17 @@ jobs:
           git config user.name "market-alarm-bot"
           git config user.email "market-alarm-bot@users.noreply.github.com"
           git add data
-          git commit -m "data: automatic market schedule update"
+          git commit -m "data: automatic market schedule and result update"
 
-          # 저장소에 새 커밋이 생겼더라도 최신 main을 받아 자동으로 합친 뒤 재시도합니다.
           for attempt in 1 2 3 4 5; do
-            echo "Push attempt ${attempt}/5"
             git fetch origin main
-
             if ! git rebase origin/main; then
               git rebase --abort || true
-              echo "Rebase failed"
               exit 1
             fi
-
             if git push origin HEAD:main; then
-              echo "Market data pushed successfully"
               exit 0
             fi
-
             sleep $((attempt * 3))
           done
-
-          echo "Push failed after 5 attempts"
           exit 1
