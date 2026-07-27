@@ -20048,6 +20048,34 @@
         "confidence": "official_financials",
         "updatedAt": "2026-07-27T12:38:30Z"
       }
+    },
+    "20260728800031": {
+      "checkedAt": "2026-07-27T23:29:18Z",
+      "receiptDate": "20260728",
+      "parserVersion": 140,
+      "event": {
+        "id": "kr-result-178920-2026-07-28",
+        "title": "PI첨단소재 실적 결과",
+        "time": 1785229200000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260728800031",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🟢🟢 매우 좋음 · 매출 775억 원 (+368952.4%) · 영업익 229.8억 원 (+36036.8%) · 순익 174.7억 원 (+26573.3%) · 예상치 없음",
+        "symbol": "178920",
+        "market": "KR",
+        "actual": "매출 775억 원, 영업익 229.8억 원, 순익 174.7억 원",
+        "expected": "",
+        "previous": "매출 2,100만 원, 영업익 6,360만 원, 순익 6,550만 원",
+        "rating": 2,
+        "ratingLabel": "🟢🟢 매우 좋음",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-27T23:29:18Z"
+      }
     }
   },
   "dartResultParserVersion": 140,

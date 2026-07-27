@@ -1,60 +1,6 @@
 {
-  "updatedAt": "2026-07-27T21:53:11Z",
+  "updatedAt": "2026-07-27T23:29:18Z",
   "changes": [
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-result-0203K0-2025-FY",
-        "title": "송우인포텍 실적 결과",
-        "time": 1785142800000,
-        "allDay": false,
-        "sourceKey": "dart",
-        "source": "금융감독원 전자공시(OpenDART)",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727000043",
-        "category": "earnings",
-        "importance": 3,
-        "status": "released",
-        "summary": "⚪ 중립 · 사업보고서 (2025.12) 공식 공시 확인 · 예상치 없음",
-        "symbol": "0203K0",
-        "market": "KR",
-        "actual": "",
-        "expected": "",
-        "previous": "",
-        "rating": 0,
-        "ratingLabel": "⚪ 중립",
-        "official": true,
-        "confidence": "official_filing",
-        "updatedAt": "2026-07-27T01:02:24Z"
-      },
-      "detectedAt": "2026-07-27T01:02:24Z"
-    },
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-earnings-95c160228ef962d58e17-2026-08-07",
-        "title": "롯데에너지머티리얼즈 2026년 2분기 실적 발표",
-        "time": 1786071600000,
-        "allDay": true,
-        "sourceKey": "dart_schedule",
-        "source": "금융감독원·한국거래소 기업설명회 공시",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800105",
-        "category": "earnings",
-        "importance": 3,
-        "status": "scheduled",
-        "summary": "",
-        "symbol": "020150",
-        "market": "KR",
-        "actual": "",
-        "expected": "",
-        "previous": "",
-        "rating": 0,
-        "ratingLabel": "⚪ 중립",
-        "official": true,
-        "confidence": "official_filing",
-        "updatedAt": "2026-07-27T01:02:24Z"
-      },
-      "detectedAt": "2026-07-27T01:02:24Z"
-    },
     {
       "type": "time_changed",
       "event": {
@@ -8144,6 +8090,61 @@
       },
       "oldTime": 1786327200000,
       "detectedAt": "2026-07-27T20:45:47Z"
+    },
+    {
+      "type": "new",
+      "event": {
+        "id": "kr-result-178920-2026-07-28",
+        "title": "PI첨단소재 실적 결과",
+        "time": 1785229200000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260728800031",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🟢🟢 매우 좋음 · 매출 775억 원 (+368952.4%) · 영업익 229.8억 원 (+36036.8%) · 순익 174.7억 원 (+26573.3%) · 예상치 없음",
+        "symbol": "178920",
+        "market": "KR",
+        "actual": "매출 775억 원, 영업익 229.8억 원, 순익 174.7억 원",
+        "expected": "",
+        "previous": "매출 2,100만 원, 영업익 6,360만 원, 순익 6,550만 원",
+        "rating": 2,
+        "ratingLabel": "🟢🟢 매우 좋음",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-27T23:29:18Z"
+      },
+      "detectedAt": "2026-07-27T23:29:18Z"
+    },
+    {
+      "type": "time_changed",
+      "event": {
+        "id": "space-521f3a1c-f977-4306-9b7f-495858719adf",
+        "title": "스페이스X 팰컨 헤비 | Nancy Grace Roman Space Telescope",
+        "time": 1788089160000,
+        "allDay": false,
+        "sourceKey": "spacex",
+        "source": "우주 발사 일정 데이터",
+        "sourceUrl": "https://ll.thespacedevs.com/2.3.0/launches/521f3a1c-f977-4306-9b7f-495858719adf/",
+        "category": "industry",
+        "importance": 5,
+        "status": "scheduled",
+        "summary": "팰컨 헤비 · 발사단지 39A",
+        "symbol": "SPACEX",
+        "market": "US",
+        "actual": "",
+        "expected": "",
+        "previous": "",
+        "rating": 0,
+        "ratingLabel": "⚪ 중립",
+        "official": false,
+        "confidence": "aggregator",
+        "updatedAt": "2026-07-27T23:29:18Z"
+      },
+      "oldTime": 1788088800000,
+      "detectedAt": "2026-07-27T23:29:18Z"
     }
   ]
 }
