@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-07-27T01:02:24Z",
+  "updatedAt": "2026-07-27T01:31:40Z",
   "ok": true,
-  "message": "5256개 일정 · 정상 소스 8/12",
+  "message": "5355개 일정 · 정상 소스 8/12",
   "counts": {
     "macro": 46,
     "central_bank": 77,
-    "earnings": 5068,
+    "earnings": 5167,
     "industry": 65
   },
   "sources": {
@@ -34,10 +34,10 @@
       "message": "한국은행 일정을 해석하지 못함"
     },
     "dart_schedule": {
-      "name": "금융감독원·한국거래소 기업설명회 공시",
+      "name": "OpenDART·KIND 전체 실적 일정 공시",
       "ok": true,
-      "count": 301,
-      "message": "IR 공시 853건 · 실적 일정 301개 · 새 원문 1건 · 파서 v132"
+      "count": 395,
+      "message": "실적 일정 공시 946건 · 일정 395개 · OpenDART 원문 946건 · 공개문서 보완 0/543건 · 파서 v152 · 원문 오류 2건"
     },
     "kind": {
       "name": "한국거래소(KIND)",
@@ -48,8 +48,8 @@
     "dart": {
       "name": "금융감독원 전자공시(OpenDART)",
       "ok": true,
-      "count": 65,
-      "message": "결과 공시 78건 · 저장 결과 65개 · 이번 분석 10건 · 분석 오류 1건"
+      "count": 70,
+      "message": "결과 공시 82건 · 저장 결과 70개 · 이번 분석 5건"
     },
     "nasdaq": {
       "name": "나스닥 전체 실적 달력",
