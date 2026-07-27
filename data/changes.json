@@ -1,60 +1,6 @@
 {
-  "updatedAt": "2026-07-27T12:38:30Z",
+  "updatedAt": "2026-07-27T15:32:19Z",
   "changes": [
-    {
-      "type": "result_updated",
-      "event": {
-        "id": "kr-result-011210-2026-07-24",
-        "title": "현대위아 실적 결과",
-        "time": 1784883600000,
-        "allDay": false,
-        "sourceKey": "dart",
-        "source": "금융감독원 전자공시(OpenDART)",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260724800478",
-        "category": "earnings",
-        "importance": 3,
-        "status": "released",
-        "summary": "🟢🟢 매우 좋음 · 매출 2.35조 원 (+29421700.0%) · 영업익 503.9억 원 (+2190795.7%) · 순익 505.8억 원 (+117799.8%) · 예상치 없음",
-        "symbol": "011210",
-        "market": "KR",
-        "actual": "매출 2.35조 원, 영업익 503.9억 원, 순익 505.8억 원",
-        "expected": "",
-        "previous": "매출 800만 원, 영업익 -230만 원, 순익 4,290만 원",
-        "rating": 2,
-        "ratingLabel": "🟢🟢 매우 좋음",
-        "official": true,
-        "confidence": "official_financials",
-        "updatedAt": "2026-07-26T16:15:55Z"
-      },
-      "detectedAt": "2026-07-26T16:15:55Z"
-    },
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-result-068270-2026-07-27",
-        "title": "셀트리온 실적 결과",
-        "time": 1785142800000,
-        "allDay": false,
-        "sourceKey": "dart",
-        "source": "금융감독원 전자공시(OpenDART)",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800078",
-        "category": "earnings",
-        "importance": 4,
-        "status": "released",
-        "summary": "🟢🟢 매우 좋음 · 매출 1.39조 원 (+64066.7%) · 영업익 4,518억 원 (+11097.0%) · 순익 3,713억 원 (+60274.0%) · 예상치 없음",
-        "symbol": "068270",
-        "market": "KR",
-        "actual": "매출 1.39조 원, 영업익 4,518억 원, 순익 3,713억 원",
-        "expected": "",
-        "previous": "매출 21.7억 원, 영업익 40.4억 원, 순익 6.2억 원",
-        "rating": 2,
-        "ratingLabel": "🟢🟢 매우 좋음",
-        "official": true,
-        "confidence": "official_financials",
-        "updatedAt": "2026-07-27T01:02:24Z"
-      },
-      "detectedAt": "2026-07-27T01:02:24Z"
-    },
     {
       "type": "new",
       "event": {
@@ -8138,6 +8084,62 @@
         "updatedAt": "2026-07-27T12:38:30Z"
       },
       "detectedAt": "2026-07-27T12:38:30Z"
+    },
+    {
+      "type": "time_changed",
+      "event": {
+        "id": "space-e7e55b53-6f69-4c22-9fc5-df00df653a3f",
+        "title": "스페이스X 팰컨 9 Block 5 | 스타링크 그룹 17-52",
+        "time": 1785376800000,
+        "allDay": false,
+        "sourceKey": "spacex",
+        "source": "우주 발사 일정 데이터",
+        "sourceUrl": "https://ll.thespacedevs.com/2.3.0/launches/e7e55b53-6f69-4c22-9fc5-df00df653a3f/",
+        "category": "industry",
+        "importance": 4,
+        "status": "scheduled",
+        "summary": "팰컨 9 Block 5 · 우주발사단지 4E",
+        "symbol": "SPACEX",
+        "market": "US",
+        "actual": "",
+        "expected": "",
+        "previous": "",
+        "rating": 0,
+        "ratingLabel": "⚪ 중립",
+        "official": false,
+        "confidence": "aggregator",
+        "updatedAt": "2026-07-27T15:32:19Z"
+      },
+      "oldTime": 1785290400000,
+      "detectedAt": "2026-07-27T15:32:19Z"
+    },
+    {
+      "type": "time_changed",
+      "event": {
+        "id": "space-0448d030-5175-4c1f-bd0b-4f3f87072921",
+        "title": "스페이스X 팰컨 9 Block 5 | 스타링크 그룹 17-53",
+        "time": 1785679200000,
+        "allDay": false,
+        "sourceKey": "spacex",
+        "source": "우주 발사 일정 데이터",
+        "sourceUrl": "https://ll.thespacedevs.com/2.3.0/launches/0448d030-5175-4c1f-bd0b-4f3f87072921/",
+        "category": "industry",
+        "importance": 4,
+        "status": "scheduled",
+        "summary": "팰컨 9 Block 5 · 우주발사단지 4E",
+        "symbol": "SPACEX",
+        "market": "US",
+        "actual": "",
+        "expected": "",
+        "previous": "",
+        "rating": 0,
+        "ratingLabel": "⚪ 중립",
+        "official": false,
+        "confidence": "aggregator",
+        "updatedAt": "2026-07-27T15:32:19Z"
+      },
+      "oldTime": 1785592800000,
+      "detectedAt": "2026-07-27T15:32:19Z"
     }
   ]
 }
