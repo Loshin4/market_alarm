@@ -1,33 +1,6 @@
 {
-  "updatedAt": "2026-07-28T21:34:08Z",
+  "updatedAt": "2026-07-28T22:43:51Z",
   "changes": [
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-result-000150-2026-07-27",
-        "title": "두산 실적 결과",
-        "time": 1785142800000,
-        "allDay": false,
-        "sourceKey": "dart",
-        "source": "금융감독원 전자공시(OpenDART)",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727800362",
-        "category": "earnings",
-        "importance": 3,
-        "status": "released",
-        "summary": "🟢🟢 매우 좋음 · 매출 5.59조 원 (+507727.3%) · 영업익 4,884억 원 (+11337.9%) · 순익 5,356억 원 (+1152.3%) · 예상치 없음",
-        "symbol": "000150",
-        "market": "KR",
-        "actual": "매출 5.59조 원, 영업익 4,884억 원, 순익 5,356억 원",
-        "expected": "",
-        "previous": "매출 11억 원, 영업익 42.7억 원, 순익 427.7억 원",
-        "rating": 2,
-        "ratingLabel": "🟢🟢 매우 좋음",
-        "official": true,
-        "confidence": "official_financials",
-        "updatedAt": "2026-07-27T08:49:06Z"
-      },
-      "detectedAt": "2026-07-27T08:49:06Z"
-    },
     {
       "type": "new",
       "event": {
@@ -8108,6 +8081,33 @@
       },
       "oldTime": 1788134400000,
       "detectedAt": "2026-07-28T14:45:55Z"
+    },
+    {
+      "type": "new",
+      "event": {
+        "id": "kr-result-000660-2026-07-29",
+        "title": "SK하이닉스 실적 결과",
+        "time": 1785315600000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260729800013",
+        "category": "earnings",
+        "importance": 5,
+        "status": "released",
+        "summary": "🟢🟢 매우 좋음 · 매출 79.32조 원 (+155832406.9%) · 영업익 60.54조 원 (+99250077.0%) · 순익 93.92조 원 (+70724744.1%) · 예상치 없음",
+        "symbol": "000660",
+        "market": "KR",
+        "actual": "매출 79.32조 원, 영업익 60.54조 원, 순익 93.92조 원",
+        "expected": "",
+        "previous": "매출 5,090만 원, 영업익 6,100만 원, 순익 1.3억 원",
+        "rating": 2,
+        "ratingLabel": "🟢🟢 매우 좋음",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-28T22:43:51Z"
+      },
+      "detectedAt": "2026-07-28T22:43:51Z"
     }
   ]
 }

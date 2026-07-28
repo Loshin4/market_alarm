@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-07-28T21:34:08Z",
+  "updatedAt": "2026-07-28T22:43:51Z",
   "ok": true,
-  "message": "5835개 일정 · 정상 소스 9/14",
+  "message": "5836개 일정 · 정상 소스 9/14",
   "counts": {
     "macro": 46,
     "central_bank": 77,
-    "earnings": 5644,
+    "earnings": 5645,
     "industry": 68
   },
   "sources": {
@@ -54,8 +54,8 @@
     "dart": {
       "name": "금융감독원 전자공시(OpenDART)",
       "ok": true,
-      "count": 116,
-      "message": "결과 공시 126건 · 저장 결과 116개 · 이번 분석 0건"
+      "count": 117,
+      "message": "결과 공시 126건 · 저장 결과 117개 · 이번 분석 1건"
     },
     "nasdaq": {
       "name": "나스닥 전체 실적 달력",
@@ -104,24 +104,24 @@
     {
       "key": "WTI",
       "label": "WTI 유가",
-      "value": 79.13,
+      "value": 83.06,
       "previous": 92.19,
-      "change": -13.060000000000002,
-      "changePct": -14.16639548758,
+      "change": -9.129999999999995,
+      "changePct": -9.90346024514589,
       "unit": "$/배럴",
-      "updatedAt": "2026-07-28T20:59:59Z",
+      "updatedAt": "2026-07-28T22:35:27Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/CL%3DF"
     },
     {
       "key": "USDKRW",
       "label": "원·달러 환율",
-      "value": 1453.64,
+      "value": 1453.65,
       "previous": 1479.72,
-      "change": -26.079999999999927,
-      "changePct": -1.7624956072770475,
+      "change": -26.069999999999936,
+      "changePct": -1.7618198037466504,
       "unit": "원",
-      "updatedAt": "2026-07-28T21:35:40Z",
+      "updatedAt": "2026-07-28T22:45:28Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/KRW%3DX"
     },
@@ -152,12 +152,12 @@
     {
       "key": "DXY",
       "label": "달러지수",
-      "value": 101.374,
+      "value": 101.393,
       "previous": 101.43,
-      "change": -0.056000000000011596,
-      "changePct": -0.055210489993110116,
+      "change": -0.03700000000000614,
+      "changePct": -0.03647835945973197,
       "unit": "pt",
-      "updatedAt": "2026-07-28T21:25:43Z",
+      "updatedAt": "2026-07-28T22:04:56Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/DX-Y.NYB"
     },
@@ -200,48 +200,48 @@
     {
       "key": "BRENT",
       "label": "브렌트유",
-      "value": 83.76,
+      "value": 88.0,
       "previous": 100.69,
-      "change": -16.929999999999993,
-      "changePct": -16.813983513755083,
+      "change": -12.689999999999998,
+      "changePct": -12.60303903068825,
       "unit": "$/배럴",
-      "updatedAt": "2026-07-28T20:59:59Z",
+      "updatedAt": "2026-07-28T22:35:23Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/BZ%3DF"
     },
     {
       "key": "GOLD",
       "label": "금",
-      "value": 4028.8,
+      "value": 4014.4,
       "previous": 4046.6,
-      "change": -17.799999999999727,
-      "changePct": -0.43987545099589104,
+      "change": -32.19999999999982,
+      "changePct": -0.7957297484307769,
       "unit": "$/oz",
-      "updatedAt": "2026-07-28T20:59:59Z",
+      "updatedAt": "2026-07-28T22:35:31Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/GC%3DF"
     },
     {
       "key": "COPPER",
       "label": "구리",
-      "value": 6.336,
+      "value": 6.3345,
       "previous": 6.305,
-      "change": 0.031000000000000583,
-      "changePct": 0.49167327517843906,
+      "change": 0.029500000000000526,
+      "changePct": 0.4678826328310948,
       "unit": "$/lb",
-      "updatedAt": "2026-07-28T20:59:58Z",
+      "updatedAt": "2026-07-28T22:35:23Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/HG%3DF"
     },
     {
       "key": "BTC",
       "label": "비트코인",
-      "value": 63911.64,
+      "value": 63784.45,
       "previous": 64098.496,
-      "change": -186.85599999999977,
-      "changePct": -0.2915138601691992,
+      "change": -314.0460000000021,
+      "changePct": -0.4899428529493143,
       "unit": "$",
-      "updatedAt": "2026-07-28T21:35:39Z",
+      "updatedAt": "2026-07-28T22:45:27Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/BTC-USD"
     }
