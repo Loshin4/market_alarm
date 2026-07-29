@@ -23498,6 +23498,34 @@
         "confidence": "official_financials",
         "updatedAt": "2026-07-29T10:20:13Z"
       }
+    },
+    "20260730800016": {
+      "checkedAt": "2026-07-29T23:26:55Z",
+      "receiptDate": "20260730",
+      "parserVersion": 140,
+      "event": {
+        "id": "kr-result-039490-2026-07-30",
+        "title": "키움증권 실적 결과",
+        "time": 1785402000000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260730800016",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🟢🟢 매우 좋음 · 매출 16.07조 원 (+22619061.3%) · 영업익 7,889.5억 원 (+2921937.0%) · 순익 6,805.7억 원 (+1598976.6%) · 예상치 없음",
+        "symbol": "039490",
+        "market": "KR",
+        "actual": "매출 16.07조 원, 영업익 7,889.5억 원, 순익 6,805.7억 원",
+        "expected": "",
+        "previous": "매출 7,106만 원, 영업익 2,700만 원, 순익 4,256만 원",
+        "rating": 2,
+        "ratingLabel": "🟢🟢 매우 좋음",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-29T23:26:55Z"
+      }
     }
   },
   "dartResultParserVersion": 140,

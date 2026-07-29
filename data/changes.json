@@ -1,33 +1,6 @@
 {
-  "updatedAt": "2026-07-29T22:16:24Z",
+  "updatedAt": "2026-07-29T23:26:55Z",
   "changes": [
-    {
-      "type": "new",
-      "event": {
-        "id": "us-earnings-PCB-2026-10-22",
-        "title": "PCB 실적 발표",
-        "time": 1792684800000,
-        "allDay": true,
-        "sourceKey": "alpha",
-        "source": "미국 기업 실적 데이터",
-        "sourceUrl": "https://www.alphavantage.co/query?function=EARNINGS_CALENDAR&symbol=PCB",
-        "category": "earnings",
-        "importance": 3,
-        "status": "scheduled",
-        "summary": "발표 시간 미정 · 예상 EPS 0.74 · 회계기간 2026-09-30",
-        "symbol": "PCB",
-        "market": "US",
-        "actual": "",
-        "expected": "0.74",
-        "previous": "",
-        "rating": 0,
-        "ratingLabel": "⚪ 중립",
-        "official": true,
-        "confidence": "provider",
-        "updatedAt": "2026-07-27T12:38:30Z"
-      },
-      "detectedAt": "2026-07-27T12:38:30Z"
-    },
     {
       "type": "new",
       "event": {
@@ -8112,6 +8085,33 @@
         "updatedAt": "2026-07-29T19:47:25Z"
       },
       "detectedAt": "2026-07-29T19:47:25Z"
+    },
+    {
+      "type": "new",
+      "event": {
+        "id": "kr-result-039490-2026-07-30",
+        "title": "키움증권 실적 결과",
+        "time": 1785402000000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260730800016",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🟢🟢 매우 좋음 · 매출 16.07조 원 (+22619061.3%) · 영업익 7,889.5억 원 (+2921937.0%) · 순익 6,805.7억 원 (+1598976.6%) · 예상치 없음",
+        "symbol": "039490",
+        "market": "KR",
+        "actual": "매출 16.07조 원, 영업익 7,889.5억 원, 순익 6,805.7억 원",
+        "expected": "",
+        "previous": "매출 7,106만 원, 영업익 2,700만 원, 순익 4,256만 원",
+        "rating": 2,
+        "ratingLabel": "🟢🟢 매우 좋음",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-29T23:26:55Z"
+      },
+      "detectedAt": "2026-07-29T23:26:55Z"
     }
   ]
 }
