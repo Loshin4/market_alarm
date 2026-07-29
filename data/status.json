@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-07-29T04:34:01Z",
+  "updatedAt": "2026-07-29T07:33:19Z",
   "ok": true,
-  "message": "5855개 일정 · 정상 소스 9/14",
+  "message": "5924개 일정 · 정상 소스 9/14",
   "counts": {
     "macro": 46,
     "central_bank": 77,
-    "earnings": 5664,
+    "earnings": 5733,
     "industry": 68
   },
   "sources": {
@@ -42,8 +42,8 @@
     "dart_schedule": {
       "name": "OpenDART·KIND 전체 실적 일정 공시",
       "ok": true,
-      "count": 424,
-      "message": "실적 일정 공시 950건 · 일정 424개 · OpenDART 원문 7건 · 공개문서 보완 1/6건 · 파서 v160 · 원문 오류 2건"
+      "count": 432,
+      "message": "실적 일정 공시 950건 · 일정 432개 · OpenDART 원문 12건 · 공개문서 보완 2/8건 · 파서 v160 · 원문 오류 5건"
     },
     "kind": {
       "name": "한국거래소(KIND)",
@@ -54,14 +54,14 @@
     "dart": {
       "name": "금융감독원 전자공시(OpenDART)",
       "ok": true,
-      "count": 133,
-      "message": "결과 공시 144건 · 저장 결과 133개 · 이번 분석 15건 · 분석 오류 2건"
+      "count": 145,
+      "message": "결과 공시 142건 · 저장 결과 145개 · 이번 분석 19건 · 분석 오류 3건"
     },
     "nasdaq": {
       "name": "나스닥 전체 실적 달력",
       "ok": true,
-      "count": 91,
-      "message": "이전 전체 달력 유지 91개"
+      "count": 3856,
+      "message": "향후 45일 전체 실적 3856개"
     },
     "alpha": {
       "name": "미국 기업 실적 데이터",
@@ -104,24 +104,24 @@
     {
       "key": "WTI",
       "label": "WTI 유가",
-      "value": 82.54,
+      "value": 82.29,
       "previous": 89.31,
-      "change": -6.769999999999996,
-      "changePct": -7.580338148023732,
+      "change": -7.019999999999996,
+      "changePct": -7.860262008733619,
       "unit": "$/배럴",
-      "updatedAt": "2026-07-29T04:25:34Z",
+      "updatedAt": "2026-07-29T07:30:36Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/CL%3DF"
     },
     {
       "key": "USDKRW",
       "label": "원·달러 환율",
-      "value": 1443.29,
+      "value": 1446.91,
       "previous": 1475.63,
-      "change": -32.340000000000146,
-      "changePct": -2.191606296971473,
+      "change": -28.720000000000027,
+      "changePct": -1.94628734845456,
       "unit": "원",
-      "updatedAt": "2026-07-29T04:35:57Z",
+      "updatedAt": "2026-07-29T07:40:33Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/KRW%3DX"
     },
@@ -140,36 +140,36 @@
     {
       "key": "VIX",
       "label": "공포지수(VIX)",
-      "value": 18.21,
-      "previous": 16.64,
-      "change": 1.5700000000000003,
-      "changePct": 9.435096153846155,
+      "value": 18.3,
+      "previous": 18.7,
+      "change": -0.3999999999999986,
+      "changePct": -2.1390374331550728,
       "unit": "pt",
-      "updatedAt": "2026-07-28T20:15:01Z",
+      "updatedAt": "2026-07-29T07:25:31Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/%5EVIX"
     },
     {
       "key": "DXY",
       "label": "달러지수",
-      "value": 101.275,
-      "previous": 101.51,
-      "change": -0.23499999999999943,
-      "changePct": -0.23150428529208886,
+      "value": 101.317,
+      "previous": 101.47,
+      "change": -0.1530000000000058,
+      "changePct": -0.15078348280280457,
       "unit": "pt",
-      "updatedAt": "2026-07-29T04:25:56Z",
+      "updatedAt": "2026-07-29T07:30:37Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/DX-Y.NYB"
     },
     {
       "key": "KOSPI",
       "label": "코스피",
-      "value": 5407.6,
+      "value": 5663.24,
       "previous": 6797.7,
-      "change": -1390.0999999999995,
-      "changePct": -20.449563823057794,
+      "change": -1134.46,
+      "changePct": -16.68888006237404,
       "unit": "pt",
-      "updatedAt": "2026-07-29T04:15:50Z",
+      "updatedAt": "2026-07-29T06:33:00Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/%5EKS11"
     },
@@ -200,48 +200,48 @@
     {
       "key": "BRENT",
       "label": "브렌트유",
-      "value": 87.6,
+      "value": 87.28,
       "previous": 96.78,
-      "change": -9.180000000000007,
-      "changePct": -9.485430874147559,
+      "change": -9.5,
+      "changePct": -9.816077702004545,
       "unit": "$/배럴",
-      "updatedAt": "2026-07-29T04:20:29Z",
+      "updatedAt": "2026-07-29T07:29:19Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/BZ%3DF"
     },
     {
       "key": "GOLD",
       "label": "금",
-      "value": 4023.7,
+      "value": 4045.0,
       "previous": 4067.6,
-      "change": -43.90000000000009,
-      "changePct": -1.0792604975907192,
+      "change": -22.59999999999991,
+      "changePct": -0.5556101878257427,
       "unit": "$/oz",
-      "updatedAt": "2026-07-29T04:25:56Z",
+      "updatedAt": "2026-07-29T07:30:34Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/GC%3DF"
     },
     {
       "key": "COPPER",
       "label": "구리",
-      "value": 6.286,
+      "value": 6.345,
       "previous": 6.32,
-      "change": -0.034000000000000696,
-      "changePct": -0.5379746835443148,
+      "change": 0.024999999999999467,
+      "changePct": 0.39556962025315606,
       "unit": "$/lb",
-      "updatedAt": "2026-07-29T04:25:13Z",
+      "updatedAt": "2026-07-29T07:30:28Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/HG%3DF"
     },
     {
       "key": "BTC",
       "label": "비트코인",
-      "value": 63745.48,
+      "value": 64384.27,
       "previous": 64311.812,
-      "change": -566.3319999999949,
-      "changePct": -0.8806033952207643,
+      "change": 72.45799999999872,
+      "changePct": 0.11266670576782804,
       "unit": "$",
-      "updatedAt": "2026-07-29T04:35:55Z",
+      "updatedAt": "2026-07-29T07:40:29Z",
       "source": "시장 시세 데이터",
       "sourceUrl": "https://finance.yahoo.com/quote/BTC-USD"
     }
