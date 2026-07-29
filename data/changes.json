@@ -1,33 +1,6 @@
 {
-  "updatedAt": "2026-07-29T17:58:16Z",
+  "updatedAt": "2026-07-29T19:47:25Z",
   "changes": [
-    {
-      "type": "new",
-      "event": {
-        "id": "us-earnings-OUKPY-2026-10-22",
-        "title": "OUKPY 실적 발표",
-        "time": 1792684800000,
-        "allDay": true,
-        "sourceKey": "alpha",
-        "source": "미국 기업 실적 데이터",
-        "sourceUrl": "https://www.alphavantage.co/query?function=EARNINGS_CALENDAR&symbol=OUKPY",
-        "category": "earnings",
-        "importance": 3,
-        "status": "scheduled",
-        "summary": "발표 시간 미정 · 회계기간 2026-09-30",
-        "symbol": "OUKPY",
-        "market": "US",
-        "actual": "",
-        "expected": "",
-        "previous": "",
-        "rating": 0,
-        "ratingLabel": "⚪ 중립",
-        "official": true,
-        "confidence": "provider",
-        "updatedAt": "2026-07-27T12:38:30Z"
-      },
-      "detectedAt": "2026-07-27T12:38:30Z"
-    },
     {
       "type": "new",
       "event": {
@@ -8112,6 +8085,33 @@
       },
       "oldTime": 1786413600000,
       "detectedAt": "2026-07-29T16:39:56Z"
+    },
+    {
+      "type": "new",
+      "event": {
+        "id": "fomc-2027-07-29",
+        "title": "미국 FOMC 금리결정·성명서",
+        "time": 1816884000000,
+        "allDay": false,
+        "sourceKey": "fomc",
+        "source": "미국 연방준비제도",
+        "sourceUrl": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+        "category": "central_bank",
+        "importance": 5,
+        "status": "scheduled",
+        "summary": "",
+        "symbol": "",
+        "market": "US",
+        "actual": "",
+        "expected": "",
+        "previous": "",
+        "rating": 0,
+        "ratingLabel": "⚪ 중립",
+        "official": true,
+        "confidence": "official",
+        "updatedAt": "2026-07-29T19:47:25Z"
+      },
+      "detectedAt": "2026-07-29T19:47:25Z"
     }
   ]
 }
