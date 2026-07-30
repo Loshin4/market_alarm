@@ -19,15 +19,20 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class DataRepository {
     private static final String PREFS = "market_alarm";
     private static final String KEY_EVENTS = "events";
+    private static final String KEY_EVENTS_HASH = "events_hash";
     private static final String KEY_STATUS = "status";
     private static final String KEY_SETTINGS = "settings";
     private static final String KEY_LAST_SYNC = "last_sync";
+    private static final String KEY_LAST_STATUS_SYNC = "last_status_sync";
     private static final String DEFAULT_DATA_URL = "https://raw.githubusercontent.com/Loshin4/market_alarm/main/data/events.json";
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
@@ -58,16 +63,25 @@ public final class DataRepository {
                         + "\"dataUrl\":\"" + DEFAULT_DATA_URL + "\"}");
     }
 
+    public static long getLastSync(Context context) {
+        return prefs(context).getLong(KEY_LAST_SYNC, 0L);
+    }
+
     public static void saveSettings(Context context, String json) {
         JSONObject current = safeObject(getSettings(context));
         JSONObject incoming = safeObject(json);
+        String oldUrl = current.optString("dataUrl", DEFAULT_DATA_URL);
         String[] keys = {"dataUrl", "notifyNew", "notifyDay", "notifyHour", "notifyTen", "notifyResults", "notifyChanges"};
         for (String key : keys) {
             if (incoming.has(key)) {
                 try { current.put(key, incoming.get(key)); } catch (Exception ignored) { }
             }
         }
-        prefs(context).edit().putString(KEY_SETTINGS, current.toString()).apply();
+        SharedPreferences.Editor editor = prefs(context).edit().putString(KEY_SETTINGS, current.toString());
+        if (!oldUrl.equals(current.optString("dataUrl", DEFAULT_DATA_URL))) {
+            editor.remove(KEY_EVENTS_HASH).putLong(KEY_LAST_SYNC, 0L);
+        }
+        editor.apply();
     }
 
     public static boolean shouldRefresh(Context context) {
@@ -84,26 +98,46 @@ public final class DataRepository {
                 String dataUrl = settings.optString("dataUrl", DEFAULT_DATA_URL).trim();
                 if (!dataUrl.startsWith("https://")) dataUrl = DEFAULT_DATA_URL;
                 String statusUrl = deriveStatusUrl(dataUrl);
+                JSONObject status = null;
+                try { status = new JSONObject(fetch(addCacheBuster(statusUrl))); }
+                catch (Exception ignored) { }
+
+                JSONArray oldEvents = safeArray(cachedEvents);
+                String remoteHash = status == null ? "" : status.optString("eventsHash", "");
+                String localHash = prefs(context).getString(KEY_EVENTS_HASH, "");
+                if (!remoteHash.isEmpty() && remoteHash.equals(localHash) && oldEvents.length() > 0) {
+                    if (status == null) status = safeObject(cachedStatus);
+                    prefs(context).edit()
+                            .putString(KEY_STATUS, status.toString())
+                            .putLong(KEY_LAST_SYNC, System.currentTimeMillis())
+                            .apply();
+                    NotificationHelper.scheduleEventReminders(context, toList(oldEvents), settings);
+                    String updated = status.optString("updatedAt", "");
+                    String message = "새 일정·결과 없음 · 저장된 " + oldEvents.length() + "개 유지";
+                    if (!updated.isEmpty()) message += " · " + compactTime(updated);
+                    callback.onSuccess(cachedEvents, status.toString(), message);
+                    return;
+                }
+
                 String rootText = fetch(addCacheBuster(dataUrl));
                 JSONObject root = new JSONObject(rootText);
                 JSONArray newEvents = root.optJSONArray("events");
                 if (newEvents == null) throw new IllegalStateException("events 배열 없음");
-                JSONObject status;
-                try { status = new JSONObject(fetch(addCacheBuster(statusUrl))); }
-                catch (Exception ignored) {
+                if (status == null) {
                     status = new JSONObject();
                     status.put("updatedAt", root.optString("updatedAt", ""));
                     status.put("ok", true);
                     status.put("message", "일정 데이터는 정상 수신됨");
                 }
 
-                JSONArray oldEvents = safeArray(cachedEvents);
                 notifyMeaningfulChanges(context, oldEvents, newEvents, settings);
-                prefs(context).edit()
+                String eventsHash = !remoteHash.isEmpty() ? remoteHash : root.optString("eventsHash", "");
+                SharedPreferences.Editor editor = prefs(context).edit()
                         .putString(KEY_EVENTS, newEvents.toString())
                         .putString(KEY_STATUS, status.toString())
-                        .putLong(KEY_LAST_SYNC, System.currentTimeMillis())
-                        .apply();
+                        .putLong(KEY_LAST_SYNC, System.currentTimeMillis());
+                if (!eventsHash.isEmpty()) editor.putString(KEY_EVENTS_HASH, eventsHash);
+                editor.apply();
                 NotificationHelper.scheduleEventReminders(context, toList(newEvents), settings);
 
                 String updated = status.optString("updatedAt", root.optString("updatedAt", ""));
@@ -114,6 +148,60 @@ public final class DataRepository {
                 callback.onError(cachedEvents, cachedStatus, "업데이트 실패 · " + readableError(e));
             }
         });
+    }
+
+    public static void refreshStatusOnly(Context context, RefreshCallback callback) {
+        EXECUTOR.execute(() -> {
+            String cachedEvents = getCachedEvents(context);
+            String cachedStatus = getCachedStatus(context);
+            try {
+                JSONObject settings = safeObject(getSettings(context));
+                String dataUrl = settings.optString("dataUrl", DEFAULT_DATA_URL).trim();
+                if (!dataUrl.startsWith("https://")) dataUrl = DEFAULT_DATA_URL;
+                String statusUrl = deriveStatusUrl(dataUrl);
+                JSONObject status = safeObject(cachedStatus);
+                long now = System.currentTimeMillis();
+                long lastStatusSync = prefs(context).getLong(KEY_LAST_STATUS_SYNC, 0L);
+                if (now - lastStatusSync > 10L * 60L * 1000L) {
+                    try {
+                        status = new JSONObject(fetch(addMinuteCacheBuster(statusUrl)));
+                        prefs(context).edit().putLong(KEY_LAST_STATUS_SYNC, now).apply();
+                    } catch (Exception ignored) { }
+                }
+                JSONArray liveIndicators = LiveIndicatorFetcher.fetchAll(status.optJSONArray("indicators"));
+                if (liveIndicators.length() > 0) {
+                    status.put("indicators", liveIndicators);
+                    status.put("indicatorUpdatedAt", java.time.Instant.now().toString());
+                }
+                prefs(context).edit().putString(KEY_STATUS, status.toString()).apply();
+                String updated = status.optString("indicatorUpdatedAt", status.optString("updatedAt", ""));
+                String message = "시장 지표 업데이트";
+                if (!updated.isEmpty()) message += " · " + compactTime(updated);
+                callback.onSuccess(cachedEvents, status.toString(), message);
+            } catch (Exception e) {
+                callback.onError(cachedEvents, cachedStatus, "지표 업데이트 실패 · " + readableError(e));
+            }
+        });
+    }
+
+    public static boolean refreshBlocking(Context context) {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicBoolean success = new AtomicBoolean(false);
+        refreshAll(context, new RefreshCallback() {
+            @Override public void onSuccess(String eventsJson, String statusJson, String message) {
+                success.set(true);
+                latch.countDown();
+            }
+            @Override public void onError(String eventsJson, String statusJson, String message) {
+                latch.countDown();
+            }
+        });
+        try {
+            return latch.await(3, TimeUnit.MINUTES) && success.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        }
     }
 
     public static void refreshInBackground(Context context) {
@@ -129,7 +217,12 @@ public final class DataRepository {
     }
 
     private static String addCacheBuster(String url) {
-        long bucket = System.currentTimeMillis() / (10L * 60L * 1000L);
+        long bucket = System.currentTimeMillis() / (5L * 60L * 1000L);
+        return url + (url.contains("?") ? "&" : "?") + "v=" + bucket;
+    }
+
+    private static String addMinuteCacheBuster(String url) {
+        long bucket = System.currentTimeMillis() / (60L * 1000L);
         return url + (url.contains("?") ? "&" : "?") + "v=" + bucket;
     }
 
@@ -165,20 +258,17 @@ public final class DataRepository {
         boolean notifyResults = settings.optBoolean("notifyResults", true);
         boolean notifyChanges = settings.optBoolean("notifyChanges", true);
         long now = System.currentTimeMillis();
-        int sent = 0;
-        for (int i = 0; i < newEvents.length() && sent < 8; i++) {
+        List<JSONObject> pending = new ArrayList<>();
+        for (int i = 0; i < newEvents.length() && pending.size() < 20; i++) {
             JSONObject current = newEvents.optJSONObject(i);
-            if (current == null) continue;
+            if (current == null || current.optInt("importance", 0) < 4) continue;
             JSONObject old = oldMap.get(current.optString("id"));
-            boolean important = current.optInt("importance", 0) >= 4;
-            if (!important) continue;
             if (settings.optBoolean("notifyNew", true) && oldEvents.length() > 0 && old == null
                     && !"released".equals(current.optString("status"))) {
                 long eventTime = current.optLong("time");
                 if (eventTime > now + 30L * 60L * 1000L
                         && eventTime < now + 120L * 24L * 60L * 60L * 1000L) {
-                    NotificationHelper.notifyNewSchedule(context, current);
-                    sent++;
+                    addPending(pending, "new", current, 0L);
                     continue;
                 }
             }
@@ -186,9 +276,8 @@ public final class DataRepository {
                 boolean newlyReleased = old == null || !"released".equals(old.optString("status"))
                         || !current.optString("summary").equals(old.optString("summary"));
                 long eventTime = current.optLong("time");
-                if (newlyReleased && eventTime > now - 7L * 24L * 60L * 60L * 1000L) {
-                    NotificationHelper.notifyResult(context, current);
-                    sent++;
+                if (newlyReleased && eventTime > now - 36L * 60L * 60L * 1000L) {
+                    addPending(pending, "result", current, 0L);
                     continue;
                 }
             }
@@ -196,11 +285,32 @@ public final class DataRepository {
                 long oldTime = old.optLong("time");
                 long newTime = current.optLong("time");
                 if (newTime > now && Math.abs(oldTime - newTime) >= 5L * 60L * 1000L) {
-                    NotificationHelper.notifyScheduleChange(context, current, oldTime);
-                    sent++;
+                    addPending(pending, "change", current, oldTime);
                 }
             }
         }
+        if (pending.size() > 3) {
+            NotificationHelper.notifyBatchSummary(context, pending);
+            return;
+        }
+        for (JSONObject notice : pending) {
+            JSONObject event = notice.optJSONObject("event");
+            if (event == null) continue;
+            String kind = notice.optString("kind");
+            if ("new".equals(kind)) NotificationHelper.notifyNewSchedule(context, event);
+            else if ("result".equals(kind)) NotificationHelper.notifyResult(context, event);
+            else if ("change".equals(kind)) NotificationHelper.notifyScheduleChange(context, event, notice.optLong("oldTime"));
+        }
+    }
+
+    private static void addPending(List<JSONObject> pending, String kind, JSONObject event, long oldTime) {
+        try {
+            JSONObject notice = new JSONObject();
+            notice.put("kind", kind);
+            notice.put("event", event);
+            notice.put("oldTime", oldTime);
+            pending.add(notice);
+        } catch (Exception ignored) { }
     }
 
     public static boolean matchesWatchlist(JSONObject event, JSONObject settings) {

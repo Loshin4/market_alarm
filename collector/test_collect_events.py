@@ -349,6 +349,32 @@ ZZZZ,Example Small Company,2026-08-03,2026-06-30,,USD,United States,
         self.assertEqual(collector.us_importance("ZZZZ", 600_000_000_000), 5)
         self.assertEqual(collector.us_importance("ZZZZ", 350_000_000_000), 4)
 
+    def test_semantic_events_hash_ignores_refresh_timestamp(self):
+        a = [{"id": "x", "title": "일정", "time": 1, "updatedAt": "2026-07-30T00:00:00Z"}]
+        b = [{"id": "x", "title": "일정", "time": 1, "updatedAt": "2026-07-30T00:30:00Z"}]
+        c = [{"id": "x", "title": "변경", "time": 1, "updatedAt": "2026-07-30T00:30:00Z"}]
+        self.assertEqual(collector.semantic_events_hash(a), collector.semantic_events_hash(b))
+        self.assertEqual(collector.semantic_events_hash(a + [{"id": "y", "title": "둘", "time": 2}]), collector.semantic_events_hash([{"id": "y", "title": "둘", "time": 2}] + a))
+        self.assertNotEqual(collector.semantic_events_hash(a), collector.semantic_events_hash(c))
+
+    def test_intraday_indicator_uses_latest_minute_and_previous_close(self):
+        payload = {
+            "chart": {
+                "result": [{
+                    "meta": {"chartPreviousClose": 70.0, "regularMarketTime": 1785400000},
+                    "timestamp": [1785400000, 1785400060, 1785400120],
+                    "indicators": {"quote": [{"close": [70.1, None, 70.5]}]},
+                }]
+            }
+        }
+        with patch.object(collector, "http_get", return_value=FakeResponse(payload=payload)):
+            item = collector.fetch_yahoo_indicator("CL=F", "WTI", "WTI 유가", "$/배럴")
+        self.assertIsNotNone(item)
+        self.assertEqual(item["value"], 70.5)
+        self.assertEqual(item["previous"], 70.0)
+        self.assertAlmostEqual(item["changePct"], 0.7142857, places=5)
+        self.assertIn("시장 장중 시세", item["source"])
+
     def test_market_cap_parser(self):
         self.assertEqual(collector.parse_market_cap("$350.5B"), 350_500_000_000)
         self.assertEqual(collector.parse_market_cap("1,234,567"), 1234567)
@@ -360,6 +386,44 @@ ZZZZ,Example Small Company,2026-08-03,2026-06-30,,USD,United States,
         self.assertIn('function visibleImportant', app)
         self.assertNotIn('data-filter="all"', app)
         self.assertNotIn('data-earn="all"', app)
+
+    def test_background_sync_uses_workmanager_when_app_is_closed(self):
+        root = MODULE_PATH.parents[1]
+        gradle = (root / "app" / "build.gradle").read_text(encoding="utf-8")
+        scheduler = (root / "app" / "src" / "main" / "java" / "com" / "marketalarm" / "app" / "SyncScheduler.java").read_text(encoding="utf-8")
+        worker = (root / "app" / "src" / "main" / "java" / "com" / "marketalarm" / "app" / "BackgroundSyncWorker.java").read_text(encoding="utf-8")
+        self.assertIn("androidx.work:work-runtime:2.11.2", gradle)
+        self.assertIn("PeriodicWorkRequest", scheduler)
+        self.assertIn("15, TimeUnit.MINUTES", scheduler)
+        self.assertIn("refreshBlocking", worker)
+        repository = (root / "app" / "src" / "main" / "java" / "com" / "marketalarm" / "app" / "DataRepository.java").read_text(encoding="utf-8")
+        self.assertIn("KEY_EVENTS_HASH", repository)
+        self.assertIn("새 일정·결과 없음", repository)
+
+    def test_app_directly_refreshes_live_indicators(self):
+        root = MODULE_PATH.parents[1]
+        fetcher = (root / "app" / "src" / "main" / "java" / "com" / "marketalarm" / "app" / "LiveIndicatorFetcher.java").read_text(encoding="utf-8")
+        repository = (root / "app" / "src" / "main" / "java" / "com" / "marketalarm" / "app" / "DataRepository.java").read_text(encoding="utf-8")
+        self.assertIn("interval=1m", fetcher)
+        self.assertIn("includePrePost=true", fetcher)
+        self.assertIn("LiveIndicatorFetcher.fetchAll", repository)
+
+
+    def test_yahoo_indicators_use_intraday_minutes(self):
+        source = MODULE_PATH.read_text(encoding="utf-8")
+        self.assertIn('"interval": "1m"', source)
+        self.assertIn('"includePrePost": "true"', source)
+
+    def test_app_refreshes_indicator_status_while_visible(self):
+        root = MODULE_PATH.parents[1]
+        app = (root / "app" / "src" / "main" / "assets" / "index.html").read_text(encoding="utf-8")
+        manifest = (root / "app" / "src" / "main" / "AndroidManifest.xml").read_text(encoding="utf-8")
+        self.assertIn("setInterval", app)
+        self.assertIn("120000", app)
+        self.assertIn("openBatterySettings", app)
+        self.assertIn("testBackgroundNotification", app)
+        self.assertIn("2분 뒤 알림 테스트", app)
+        self.assertIn("REQUEST_IGNORE_BATTERY_OPTIMIZATIONS", manifest)
 
 if __name__ == "__main__":
     unittest.main()

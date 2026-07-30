@@ -66,7 +66,7 @@ public final class NotificationHelper {
                 intent.putExtra("minutes", labels.get(i));
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestId, intent,
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent);
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent);
                 requestIds.add(requestId);
                 scheduled++;
             }
@@ -117,6 +117,46 @@ public final class NotificationHelper {
         String body = "기존 " + formatKst(oldTime) + " → 변경 " + formatKst(event.optLong("time"));
         post(context, CHANNEL_SCHEDULE, Math.abs(("change-" + event.optString("id") + event.optLong("time")).hashCode()),
                 "⚠️ 일정 변경 · " + event.optString("title"), body);
+    }
+
+    public static void notifyBatchSummary(Context context, List<JSONObject> notices) {
+        ensureChannels(context);
+        int results = 0;
+        int schedules = 0;
+        String firstTitle = "중요 시장 업데이트";
+        for (JSONObject notice : notices) {
+            String kind = notice.optString("kind");
+            if ("result".equals(kind)) results++; else schedules++;
+            JSONObject event = notice.optJSONObject("event");
+            if (event != null && "중요 시장 업데이트".equals(firstTitle)) {
+                firstTitle = event.optString("title", firstTitle);
+            }
+        }
+        StringBuilder body = new StringBuilder(firstTitle);
+        if (notices.size() > 1) body.append(" 외 ").append(notices.size() - 1).append("건");
+        if (results > 0 || schedules > 0) {
+            body.append(" · 결과 ").append(results).append(" · 일정 ").append(schedules);
+        }
+        String channel = results > 0 ? CHANNEL_RESULTS : CHANNEL_SCHEDULE;
+        post(context, channel, Math.abs(("batch-" + System.currentTimeMillis() / 60000L).hashCode()),
+                "🔔 중요 업데이트 " + notices.size() + "건", body.toString());
+    }
+
+    public static void scheduleBackgroundTest(Context context) {
+        ensureChannels(context);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, ReminderReceiver.class);
+        intent.putExtra("test", true);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 917017, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        long triggerAt = System.currentTimeMillis() + 2L * 60L * 1000L;
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent);
+    }
+
+    public static void postTest(Context context) {
+        ensureChannels(context);
+        post(context, CHANNEL_SCHEDULE, 917017, "✅ 백그라운드 알림 정상",
+                "앱을 닫은 상태에서도 알림이 도착했어.");
     }
 
     public static void postReminder(Context context, String title, int minutes) {

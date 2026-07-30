@@ -182,6 +182,17 @@ def stable_id(*parts: Any) -> str:
     return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:20]
 
 
+def semantic_events_hash(events: list[dict[str, Any]]) -> str:
+    cleaned: list[dict[str, Any]] = []
+    for item in events:
+        if not isinstance(item, dict):
+            continue
+        cleaned.append({k: v for k, v in item.items() if k not in {"updatedAt"}})
+    cleaned.sort(key=lambda item: (str(item.get("id", "")), int(item.get("time", 0) or 0), str(item.get("title", ""))))
+    raw = json.dumps(cleaned, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
 def epoch_ms(dt: datetime) -> int:
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=KST)
@@ -2434,24 +2445,40 @@ def _indicator_item(key: str, label: str, value: float, previous: float | None, 
 
 def fetch_yahoo_indicator(symbol: str, key: str, label: str, unit: str) -> dict[str, Any] | None:
     url = YAHOO_CHART.format(symbol=quote(symbol, safe=""))
-    payload = http_get(url, params={"range": "5d", "interval": "1d", "includePrePost": "false"}, timeout=20).json()
+    payload = http_get(
+        url,
+        params={
+            "range": "1d",
+            "interval": "1m",
+            "includePrePost": "true",
+            "events": "div,splits",
+        },
+        timeout=20,
+    ).json()
     result = (((payload.get("chart") or {}).get("result")) or [None])[0]
     if not result:
         return None
     meta = result.get("meta") or {}
-    value = parse_market_cap(meta.get("regularMarketPrice"))
+    timestamps = result.get("timestamp") or []
+    closes = (((result.get("indicators") or {}).get("quote")) or [{}])[0].get("close") or []
+    valid: list[tuple[int, float]] = []
+    for ts, close in zip(timestamps, closes):
+        try:
+            if close is not None:
+                valid.append((int(ts), float(close)))
+        except (TypeError, ValueError):
+            continue
+    value = valid[-1][1] if valid else parse_market_cap(meta.get("regularMarketPrice"))
     previous = parse_market_cap(meta.get("chartPreviousClose") or meta.get("previousClose"))
     if value is None:
-        closes = (((result.get("indicators") or {}).get("quote")) or [{}])[0].get("close") or []
-        valid = [float(v) for v in closes if v is not None]
-        if valid:
-            value = valid[-1]
-            previous = valid[-2] if len(valid) > 1 else previous
-    if value is None:
         return None
-    timestamp = meta.get("regularMarketTime")
+    timestamp = valid[-1][0] if valid else meta.get("regularMarketTime")
     updated = iso_utc(datetime.fromtimestamp(int(timestamp), UTC)) if timestamp else iso_utc()
-    return _indicator_item(key, label, value, previous, unit, updated, "시장 시세 데이터", f"https://finance.yahoo.com/quote/{quote(symbol, safe='')}" )
+    return _indicator_item(
+        key, label, value, previous, unit, updated,
+        "시장 장중 시세",
+        f"https://finance.yahoo.com/quote/{quote(symbol, safe='')}",
+    )
 
 
 def fetch_fred_indicator(series: str, key: str, label: str, unit: str) -> dict[str, Any] | None:
@@ -2723,6 +2750,7 @@ def main() -> int:
         for result in results
     }
     ok_count = sum(1 for result in results if result.ok)
+    events_hash = semantic_events_hash(merged)
     status = {
         "updatedAt": iso_utc(),
         "ok": ok_count >= 4 and bool(merged),
@@ -2731,8 +2759,10 @@ def main() -> int:
         "sources": sources,
         "failedSources": [SOURCE_LABELS.get(key, key) for key in sorted(failed_sources)],
         "indicators": indicators,
+        "indicatorUpdatedAt": iso_utc(),
+        "eventsHash": events_hash,
     }
-    save_json(EVENTS_FILE, {"schemaVersion": 2, "updatedAt": iso_utc(), "events": merged})
+    save_json(EVENTS_FILE, {"schemaVersion": 2, "updatedAt": iso_utc(), "eventsHash": events_hash, "events": merged})
     previous_changes = load_json(CHANGES_FILE, {"changes": []}).get("changes", [])
     combined_changes = (previous_changes + changes)[-300:]
     save_json(CHANGES_FILE, {"updatedAt": iso_utc(), "changes": combined_changes})
