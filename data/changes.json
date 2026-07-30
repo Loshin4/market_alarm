@@ -1,33 +1,6 @@
 {
-  "updatedAt": "2026-07-30T12:06:26Z",
+  "updatedAt": "2026-07-30T14:35:33Z",
   "changes": [
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-result-236810-2026-07-29",
-        "title": "엔비티 실적 결과",
-        "time": 1785315600000,
-        "allDay": false,
-        "sourceKey": "dart",
-        "source": "금융감독원 전자공시(OpenDART)",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260729900724",
-        "category": "earnings",
-        "importance": 3,
-        "status": "released",
-        "summary": "🟢🟢 매우 좋음 · 매출 255.5억 원 (+162827.3%) · 영업익 4.8억 원 (+122.0%) · 순익 4.8억 원 (+123.4%) · 예상치 없음",
-        "symbol": "236810",
-        "market": "KR",
-        "actual": "매출 255.5억 원, 영업익 4.8억 원, 순익 4.8억 원",
-        "expected": "",
-        "previous": "매출 1,568만 원, 영업익 -21.9억 원, 순익 -20.3억 원",
-        "rating": 2,
-        "ratingLabel": "🟢🟢 매우 좋음",
-        "official": true,
-        "confidence": "official_financials",
-        "updatedAt": "2026-07-29T07:33:19Z"
-      },
-      "detectedAt": "2026-07-29T07:33:19Z"
-    },
     {
       "type": "new",
       "event": {
@@ -8105,6 +8078,33 @@
         "updatedAt": "2026-07-30T10:05:35Z"
       },
       "detectedAt": "2026-07-30T10:05:35Z"
+    },
+    {
+      "type": "result_updated",
+      "event": {
+        "id": "space-24675e3d-2458-48a3-8c70-5196e44d4dc3",
+        "title": "스페이스X 팰컨 9 Block 5 | NROL-95 결과",
+        "time": 1785395419000,
+        "allDay": false,
+        "sourceKey": "spacex",
+        "source": "우주 발사 일정 데이터",
+        "sourceUrl": "https://ll.thespacedevs.com/2.3.0/launches/24675e3d-2458-48a3-8c70-5196e44d4dc3/",
+        "category": "industry",
+        "importance": 4,
+        "status": "released",
+        "summary": "🟢 좋음 · 팰컨 9 Block 5 · 우주발사단지 40",
+        "symbol": "SPACEX",
+        "market": "US",
+        "actual": "",
+        "expected": "",
+        "previous": "",
+        "rating": 1,
+        "ratingLabel": "🟢 좋음",
+        "official": false,
+        "confidence": "aggregator",
+        "updatedAt": "2026-07-30T14:35:33Z"
+      },
+      "detectedAt": "2026-07-30T14:35:33Z"
     }
   ]
 }
