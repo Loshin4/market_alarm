@@ -1,33 +1,6 @@
 {
-  "updatedAt": "2026-07-30T14:35:33Z",
+  "updatedAt": "2026-07-30T16:16:40Z",
   "changes": [
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-result-259960-2026-07-29",
-        "title": "크래프톤 실적 결과",
-        "time": 1785315600000,
-        "allDay": false,
-        "sourceKey": "dart",
-        "source": "금융감독원 전자공시(OpenDART)",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260729800661",
-        "category": "earnings",
-        "importance": 3,
-        "status": "released",
-        "summary": "🟢🟢 매우 좋음 · 매출 1.29조 원 (+218778.0%) · 영업익 4,109억 원 (+15432.1%) · 순익 -299억 원 (-292.9%) · 예상치 없음",
-        "symbol": "259960",
-        "market": "KR",
-        "actual": "매출 1.29조 원, 영업익 4,109억 원, 순익 -299억 원",
-        "expected": "",
-        "previous": "매출 -5.9억 원, 영업익 -26.8억 원, 순익 155억 원",
-        "rating": 2,
-        "ratingLabel": "🟢🟢 매우 좋음",
-        "official": true,
-        "confidence": "official_financials",
-        "updatedAt": "2026-07-29T07:33:19Z"
-      },
-      "detectedAt": "2026-07-29T07:33:19Z"
-    },
     {
       "type": "new",
       "event": {
@@ -8105,6 +8078,33 @@
         "updatedAt": "2026-07-30T14:35:33Z"
       },
       "detectedAt": "2026-07-30T14:35:33Z"
+    },
+    {
+      "type": "new",
+      "event": {
+        "id": "space-7d1afb26-6f9c-429b-9ccf-29012fd1e519",
+        "title": "스페이스X 스타십 | 비행 14",
+        "time": 1790726400000,
+        "allDay": false,
+        "sourceKey": "spacex",
+        "source": "우주 발사 일정 데이터",
+        "sourceUrl": "https://ll.thespacedevs.com/2.3.0/launches/7d1afb26-6f9c-429b-9ccf-29012fd1e519/",
+        "category": "industry",
+        "importance": 5,
+        "status": "scheduled",
+        "summary": "스타십 V3 · Orbital Launch Pad 2",
+        "symbol": "SPACEX",
+        "market": "US",
+        "actual": "",
+        "expected": "",
+        "previous": "",
+        "rating": 0,
+        "ratingLabel": "⚪ 중립",
+        "official": false,
+        "confidence": "aggregator",
+        "updatedAt": "2026-07-30T16:16:40Z"
+      },
+      "detectedAt": "2026-07-30T16:16:40Z"
     }
   ]
 }
