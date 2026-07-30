@@ -1,33 +1,6 @@
 {
-  "updatedAt": "2026-07-30T19:55:16Z",
+  "updatedAt": "2026-07-30T21:34:52Z",
   "changes": [
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-result-047810-2026-07-29",
-        "title": "한국항공우주 실적 결과",
-        "time": 1785315600000,
-        "allDay": false,
-        "sourceKey": "dart",
-        "source": "금융감독원 전자공시(OpenDART)",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260729800654",
-        "category": "earnings",
-        "importance": 3,
-        "status": "released",
-        "summary": "🟢🟢 매우 좋음 · 매출 1.17조 원 (+169160.9%) · 영업익 484억 원 (+1834.8%) · 순익 370억 원 (+3657.7%) · 예상치 없음",
-        "symbol": "047810",
-        "market": "KR",
-        "actual": "매출 1.17조 원, 영업익 484억 원, 순익 370억 원",
-        "expected": "",
-        "previous": "매출 6.9억 원, 영업익 -27.9억 원, 순익 -10.4억 원",
-        "rating": 2,
-        "ratingLabel": "🟢🟢 매우 좋음",
-        "official": true,
-        "confidence": "official_financials",
-        "updatedAt": "2026-07-29T07:33:19Z"
-      },
-      "detectedAt": "2026-07-29T07:33:19Z"
-    },
     {
       "type": "new",
       "event": {
@@ -8105,6 +8078,34 @@
         "updatedAt": "2026-07-30T16:16:40Z"
       },
       "detectedAt": "2026-07-30T16:16:40Z"
+    },
+    {
+      "type": "time_changed",
+      "event": {
+        "id": "space-36ab6924-bb36-416a-b71d-cda9e88004be",
+        "title": "스페이스X 팰컨 9 Block 5 | 스타링크 그룹 10-19",
+        "time": 1786373400000,
+        "allDay": false,
+        "sourceKey": "spacex",
+        "source": "우주 발사 일정 데이터",
+        "sourceUrl": "https://ll.thespacedevs.com/2.3.0/launches/36ab6924-bb36-416a-b71d-cda9e88004be/",
+        "category": "industry",
+        "importance": 4,
+        "status": "scheduled",
+        "summary": "팰컨 9 Block 5 · 우주발사단지 40",
+        "symbol": "SPACEX",
+        "market": "US",
+        "actual": "",
+        "expected": "",
+        "previous": "",
+        "rating": 0,
+        "ratingLabel": "⚪ 중립",
+        "official": false,
+        "confidence": "aggregator",
+        "updatedAt": "2026-07-30T21:34:52Z"
+      },
+      "oldTime": 1786359600000,
+      "detectedAt": "2026-07-30T21:34:52Z"
     }
   ]
 }
