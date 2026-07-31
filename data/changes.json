@@ -1,33 +1,6 @@
 {
-  "updatedAt": "2026-07-31T20:37:42Z",
+  "updatedAt": "2026-07-31T21:49:15Z",
   "changes": [
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-result-298020-2026-07-31",
-        "title": "효성티앤씨 실적 결과",
-        "time": 1785488400000,
-        "allDay": false,
-        "sourceKey": "dart",
-        "source": "금융감독원 전자공시(OpenDART)",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731801117",
-        "category": "earnings",
-        "importance": 3,
-        "status": "released",
-        "summary": "🟢🟢 매우 좋음 · 매출 2.42조 원 (+15689192.2%) · 영업익 1,887.6억 원 (+158656.9%) · 순익 1,239.2억 원 (+86192.5%) · 예상치 없음",
-        "symbol": "298020",
-        "market": "KR",
-        "actual": "매출 2.42조 원, 영업익 1,887.6억 원, 순익 1,239.2억 원",
-        "expected": "",
-        "previous": "매출 1,540만 원, 영업익 1.2억 원, 순익 1.4억 원",
-        "rating": 2,
-        "ratingLabel": "🟢🟢 매우 좋음",
-        "official": true,
-        "confidence": "official_financials",
-        "updatedAt": "2026-07-31T10:19:54Z"
-      },
-      "detectedAt": "2026-07-31T10:19:54Z"
-    },
     {
       "type": "new",
       "event": {
@@ -8101,6 +8074,33 @@
         "updatedAt": "2026-07-31T10:19:54Z"
       },
       "detectedAt": "2026-07-31T20:37:42Z"
+    },
+    {
+      "type": "new",
+      "event": {
+        "id": "kr-result-462350-2026-H1",
+        "title": "이노스페이스 실적 결과",
+        "time": 1785488400000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731000732",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🔴🔴 매우 나쁨 · 매출 4.5억 원 · 영업익 -167.4억 원 (-193.3%) · 순익 -167.6억 원 (-171.5%) · 예상치 없음",
+        "symbol": "462350",
+        "market": "KR",
+        "actual": "매출 4.5억 원, 영업익 -167.4억 원, 순익 -167.6억 원",
+        "expected": "",
+        "previous": "영업익 -57.1억 원, 순익 -61.7억 원",
+        "rating": -2,
+        "ratingLabel": "🔴🔴 매우 나쁨",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-31T10:19:54Z"
+      },
+      "detectedAt": "2026-07-31T21:49:15Z"
     }
   ]
 }

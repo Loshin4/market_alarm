@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-31T20:37:42Z",
+  "updatedAt": "2026-07-31T21:49:15Z",
   "ok": true,
   "message": "5882개 일정 · 정상 소스 9/15",
   "counts": {
@@ -111,24 +111,24 @@
     {
       "key": "WTI",
       "label": "WTI 유가",
-      "value": 84.58999633789062,
+      "value": 86.80000305175781,
       "previous": 83.59,
-      "change": 0.9999963378906216,
-      "changePct": 1.196310967688266,
+      "change": 3.210003051757809,
+      "changePct": 3.840175920274924,
       "unit": "$/배럴",
-      "updatedAt": "2026-07-31T20:29:04Z",
+      "updatedAt": "2026-07-31T20:59:59Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/CL%3DF"
     },
     {
       "key": "USDKRW",
       "label": "원·달러 환율",
-      "value": 1442.2900390625,
+      "value": 1442.0699462890625,
       "previous": 1421.34,
-      "change": 20.950039062500082,
-      "changePct": 1.473963939838468,
+      "change": 20.729946289062582,
+      "changePct": 1.45847906124239,
       "unit": "원",
-      "updatedAt": "2026-07-31T20:38:59Z",
+      "updatedAt": "2026-07-31T20:59:58Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/KRW%3DX"
     },
@@ -159,12 +159,12 @@
     {
       "key": "DXY",
       "label": "달러지수",
-      "value": 99.83399963378906,
+      "value": 99.8030014038086,
       "previous": 99.864,
-      "change": -0.03000036621094182,
-      "changePct": -0.030041222273233414,
+      "change": -0.06099859619141057,
+      "changePct": -0.061081667258882644,
       "unit": "pt",
-      "updatedAt": "2026-07-31T20:29:06Z",
+      "updatedAt": "2026-07-31T20:59:59Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/DX-Y.NYB"
     },
@@ -188,7 +188,7 @@
       "change": 251.67599999999948,
       "changePct": 1.0018080438726271,
       "unit": "pt",
-      "updatedAt": "2026-07-31T20:38:00Z",
+      "updatedAt": "2026-07-31T21:16:00Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/%5EIXIC"
     },
@@ -200,7 +200,7 @@
       "change": 8.088000000001557,
       "changePct": 0.07155630631090311,
       "unit": "pt",
-      "updatedAt": "2026-07-31T20:38:00Z",
+      "updatedAt": "2026-07-31T21:16:00Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/%5ESOX"
     },
@@ -219,40 +219,40 @@
     {
       "key": "GOLD",
       "label": "금",
-      "value": 4103.7001953125,
+      "value": 4098.60009765625,
       "previous": 4160.6,
-      "change": -56.899804687500364,
-      "changePct": -1.3675865184709024,
+      "change": -61.999902343750364,
+      "changePct": -1.4901673398968984,
       "unit": "$/oz",
-      "updatedAt": "2026-07-31T20:29:04Z",
+      "updatedAt": "2026-07-31T20:59:54Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/GC%3DF"
     },
     {
       "key": "COPPER",
       "label": "구리",
-      "value": 6.521999835968018,
+      "value": 6.507500171661377,
       "previous": 6.4745,
-      "change": 0.047499835968017656,
-      "changePct": 0.7336448523904187,
+      "change": 0.03300017166137703,
+      "changePct": 0.5096945194436178,
       "unit": "$/lb",
-      "updatedAt": "2026-07-31T20:28:51Z",
+      "updatedAt": "2026-07-31T20:59:55Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/HG%3DF"
     },
     {
       "key": "BTC",
       "label": "비트코인",
-      "value": 62923.1015625,
+      "value": 62967.5,
       "previous": 64724.03,
-      "change": -1800.9284374999988,
-      "changePct": -2.782472657373156,
+      "change": -1756.5299999999988,
+      "changePct": -2.7138761291594466,
       "unit": "$",
-      "updatedAt": "2026-07-31T20:39:05Z",
+      "updatedAt": "2026-07-31T21:50:40Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/BTC-USD"
     }
   ],
-  "indicatorUpdatedAt": "2026-07-31T20:37:42Z",
-  "eventsHash": "0b786434a4372144ed1b872f234e0a6b7f685575847cd22cedb401b04c597189"
+  "indicatorUpdatedAt": "2026-07-31T21:49:15Z",
+  "eventsHash": "9645b16d9b3ab52620a37820964f06f4e75c7a5e08116182b26cb765b1cfd34e"
 }
