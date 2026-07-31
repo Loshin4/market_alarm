@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-07-31T07:17:17Z",
+  "updatedAt": "2026-07-31T10:19:54Z",
   "ok": true,
-  "message": "6070개 일정 · 정상 소스 9/14",
+  "message": "5933개 일정 · 정상 소스 9/14",
   "counts": {
     "macro": 46,
     "central_bank": 77,
-    "earnings": 5878,
+    "earnings": 5741,
     "industry": 69
   },
   "sources": {
@@ -42,8 +42,8 @@
     "dart_schedule": {
       "name": "OpenDART·KIND 전체 실적 일정 공시",
       "ok": true,
-      "count": 445,
-      "message": "실적 일정 공시 925건 · 일정 445개 · OpenDART 원문 12건 · 공개문서 보완 3/10건 · 파서 v160 · 원문 오류 3건"
+      "count": 452,
+      "message": "실적 일정 공시 924건 · 일정 452개 · OpenDART 원문 12건 · 공개문서 보완 0/1건 · 파서 v160"
     },
     "kind": {
       "name": "한국거래소(KIND)",
@@ -54,8 +54,8 @@
     "dart": {
       "name": "금융감독원 전자공시(OpenDART)",
       "ok": true,
-      "count": 253,
-      "message": "결과 공시 185건 · 저장 결과 253개 · 이번 분석 44건 · 분석 오류 6건"
+      "count": 272,
+      "message": "결과 공시 183건 · 저장 결과 272개 · 이번 분석 20건"
     },
     "nasdaq": {
       "name": "나스닥 전체 실적 달력",
@@ -66,8 +66,8 @@
     "alpha": {
       "name": "미국 기업 실적 데이터",
       "ok": true,
-      "count": 4931,
-      "message": "이전 전체 달력 유지 4931개"
+      "count": 4777,
+      "message": "향후 3개월 전체 실적 4777개"
     },
     "spacex": {
       "name": "우주 발사 일정 데이터",
@@ -104,24 +104,24 @@
     {
       "key": "WTI",
       "label": "WTI 유가",
-      "value": 82.20999908447266,
+      "value": 84.0,
       "previous": 83.59,
-      "change": -1.3800009155273472,
-      "changePct": -1.6509162765011929,
+      "change": 0.4099999999999966,
+      "changePct": 0.49048929297762484,
       "unit": "$/배럴",
-      "updatedAt": "2026-07-31T07:13:54Z",
+      "updatedAt": "2026-07-31T10:16:19Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/CL%3DF"
     },
     {
       "key": "USDKRW",
       "label": "원·달러 환율",
-      "value": 1429.800048828125,
+      "value": 1436.5999755859375,
       "previous": 1421.34,
-      "change": 8.460048828125082,
-      "changePct": 0.5952164034027806,
+      "change": 15.259975585937582,
+      "changePct": 1.0736330213698047,
       "unit": "원",
-      "updatedAt": "2026-07-31T07:18:40Z",
+      "updatedAt": "2026-07-31T10:21:03Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/KRW%3DX"
     },
@@ -140,24 +140,24 @@
     {
       "key": "VIX",
       "label": "공포지수(VIX)",
-      "value": 17.09,
+      "value": 16.84000015258789,
       "previous": 17.09,
-      "change": 0.0,
-      "changePct": 0.0,
+      "change": -0.24999984741210923,
+      "changePct": -1.4628428754365665,
       "unit": "pt",
-      "updatedAt": "2026-07-30T20:15:01Z",
+      "updatedAt": "2026-07-31T10:11:16Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/%5EVIX"
     },
     {
       "key": "DXY",
       "label": "달러지수",
-      "value": 100.12699890136719,
+      "value": 100.18199920654297,
       "previous": 99.864,
-      "change": 0.2629989013671832,
-      "changePct": 0.2633570669782736,
+      "change": 0.31799920654296443,
+      "changePct": 0.31843227443619765,
       "unit": "pt",
-      "updatedAt": "2026-07-31T07:14:04Z",
+      "updatedAt": "2026-07-31T10:16:20Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/DX-Y.NYB"
     },
@@ -181,7 +181,7 @@
       "change": 679.237000000001,
       "changePct": 2.7788677311785066,
       "unit": "pt",
-      "updatedAt": "2026-07-30T21:15:00Z",
+      "updatedAt": "2026-07-30T21:15:59Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/%5EIXIC"
     },
@@ -193,59 +193,59 @@
       "change": 855.4979999999996,
       "changePct": 8.188551335158138,
       "unit": "pt",
-      "updatedAt": "2026-07-30T21:16:00Z",
+      "updatedAt": "2026-07-30T21:15:59Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/%5ESOX"
     },
     {
       "key": "BRENT",
       "label": "브렌트유",
-      "value": 87.83000183105469,
+      "value": 89.5,
       "previous": 89.03,
-      "change": -1.1999981689453136,
-      "changePct": -1.347858215146932,
+      "change": 0.46999999999999886,
+      "changePct": 0.5279119397955733,
       "unit": "$/배럴",
-      "updatedAt": "2026-07-31T07:13:33Z",
+      "updatedAt": "2026-07-31T10:05:18Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/BZ%3DF"
     },
     {
       "key": "GOLD",
       "label": "금",
-      "value": 4134.5,
+      "value": 4110.60009765625,
       "previous": 4160.6,
-      "change": -26.100000000000364,
-      "changePct": -0.6273133682642014,
+      "change": -49.999902343750364,
+      "changePct": -1.2017474004650859,
       "unit": "$/oz",
-      "updatedAt": "2026-07-31T07:14:01Z",
+      "updatedAt": "2026-07-31T10:16:22Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/GC%3DF"
     },
     {
       "key": "COPPER",
       "label": "구리",
-      "value": 6.494999885559082,
+      "value": 6.492000102996826,
       "previous": 6.4745,
-      "change": 0.02049988555908211,
-      "changePct": 0.3166249989818845,
+      "change": 0.01750010299682625,
+      "changePct": 0.27029273298055834,
       "unit": "$/lb",
-      "updatedAt": "2026-07-31T07:13:55Z",
+      "updatedAt": "2026-07-31T10:15:15Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/HG%3DF"
     },
     {
       "key": "BTC",
       "label": "비트코인",
-      "value": 63920.33984375,
+      "value": 63736.98828125,
       "previous": 64724.03,
-      "change": -803.6901562499988,
-      "changePct": -1.2417183482703393,
+      "change": -987.0417187499988,
+      "changePct": -1.5250004036367928,
       "unit": "$",
-      "updatedAt": "2026-07-31T07:24:01Z",
+      "updatedAt": "2026-07-31T10:26:19Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/BTC-USD"
     }
   ],
-  "indicatorUpdatedAt": "2026-07-31T07:17:17Z",
-  "eventsHash": "81f21b77b59c31f548ac1160f36e44beef489bd9a4675628474253fc68c8f424"
+  "indicatorUpdatedAt": "2026-07-31T10:19:54Z",
+  "eventsHash": "37f563f79b5a21a135ac1896e7c89de447b7a3200da9d8fc0105ce06421eb4dc"
 }
