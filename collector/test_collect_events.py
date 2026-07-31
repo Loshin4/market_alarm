@@ -580,5 +580,57 @@ ZZZZ,Example Small Company,2026-08-03,2026-06-30,,USD,United States,
         self.assertEqual(collapsed[0]["status"], "released")
         self.assertEqual(collapsed[0]["id"], schedule["id"])
 
+    def test_finnhub_actual_result_replaces_overseas_schedule(self):
+        reported = collector.NOW.astimezone(collector.ET).date()
+        schedule = collector.event(
+            event_id=f"us-earnings-AAPL-{reported.isoformat()}",
+            title="애플(AAPL) 실적 발표",
+            when=collector.datetime(reported.year, reported.month, reported.day, 16, 0, tzinfo=collector.ET),
+            source_key="alpha",
+            source="미국 기업 실적 데이터",
+            source_url="https://example.com",
+            category="earnings",
+            importance=5,
+            summary="예상 EPS 1.88",
+            symbol="AAPL",
+            market="US",
+            expected="1.88",
+        )
+        payload = {"earningsCalendar": [{
+            "date": reported.isoformat(),
+            "epsActual": 2.02,
+            "epsEstimate": 1.88,
+            "hour": "amc",
+            "quarter": 3,
+            "revenueActual": 109420000000,
+            "revenueEstimate": 109000000000,
+            "symbol": "AAPL",
+            "year": 2026,
+        }]}
+        state = {}
+        with tempfile.TemporaryDirectory() as td:
+            old_file = collector.EVENTS_FILE
+            collector.EVENTS_FILE = Path(td) / "events.json"
+            collector.EVENTS_FILE.write_text('{"events": []}', encoding="utf-8")
+            try:
+                with patch.object(collector, "http_get", return_value=FakeResponse(payload=payload)):
+                    result = collector.collect_finnhub_results([schedule], "key", state, True)
+            finally:
+                collector.EVENTS_FILE = old_file
+        self.assertEqual(len(result.events), 1)
+        item = result.events[0]
+        self.assertEqual(item["id"], schedule["id"])
+        self.assertEqual(item["status"], "released")
+        self.assertIn("EPS 2.02 / 예상 1.88", item["summary"])
+        self.assertIn("매출", item["summary"])
+        collapsed = collector.collapse_released_earnings_schedules([schedule, item])
+        self.assertEqual(len(collapsed), 1)
+        self.assertEqual(collapsed[0]["status"], "released")
+
+    def test_workflow_passes_finnhub_secret(self):
+        workflow = (MODULE_PATH.parents[1] / ".github" / "workflows" / "update-data.yml").read_text(encoding="utf-8")
+        self.assertIn("FINNHUB_API_KEY", workflow)
+        self.assertIn("secrets.FINNHUB_API_KEY", workflow)
+
 if __name__ == "__main__":
     unittest.main()

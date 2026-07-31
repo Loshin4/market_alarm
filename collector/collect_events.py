@@ -44,7 +44,7 @@ DART_IR_PARSER_VERSION = 160
 KIND_DETAIL_PARSER_VERSION = 150
 DART_RESULT_PARSER_VERSION = 140
 US_CALENDAR_PARSER_VERSION = 190
-US_RESULT_PARSER_VERSION = 210
+US_RESULT_PARSER_VERSION = 220
 
 BLS_ICS = "https://www.bls.gov/schedule/news_release/bls.ics"
 BEA_ICS = "https://www.bea.gov/news/schedule/ics/online-calendar-subscription.ics"
@@ -61,6 +61,7 @@ NASDAQ_EARNINGS = "https://api.nasdaq.com/api/calendar/earnings"
 NASDAQ_EARNINGS_SURPRISE = "https://api.nasdaq.com/api/company/{symbol}/earnings-surprise"
 BLS_API = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
 ALPHA = "https://www.alphavantage.co/query"
+FINNHUB_EARNINGS = "https://finnhub.io/api/v1/calendar/earnings"
 LL2_UPCOMING = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/"
 LL2_PREVIOUS = "https://ll.thespacedevs.com/2.3.0/launches/previous/"
 SEC_TICKERS = "https://www.sec.gov/files/company_tickers.json"
@@ -138,6 +139,7 @@ SOURCE_LABELS = {
     "dart": "금융감독원 전자공시(OpenDART)",
     "nasdaq": "나스닥 전체 실적 달력",
     "alpha": "미국 기업 실적 데이터",
+    "finnhub": "Finnhub 해외 실적 실제치",
     "spacex": "우주 발사 일정 데이터",
     "bls_results": "미국 노동통계 발표 결과",
     "us_results": "미국 기업 실적 결과(SEC 공식 공시·Nasdaq·Alpha Vantage)",
@@ -2919,6 +2921,157 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
         f"해외 핵심 실적 결과 {len(out)}개 · 확인 {checked_count}개 · SEC 공시 {sec_filing_hits} · SEC 수치 {sec_fact_hits} · Nasdaq {nasdaq_hits} · Alpha {alpha_hits}",
     )
 
+
+def collect_finnhub_results(
+    schedules: list[dict[str, Any]],
+    api_key: str,
+    state: dict[str, Any],
+    force: bool,
+) -> SourceResult:
+    """Collect actual overseas earnings from Finnhub in one date-range request.
+
+    Unlike SEC filings, this endpoint supplies actual EPS/revenue together with
+    analyst estimates, so it can replace a scheduled card as soon as the provider
+    publishes the result.
+    """
+    if not api_key:
+        return SourceResult("finnhub", [], True, "선택형 Finnhub 인증키 미설정")
+
+    last = parse_iso(state.get("finnhubResultsCheckedAt"))
+    if not force and last and NOW - last < timedelta(minutes=20):
+        return SourceResult("finnhub", [], True, "최근 20분 안에 확인함")
+
+    today_et = NOW.astimezone(ET).date()
+    start = today_et - timedelta(days=14)
+    end = today_et + timedelta(days=2)
+    response = http_get(
+        FINNHUB_EARNINGS,
+        params={
+            "from": start.isoformat(),
+            "to": end.isoformat(),
+            "international": "true",
+            "token": api_key,
+        },
+        timeout=40,
+    )
+    payload = response.json()
+    rows = payload.get("earningsCalendar") if isinstance(payload, dict) else None
+    if not isinstance(rows, list):
+        message = clean_text((payload or {}).get("error") if isinstance(payload, dict) else "")
+        raise RuntimeError(message or "Finnhub 실적 결과 응답 형식 오류")
+
+    scheduled_by_symbol: dict[str, list[dict[str, Any]]] = {}
+    for item in schedules + load_json(EVENTS_FILE, {}).get("events", []):
+        if item.get("market") != "US" or item.get("category") != "earnings" or item.get("status") != "scheduled":
+            continue
+        symbol = clean_text(item.get("symbol")).upper()
+        if symbol:
+            scheduled_by_symbol.setdefault(symbol, []).append(item)
+
+    out: list[dict[str, Any]] = []
+    for raw in rows:
+        if not isinstance(raw, dict):
+            continue
+        symbol = clean_text(raw.get("symbol")).upper().replace("/", "-")
+        if not symbol or us_importance(symbol) < 4:
+            continue
+        reported_date = parse_korean_date(clean_text(raw.get("date")))
+        if reported_date is None:
+            continue
+        eps_actual = safe_float(raw.get("epsActual"))
+        eps_estimate = safe_float(raw.get("epsEstimate"))
+        revenue_actual = safe_float(raw.get("revenueActual"))
+        revenue_estimate = safe_float(raw.get("revenueEstimate"))
+        if eps_actual is None and revenue_actual is None:
+            continue
+
+        candidates = scheduled_by_symbol.get(symbol, [])
+        scheduled = None
+        best_distance = 999
+        for item in candidates:
+            try:
+                d = datetime.fromtimestamp(int(item.get("time", 0)) / 1000, UTC).astimezone(ET).date()
+            except Exception:
+                continue
+            distance = abs((d - reported_date).days)
+            if distance <= 3 and distance < best_distance:
+                scheduled = item
+                best_distance = distance
+
+        surprise = None
+        if eps_actual is not None and eps_estimate not in (None, 0):
+            surprise = (eps_actual - eps_estimate) / abs(eps_estimate) * 100
+        revenue_surprise = None
+        if revenue_actual is not None and revenue_estimate not in (None, 0):
+            revenue_surprise = (revenue_actual - revenue_estimate) / abs(revenue_estimate) * 100
+        rating = result_rating(surprise, revenue_surprise)
+
+        parts = [rating_text(rating)]
+        actual_parts: list[str] = []
+        expected_parts: list[str] = []
+        if eps_actual is not None:
+            eps_text = f"EPS {fmt_num(eps_actual)}"
+            actual_parts.append(eps_text)
+            if eps_estimate is not None:
+                eps_text += f" / 예상 {fmt_num(eps_estimate)}"
+                expected_parts.append(f"EPS {fmt_num(eps_estimate)}")
+            if surprise is not None:
+                eps_text += f" ({surprise:+.1f}%)"
+            parts.append(eps_text)
+        if revenue_actual is not None:
+            revenue_text = f"매출 {format_usd(revenue_actual)}"
+            actual_parts.append(f"매출 {format_usd(revenue_actual)}")
+            if revenue_estimate is not None:
+                revenue_text += f" / 예상 {format_usd(revenue_estimate)}"
+                expected_parts.append(f"매출 {format_usd(revenue_estimate)}")
+            if revenue_surprise is not None:
+                revenue_text += f" ({revenue_surprise:+.1f}%)"
+            parts.append(revenue_text)
+        parts.append("Finnhub 실제 발표치")
+
+        hour_code = clean_text(raw.get("hour")).lower()
+        if scheduled:
+            result_when = datetime.fromtimestamp(int(scheduled.get("time", 0)) / 1000, UTC).astimezone(ET)
+            result_id = clean_text(scheduled.get("id")) or f"us-earnings-{symbol}-{reported_date.isoformat()}"
+        else:
+            hour = 8 if hour_code == "bmo" else 16 if hour_code == "amc" else 12
+            result_when = datetime(reported_date.year, reported_date.month, reported_date.day, hour, 5, tzinfo=ET)
+            result_id = f"us-earnings-{symbol}-{reported_date.isoformat()}"
+
+        result_item = event(
+            event_id=result_id,
+            title=f"{company_display_name(symbol)} 실적 결과",
+            when=result_when,
+            source_key="finnhub",
+            source=SOURCE_LABELS["finnhub"],
+            source_url="https://finnhub.io/docs/api/earnings-calendar",
+            category="earnings",
+            importance=int((scheduled or {}).get("importance", us_importance(symbol))),
+            status="released",
+            summary=" · ".join(parts),
+            symbol=symbol,
+            market="US",
+            actual=", ".join(actual_parts),
+            expected=", ".join(expected_parts),
+            rating=rating,
+            official=False,
+            confidence="finnhub_actual",
+        )
+        result_item["releasedAt"] = epoch_ms(
+            datetime(reported_date.year, reported_date.month, reported_date.day, 16, 5, tzinfo=ET)
+        )
+        result_item["scheduledTime"] = int((scheduled or {}).get("time", 0) or 0)
+        result_item["scheduledEventId"] = clean_text((scheduled or {}).get("id"))
+        year = raw.get("year")
+        quarter = raw.get("quarter")
+        if year and quarter:
+            result_item["period"] = f"{year}-Q{quarter}"
+        out.append(result_item)
+
+    state["finnhubResultsCheckedAt"] = iso_utc()
+    out.sort(key=lambda item: int(item.get("time", 0)))
+    return SourceResult("finnhub", out, True, f"최근 해외 실적 실제치 {len(out)}개")
+
 def collect_spacex() -> SourceResult:
     params_upcoming = {"limit": 60, "ordering": "net", "lsp__name": "SpaceX"}
     params_previous = {"limit": 30, "ordering": "-net", "lsp__name": "SpaceX"}
@@ -3289,6 +3442,7 @@ def main() -> int:
     state = load_json(STATE_FILE, {})
     dart_key = os.getenv("DART_API_KEY", "").strip()
     alpha_key = os.getenv("ALPHA_VANTAGE_API_KEY", "").strip()
+    finnhub_key = os.getenv("FINNHUB_API_KEY", "").strip()
 
     source_functions = [
         ("bls", collect_bls),
@@ -3335,6 +3489,18 @@ def main() -> int:
         failed_sources.add("us_results")
         results.append(SourceResult("us_results", [], False, str(exc)))
         print(f"[us_results] ERROR: {exc}", file=sys.stderr)
+
+    # Finnhub provides actual EPS/revenue in one range request and is the primary
+    # practical fallback when Nasdaq result rows or SEC filings are delayed.
+    try:
+        finnhub_result = collect_finnhub_results(all_events, finnhub_key, state, force)
+        results.append(finnhub_result)
+        all_events.extend(finnhub_result.events)
+        print(f"[finnhub] {len(finnhub_result.events)} updates" + (f" ({finnhub_result.message})" if finnhub_result.message else ""))
+    except Exception as exc:
+        failed_sources.add("finnhub")
+        results.append(SourceResult("finnhub", [], False, str(exc)))
+        print(f"[finnhub] ERROR: {exc}", file=sys.stderr)
 
     # BLS official actual/previous values replace matching released schedules.
     try:
