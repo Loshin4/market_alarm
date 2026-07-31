@@ -1,33 +1,6 @@
 {
-  "updatedAt": "2026-07-31T11:14:28Z",
+  "updatedAt": "2026-07-31T12:31:57Z",
   "changes": [
-    {
-      "type": "new",
-      "event": {
-        "id": "us-earnings-ATRO-2026-08-11",
-        "title": "ATRO 실적 발표",
-        "time": 1786478400000,
-        "allDay": false,
-        "sourceKey": "nasdaq",
-        "source": "나스닥 전체 실적 달력",
-        "sourceUrl": "https://www.nasdaq.com/market-activity/earnings?date=2026-08-11",
-        "category": "earnings",
-        "importance": 3,
-        "status": "scheduled",
-        "summary": "미국 장 마감 후 · 회계기간 Jun/2026",
-        "symbol": "ATRO",
-        "market": "US",
-        "actual": "",
-        "expected": "",
-        "previous": "",
-        "rating": 0,
-        "ratingLabel": "⚪ 중립",
-        "official": false,
-        "confidence": "exchange_calendar",
-        "updatedAt": "2026-07-31T03:57:05Z"
-      },
-      "detectedAt": "2026-07-31T03:57:05Z"
-    },
     {
       "type": "new",
       "event": {
@@ -8100,6 +8073,33 @@
         "updatedAt": "2026-07-31T11:14:28Z"
       },
       "detectedAt": "2026-07-31T11:14:28Z"
+    },
+    {
+      "type": "new",
+      "event": {
+        "id": "kr-result-462350-2026-H1",
+        "title": "이노스페이스 실적 결과",
+        "time": 1785488400000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731000732",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🔴🔴 매우 나쁨 · 매출 4.5억 원 · 영업익 -167.4억 원 (-193.3%) · 순익 -167.6억 원 (-171.5%) · 예상치 없음",
+        "symbol": "462350",
+        "market": "KR",
+        "actual": "매출 4.5억 원, 영업익 -167.4억 원, 순익 -167.6억 원",
+        "expected": "",
+        "previous": "영업익 -57.1억 원, 순익 -61.7억 원",
+        "rating": -2,
+        "ratingLabel": "🔴🔴 매우 나쁨",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-31T10:19:54Z"
+      },
+      "detectedAt": "2026-07-31T12:31:57Z"
     }
   ]
 }
