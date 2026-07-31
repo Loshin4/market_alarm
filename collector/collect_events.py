@@ -44,7 +44,7 @@ DART_IR_PARSER_VERSION = 160
 KIND_DETAIL_PARSER_VERSION = 150
 DART_RESULT_PARSER_VERSION = 140
 US_CALENDAR_PARSER_VERSION = 190
-US_RESULT_PARSER_VERSION = 200
+US_RESULT_PARSER_VERSION = 210
 
 BLS_ICS = "https://www.bls.gov/schedule/news_release/bls.ics"
 BEA_ICS = "https://www.bea.gov/news/schedule/ics/online-calendar-subscription.ics"
@@ -2128,7 +2128,7 @@ def collect_alpha(config: dict[str, Any] | None, api_key: str, state: dict[str, 
 
 
 def sec_headers() -> dict[str, str]:
-    user_agent = os.getenv("SEC_USER_AGENT", "MarketAlarm/1.4 market-alarm-bot@users.noreply.github.com").strip()
+    user_agent = os.getenv("SEC_USER_AGENT", "MarketAlarm/2.1 contact: market-alarm-bot@users.noreply.github.com").strip()
     return {"User-Agent": user_agent, "Accept-Encoding": "gzip, deflate", "Host": "data.sec.gov"}
 
 
@@ -2394,8 +2394,206 @@ def extract_sec_company_result(payload: dict[str, Any], scheduled_date: date) ->
 
 def sec_filing_url(cik: int, accn: str) -> str:
     clean_accn = accn.replace("-", "")
-    return f"https://www.sec.gov/Archives/edgar/data/{cik}/{clean_accn}/{accn}-index.html" if accn else "https://www.sec.gov/edgar/search/"
+    return f"https://www.sec.gov/Archives/edgar/data/{cik}/{clean_accn}/{accn}-index.htm" if accn else "https://www.sec.gov/edgar/search/"
 
+
+def sec_archive_headers() -> dict[str, str]:
+    return {
+        "User-Agent": sec_headers()["User-Agent"],
+        "Accept-Encoding": "gzip, deflate",
+        "Accept": "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8",
+    }
+
+
+def sec_filing_document_candidates(cik: int, filing: dict[str, Any]) -> list[tuple[int, str, str]]:
+    """Return likely earnings-release documents attached to an SEC filing.
+
+    8-K/6-K cover pages usually contain only the notice. The actual financial
+    numbers are commonly in Exhibit 99.1, so the filing index must be inspected.
+    """
+    accession = clean_text(filing.get("accessionNumber"))
+    if not accession:
+        return []
+    index_url = sec_filing_url(cik, accession)
+    response = requests.get(index_url, headers=sec_archive_headers(), timeout=40)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, "html.parser")
+    base = index_url.rsplit("/", 1)[0] + "/"
+    candidates: list[tuple[int, str, str]] = []
+    for row in soup.select("table.tableFile tr"):
+        cells = row.find_all("td")
+        link = row.find("a", href=True)
+        if not link or len(cells) < 3:
+            continue
+        href = urljoin(base, link.get("href", ""))
+        description = clean_text(cells[1].get_text(" ", strip=True) if len(cells) > 1 else "")
+        doc_type = clean_text(cells[3].get_text(" ", strip=True) if len(cells) > 3 else "").upper()
+        name = clean_text(link.get_text(" ", strip=True))
+        low = f"{description} {doc_type} {name}".lower()
+        if not href.lower().endswith((".htm", ".html", ".txt")):
+            continue
+        score = 0
+        if doc_type in {"EX-99.1", "EX-99", "EX-99.01"}:
+            score += 100
+        elif doc_type.startswith("EX-99"):
+            score += 80
+        if any(term in low for term in ("earnings", "financial results", "results release", "press release", "quarterly results")):
+            score += 40
+        if any(term in low for term in ("ex99", "exhibit 99", "exhibit991", "exhibit99")):
+            score += 25
+        if doc_type in SEC_EARNINGS_FORMS:
+            score += 10
+        if score:
+            candidates.append((score, href, f"{doc_type} {description}".strip()))
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    return candidates[:4]
+
+
+def fetch_sec_earnings_release_text(cik: int, filing: dict[str, Any]) -> tuple[str, str]:
+    texts: list[str] = []
+    best_url = ""
+    for _, url, _ in sec_filing_document_candidates(cik, filing):
+        try:
+            response = requests.get(url, headers=sec_archive_headers(), timeout=40)
+            response.raise_for_status()
+            plain = BeautifulSoup(response.text, "html.parser").get_text(" ", strip=True)
+            plain = clean_text(html_lib.unescape(plain))
+            if len(plain) < 200:
+                continue
+            if not best_url:
+                best_url = url
+            texts.append(plain[:180000])
+            if sec_text_has_earnings_terms(plain) and len(plain) > 1500:
+                break
+            time.sleep(0.11)
+        except Exception:
+            continue
+    if not texts:
+        primary = sec_document_url(
+            cik,
+            clean_text(filing.get("accessionNumber")),
+            clean_text(filing.get("primaryDocument")),
+        )
+        if primary:
+            try:
+                response = requests.get(primary, headers=sec_archive_headers(), timeout=40)
+                response.raise_for_status()
+                texts.append(clean_text(BeautifulSoup(response.text, "html.parser").get_text(" ", strip=True))[:180000])
+                best_url = primary
+            except Exception:
+                pass
+    return " ".join(texts), best_url
+
+
+def money_to_dollars(number: Any, unit: str = "") -> float | None:
+    value = safe_float(number)
+    if value is None:
+        return None
+    scale = clean_text(unit).lower()
+    if scale.startswith("trillion"):
+        value *= 1_000_000_000_000
+    elif scale.startswith("billion") or scale in {"bn", "b"}:
+        value *= 1_000_000_000
+    elif scale.startswith("million") or scale in {"mn", "m"}:
+        value *= 1_000_000
+    elif scale.startswith("thousand") or scale in {"k"}:
+        value *= 1_000
+    return value
+
+
+def first_money_metric(text: str, labels: tuple[str, ...]) -> float | None:
+    for label in labels:
+        patterns = (
+            rf"{label}[^$\d]{{0,45}}\$?\s*\(?([0-9][0-9,]*(?:\.[0-9]+)?)\)?\s*(trillion|billion|million|thousand|bn|mn)?",
+            rf"\$\s*\(?([0-9][0-9,]*(?:\.[0-9]+)?)\)?\s*(trillion|billion|million|thousand|bn|mn)?[^.\n]{{0,35}}{label}",
+        )
+        for pattern in patterns:
+            match = re.search(pattern, text, re.I)
+            if match:
+                value = money_to_dollars(match.group(1), match.group(2) or "")
+                if value is not None:
+                    return value
+    return None
+
+
+def extract_sec_release_metrics(text: str) -> dict[str, Any]:
+    """Extract headline GAAP figures from an attached official earnings release."""
+    if not text:
+        return {}
+    normalized = clean_text(text).replace("−", "-").replace("–", "-")
+    result: dict[str, Any] = {}
+    eps_patterns = (
+        r"(?:gaap\s+)?(?:diluted\s+)?(?:earnings|income|loss)\s+per\s+(?:diluted\s+)?share[^$\d-]{0,35}\$?\s*\(?(-?[0-9]+(?:\.[0-9]+)?)\)?",
+        r"(?:gaap\s+)?diluted\s+eps[^$\d-]{0,35}\$?\s*\(?(-?[0-9]+(?:\.[0-9]+)?)\)?",
+        r"(?:gaap\s+)?eps[^$\d-]{0,25}\$?\s*\(?(-?[0-9]+(?:\.[0-9]+)?)\)?",
+    )
+    for pattern in eps_patterns:
+        match = re.search(pattern, normalized, re.I)
+        if match:
+            result["eps"] = safe_float(match.group(1))
+            break
+    result["revenue"] = first_money_metric(normalized, (
+        r"total\s+net\s+sales", r"net\s+sales", r"total\s+revenues?", r"revenues?", r"sales",
+    ))
+    result["operating"] = first_money_metric(normalized, (
+        r"income\s+from\s+operations", r"operating\s+income", r"operating\s+profit",
+    ))
+    result["net"] = first_money_metric(normalized, (
+        r"net\s+income", r"net\s+earnings", r"profit\s+attributable\s+to",
+    ))
+    return {key: value for key, value in result.items() if value is not None}
+
+
+def earnings_period_from_item(item: dict[str, Any]) -> str:
+    explicit = clean_text(item.get("period") or item.get("fiscalPeriod") or item.get("fiscal_period"))
+    if explicit:
+        return explicit
+    text = " ".join((clean_text(item.get("summary")), clean_text(item.get("title"))))
+    match = re.search(r"(?:회계기간|fiscal(?:\s+period|\s+date\s+ending)?)[^0-9]{0,12}(20\d{2}[-/.][0-1]?\d[-/.][0-3]?\d)", text, re.I)
+    if match:
+        return match.group(1).replace("/", "-").replace(".", "-")
+    match = re.search(r"(20\d{2})\s*[-년 ]*Q([1-4])", text, re.I)
+    if match:
+        return f"{match.group(1)}-Q{match.group(2)}"
+    return ""
+
+
+def collapse_released_earnings_schedules(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Hide a stale schedule once its matching earnings result has arrived."""
+    released = [item for item in items if item.get("category") == "earnings" and item.get("status") == "released"]
+    released_ids = {clean_text(item.get("scheduledEventId")) for item in released if item.get("scheduledEventId")}
+    released_keys: list[tuple[str, str, str, int]] = []
+    for item in released:
+        released_keys.append((
+            clean_text(item.get("market")),
+            event_company_key(item),
+            earnings_period_from_item(item),
+            int(item.get("scheduledTime") or item.get("time") or 0),
+        ))
+    out: list[dict[str, Any]] = []
+    for item in items:
+        if item.get("category") != "earnings" or item.get("status") == "released":
+            out.append(item)
+            continue
+        if clean_text(item.get("id")) in released_ids:
+            continue
+        market = clean_text(item.get("market"))
+        company = event_company_key(item)
+        period = earnings_period_from_item(item)
+        when = int(item.get("time") or 0)
+        matched = False
+        for result_market, result_company, result_period, result_time in released_keys:
+            if market != result_market or company != result_company:
+                continue
+            if period and result_period and period == result_period:
+                matched = True
+                break
+            if when and result_time and abs(when - result_time) <= int(timedelta(days=21).total_seconds() * 1000):
+                matched = True
+                break
+        if not matched:
+            out.append(item)
+    return out
 
 def parse_nasdaq_report_date(value: Any) -> date | None:
     raw = nasdaq_cell(value)
@@ -2496,11 +2694,12 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
     alpha_hits = 0
 
     for symbol in ordered_symbols[:100]:
+        scheduled = scheduled_by_symbol.get(symbol)
         checked_at = parse_iso(checked.get(symbol))
-        if not force and checked_at and NOW - checked_at < timedelta(hours=2):
+        check_interval = timedelta(minutes=30) if scheduled else timedelta(hours=4)
+        if not force and checked_at and NOW - checked_at < check_interval:
             continue
 
-        scheduled = scheduled_by_symbol.get(symbol)
         scheduled_date: date | None = None
         if scheduled:
             try:
@@ -2588,6 +2787,20 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
             except Exception:
                 sec_data = {}
 
+        exhibit_url = ""
+        if filing and cik:
+            try:
+                release_text, exhibit_url = fetch_sec_earnings_release_text(cik, filing)
+                release_data = extract_sec_release_metrics(release_text)
+                for key in ("eps", "revenue", "operating", "net"):
+                    if sec_data.get(key) is None and release_data.get(key) is not None:
+                        sec_data[key] = release_data[key]
+                if release_data:
+                    result_sources.append("SEC Exhibit 99.1")
+                time.sleep(0.12)
+            except Exception:
+                exhibit_url = ""
+
         checked[symbol] = iso_utc()
         checked_count += 1
 
@@ -2649,7 +2862,7 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
 
         if filing and cik:
             accession = clean_text(filing.get("accessionNumber"))
-            source_url = sec_filing_url(cik, accession)
+            source_url = exhibit_url or sec_filing_url(cik, accession)
             when = parse_sec_acceptance_time(filing.get("acceptanceDateTime"), reference_date)
             result_date = filing_date or reference_date
         elif cik and sec_data:
@@ -2665,10 +2878,18 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
             when = datetime(reference_date.year, reference_date.month, reference_date.day, 16, 5, tzinfo=ET)
             result_date = reference_date
 
-        out.append(event(
-            event_id=f"us-result-{symbol}-{result_date.isoformat()}",
+        result_when = when
+        result_id = f"us-result-{symbol}-{result_date.isoformat()}"
+        if scheduled:
+            result_id = clean_text(scheduled.get("id")) or result_id
+            try:
+                result_when = datetime.fromtimestamp(int(scheduled.get("time", 0)) / 1000, UTC).astimezone(ET)
+            except Exception:
+                result_when = when
+        result_item = event(
+            event_id=result_id,
             title=f"{company_display_name(symbol)} 실적 결과",
-            when=when,
+            when=result_when,
             source_key="us_results",
             source=SOURCE_LABELS["us_results"],
             source_url=source_url,
@@ -2684,7 +2905,14 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
             rating=rating,
             official=bool(filing or sec_data),
             confidence="+".join(dict.fromkeys(result_sources)) or "official_filing",
-        ))
+        )
+        result_item["releasedAt"] = epoch_ms(when)
+        result_item["scheduledTime"] = int((scheduled or {}).get("time", 0) or 0)
+        result_item["scheduledEventId"] = clean_text((scheduled or {}).get("id"))
+        period = earnings_period_from_item(scheduled or {}) or clean_text(sec_data.get("period_end"))
+        if period:
+            result_item["period"] = period
+        out.append(result_item)
 
     return SourceResult(
         "us_results", out, True,
@@ -3021,6 +3249,7 @@ def merge_events(new_events: Iterable[dict[str, Any]], old_events: list[dict[str
                 clone["confidence"] = "previous_official_schedule" if old.get("market") == "KR" else "previous_us_schedule"
             merged[key] = clone
     values = [x for x in merged.values() if past_cutoff <= int(x.get("time", 0)) <= future_cutoff]
+    values = collapse_released_earnings_schedules(values)
     values.sort(key=lambda x: (int(x.get("time", 0)), -int(x.get("importance", 0)), str(x.get("title", ""))))
     return values
 

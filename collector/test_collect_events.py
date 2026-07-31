@@ -550,5 +550,35 @@ ZZZZ,Example Small Company,2026-08-03,2026-06-30,,USD,United States,
         self.assertTrue(apple["official"])
         self.assertIn("SEC 8-K 공식 실적 공시 확인", apple["summary"])
 
+
+    def test_sec_exhibit_parser_extracts_headline_numbers(self):
+        sample = """
+        Apple reports quarterly revenue of $94.8 billion and diluted earnings per share of $1.42.
+        Operating income was $31.2 billion and net income was $24.8 billion.
+        """
+        result = collector.extract_sec_release_metrics(sample)
+        self.assertEqual(result["eps"], 1.42)
+        self.assertEqual(result["revenue"], 94_800_000_000)
+        self.assertEqual(result["operating"], 31_200_000_000)
+        self.assertEqual(result["net"], 24_800_000_000)
+
+    def test_released_us_result_removes_stale_schedule(self):
+        schedule_time = collector.epoch_ms(collector.datetime(2026, 7, 30, 16, 0, tzinfo=collector.ET))
+        schedule = {
+            "id": "us-earnings-AAPL-2026-07-30", "title": "애플(AAPL) 실적 발표",
+            "time": schedule_time, "category": "earnings", "market": "US", "symbol": "AAPL",
+            "status": "scheduled", "importance": 5, "sourceKey": "alpha", "summary": "회계기간 2026-06-30",
+        }
+        result = dict(schedule)
+        result.update({
+            "title": "애플(AAPL) 실적 결과", "status": "released", "sourceKey": "us_results",
+            "scheduledEventId": schedule["id"], "scheduledTime": schedule_time,
+            "summary": "🟢 좋음 · EPS 1.42 / 예상 1.35 (+5.2%)",
+        })
+        collapsed = collector.collapse_released_earnings_schedules([schedule, result])
+        self.assertEqual(len(collapsed), 1)
+        self.assertEqual(collapsed[0]["status"], "released")
+        self.assertEqual(collapsed[0]["id"], schedule["id"])
+
 if __name__ == "__main__":
     unittest.main()
