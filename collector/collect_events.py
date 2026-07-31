@@ -44,7 +44,7 @@ DART_IR_PARSER_VERSION = 160
 KIND_DETAIL_PARSER_VERSION = 150
 DART_RESULT_PARSER_VERSION = 140
 US_CALENDAR_PARSER_VERSION = 190
-US_RESULT_PARSER_VERSION = 190
+US_RESULT_PARSER_VERSION = 200
 
 BLS_ICS = "https://www.bls.gov/schedule/news_release/bls.ics"
 BEA_ICS = "https://www.bea.gov/news/schedule/ics/online-calendar-subscription.ics"
@@ -65,6 +65,7 @@ LL2_UPCOMING = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/"
 LL2_PREVIOUS = "https://ll.thespacedevs.com/2.3.0/launches/previous/"
 SEC_TICKERS = "https://www.sec.gov/files/company_tickers.json"
 SEC_COMPANY_FACTS = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik:010d}.json"
+SEC_SUBMISSIONS = "https://data.sec.gov/submissions/CIK{cik:010d}.json"
 KRX_MARKET_CAP = "https://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd"
 FRED_CSV = "https://fred.stlouisfed.org/graph/fredgraph.csv"
 YAHOO_CHART = "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
@@ -139,7 +140,7 @@ SOURCE_LABELS = {
     "alpha": "미국 기업 실적 데이터",
     "spacex": "우주 발사 일정 데이터",
     "bls_results": "미국 노동통계 발표 결과",
-    "us_results": "미국 기업 실적 결과(Nasdaq·SEC·Alpha Vantage)",
+    "us_results": "미국 기업 실적 결과(SEC 공식 공시·Nasdaq·Alpha Vantage)",
     "krx_marketcap": "한국거래소 시가총액",
     "market_indicators": "시장 핵심 지표",
 }
@@ -2155,29 +2156,167 @@ def load_sec_ticker_map(state: dict[str, Any], force: bool) -> dict[str, int]:
     return mapping
 
 
+SEC_EARNINGS_FORMS = {"8-K", "10-Q", "10-K", "6-K", "20-F", "40-F"}
+SEC_EARNINGS_WORDS = (
+    "earnings", "financial results", "quarterly results", "annual results",
+    "interim results", "results of operations", "results release",
+    "quarter ended", "fiscal quarter", "full year results",
+)
+
+
+def sec_recent_filing_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    recent = ((payload.get("filings") or {}).get("recent") or {})
+    if not isinstance(recent, dict):
+        return []
+    keys = [
+        "accessionNumber", "filingDate", "reportDate", "acceptanceDateTime",
+        "act", "form", "fileNumber", "filmNumber", "items", "size",
+        "isXBRL", "isInlineXBRL", "primaryDocument", "primaryDocDescription",
+    ]
+    length = max((len(recent.get(key) or []) for key in keys), default=0)
+    rows: list[dict[str, Any]] = []
+    for i in range(length):
+        row: dict[str, Any] = {}
+        for key in keys:
+            values = recent.get(key) or []
+            row[key] = values[i] if i < len(values) else ""
+        rows.append(row)
+    return rows
+
+
+def sec_document_url(cik: int, accession: str, primary_document: str) -> str:
+    clean_accn = clean_text(accession).replace("-", "")
+    primary = clean_text(primary_document).lstrip("/")
+    if not clean_accn or not primary:
+        return ""
+    return f"https://www.sec.gov/Archives/edgar/data/{cik}/{clean_accn}/{primary}"
+
+
+def sec_text_has_earnings_terms(text: str) -> bool:
+    low = clean_text(text).lower()
+    return any(word in low for word in SEC_EARNINGS_WORDS)
+
+
+def sec_filing_is_earnings(row: dict[str, Any], document_text: str = "") -> bool:
+    form = clean_text(row.get("form")).upper()
+    if form not in SEC_EARNINGS_FORMS:
+        return False
+    if form in {"10-Q", "10-K"}:
+        return True
+    items = clean_text(row.get("items"))
+    if form == "8-K" and re.search(r"(?:^|[,;\s])2\.02(?:$|[,;\s])", items):
+        return True
+    metadata = " ".join([
+        clean_text(row.get("primaryDocDescription")),
+        clean_text(row.get("primaryDocument")),
+        items,
+    ])
+    if sec_text_has_earnings_terms(metadata):
+        return True
+    return bool(document_text and sec_text_has_earnings_terms(document_text))
+
+
+def fetch_sec_recent_earnings_filing(
+    cik: int,
+    reference_date: date | None = None,
+    lookback_days: int = 12,
+) -> dict[str, Any]:
+    response = requests.get(SEC_SUBMISSIONS.format(cik=cik), headers=sec_headers(), timeout=45)
+    response.raise_for_status()
+    payload = response.json()
+    today = NOW.astimezone(ET).date()
+    lower = (reference_date - timedelta(days=3)) if reference_date else (today - timedelta(days=lookback_days))
+    upper = today + timedelta(days=1)
+    candidates: list[tuple[tuple[int, int, int], dict[str, Any]]] = []
+    for row in sec_recent_filing_rows(payload):
+        form = clean_text(row.get("form")).upper()
+        if form not in SEC_EARNINGS_FORMS:
+            continue
+        filing_date = parse_korean_date(clean_text(row.get("filingDate")))
+        if not filing_date or not (lower <= filing_date <= upper):
+            continue
+        if reference_date and abs((filing_date - reference_date).days) > 12:
+            continue
+        document_text = ""
+        qualifies = sec_filing_is_earnings(row)
+        if not qualifies and form in {"6-K", "20-F", "40-F", "8-K"}:
+            doc_url = sec_document_url(cik, clean_text(row.get("accessionNumber")), clean_text(row.get("primaryDocument")))
+            if doc_url:
+                try:
+                    document_text = BeautifulSoup(
+                        requests.get(doc_url, headers={"User-Agent": sec_headers()["User-Agent"]}, timeout=35).text,
+                        "html.parser",
+                    ).get_text(" ", strip=True)[:50000]
+                    qualifies = sec_filing_is_earnings(row, document_text)
+                    time.sleep(0.11)
+                except Exception:
+                    qualifies = False
+        if not qualifies:
+            continue
+        form_score = {"8-K": 6, "6-K": 5, "10-Q": 4, "10-K": 3, "20-F": 2, "40-F": 2}.get(form, 1)
+        distance_score = -abs((filing_date - reference_date).days) if reference_date else int(filing_date.strftime("%Y%m%d"))
+        score = (form_score, distance_score, int(filing_date.strftime("%Y%m%d")))
+        clone = dict(row)
+        clone["filing_date"] = filing_date
+        clone["document_text"] = document_text
+        candidates.append((score, clone))
+    if not candidates:
+        return {}
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    return candidates[0][1]
+
+
+def parse_sec_acceptance_time(value: Any, fallback_date: date) -> datetime:
+    raw = clean_text(value)
+    if raw:
+        try:
+            parsed = dtparser.parse(raw)
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=ET)
+            return parsed.astimezone(ET)
+        except Exception:
+            pass
+    return datetime(fallback_date.year, fallback_date.month, fallback_date.day, 16, 5, tzinfo=ET)
+
+
 SEC_REVENUE_TAGS = (
     "RevenueFromContractWithCustomerExcludingAssessedTax",
     "Revenues",
     "SalesRevenueNet",
     "SalesRevenueGoodsNet",
+    "Revenue",
+    "RevenueFromContractsWithCustomers",
+    "SalesRevenue",
 )
-SEC_OPERATING_TAGS = ("OperatingIncomeLoss",)
+SEC_OPERATING_TAGS = (
+    "OperatingIncomeLoss",
+    "ProfitLossFromOperatingActivities",
+    "OperatingProfitLoss",
+)
 SEC_NET_TAGS = ("NetIncomeLoss", "ProfitLoss")
-SEC_EPS_TAGS = ("EarningsPerShareDiluted", "EarningsPerShareBasicAndDiluted")
+SEC_EPS_TAGS = (
+    "EarningsPerShareDiluted",
+    "EarningsPerShareBasicAndDiluted",
+    "BasicEarningsLossPerShare",
+    "DilutedEarningsLossPerShare",
+)
 
 
 def sec_fact_entries(payload: dict[str, Any], tags: tuple[str, ...], units: tuple[str, ...]) -> list[dict[str, Any]]:
-    facts = ((payload.get("facts") or {}).get("us-gaap") or {})
+    all_facts = payload.get("facts") or {}
     out: list[dict[str, Any]] = []
-    for tag in tags:
-        node = facts.get(tag) or {}
-        unit_map = node.get("units") or {}
-        for unit in units:
-            for row in unit_map.get(unit) or []:
-                clone = dict(row)
-                clone["tag"] = tag
-                clone["unit"] = unit
-                out.append(clone)
+    for taxonomy in ("us-gaap", "ifrs-full"):
+        facts = all_facts.get(taxonomy) or {}
+        for tag in tags:
+            node = facts.get(tag) or {}
+            unit_map = node.get("units") or {}
+            for unit in units:
+                for row in unit_map.get(unit) or []:
+                    clone = dict(row)
+                    clone["tag"] = tag
+                    clone["unit"] = unit
+                    clone["taxonomy"] = taxonomy
+                    out.append(clone)
     return out
 
 
@@ -2239,7 +2378,7 @@ def extract_sec_company_result(payload: dict[str, Any], scheduled_date: date) ->
         ("revenue", SEC_REVENUE_TAGS, ("USD",)),
         ("operating", SEC_OPERATING_TAGS, ("USD",)),
         ("net", SEC_NET_TAGS, ("USD",)),
-        ("eps", SEC_EPS_TAGS, ("USD/shares",)),
+        ("eps", SEC_EPS_TAGS, ("USD/shares", "USD-per-shares")),
     ):
         entries = sec_fact_entries(payload, tags, units)
         current = sec_choose_current(entries, scheduled_date)
@@ -2299,9 +2438,15 @@ def fetch_nasdaq_earnings_surprise(symbol: str, scheduled_date: date) -> dict[st
 
 
 def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dict[str, Any], force: bool) -> SourceResult:
-    """Track important U.S. earnings with Nasdaq EPS fallback plus SEC financial facts."""
+    """Collect important overseas earnings results.
+
+    SEC submissions are the primary fallback and are checked independently of the
+    earnings-calendar providers. This means a result card can be created from an
+    official 8-K/10-Q/10-K/6-K filing even when Nasdaq or Alpha Vantage misses the
+    schedule or blocks the request.
+    """
     today_et = NOW.astimezone(ET).date()
-    candidate_by_symbol: dict[str, dict[str, Any]] = {}
+    scheduled_by_symbol: dict[str, dict[str, Any]] = {}
     for item in schedules + load_json(EVENTS_FILE, {}).get("events", []):
         if item.get("market") != "US" or item.get("category") != "earnings" or item.get("status") != "scheduled":
             continue
@@ -2314,12 +2459,10 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
             d = datetime.fromtimestamp(int(item.get("time", 0)) / 1000, UTC).astimezone(ET).date()
         except Exception:
             continue
-        if today_et - timedelta(days=7) <= d <= today_et:
-            old = candidate_by_symbol.get(symbol)
+        if today_et - timedelta(days=12) <= d <= today_et + timedelta(days=1):
+            old = scheduled_by_symbol.get(symbol)
             if old is None or int(item.get("importance", 0)) > int(old.get("importance", 0)):
-                candidate_by_symbol[symbol] = item
-    if not candidate_by_symbol:
-        return SourceResult("us_results", [], True, "확인할 최근 핵심 미국 실적 없음")
+                scheduled_by_symbol[symbol] = item
 
     ticker_map = load_sec_ticker_map(state, force)
     if int(state.get("usResultParserVersion", 0) or 0) != US_RESULT_PARSER_VERSION:
@@ -2332,22 +2475,70 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
         quota.clear()
         quota.update({"date": quota_date, "calls": 0})
     alpha_remaining = max(0, 20 - int(quota.get("calls", 0)))
+
+    target_symbols = set(scheduled_by_symbol)
+    target_symbols.update(VERY_IMPORTANT_US)
+    target_symbols.update(IMPORTANT_US)
+    ordered_symbols = sorted(
+        target_symbols,
+        key=lambda symbol: (
+            -us_importance(symbol),
+            int((scheduled_by_symbol.get(symbol) or {}).get("time", 2**63 - 1)),
+            symbol,
+        ),
+    )
+
     out: list[dict[str, Any]] = []
     checked_count = 0
+    sec_filing_hits = 0
+    sec_fact_hits = 0
     nasdaq_hits = 0
-    sec_hits = 0
     alpha_hits = 0
-    ordered = sorted(candidate_by_symbol.values(), key=lambda x: (-int(x.get("importance", 0)), int(x.get("time", 0))))
-    for scheduled in ordered[:40]:
-        symbol = clean_text(scheduled.get("symbol")).upper()
+
+    for symbol in ordered_symbols[:100]:
         checked_at = parse_iso(checked.get(symbol))
         if not force and checked_at and NOW - checked_at < timedelta(hours=2):
             continue
-        scheduled_date = datetime.fromtimestamp(int(scheduled.get("time", 0)) / 1000, UTC).astimezone(ET).date()
+
+        scheduled = scheduled_by_symbol.get(symbol)
+        scheduled_date: date | None = None
+        if scheduled:
+            try:
+                scheduled_date = datetime.fromtimestamp(int(scheduled.get("time", 0)) / 1000, UTC).astimezone(ET).date()
+            except Exception:
+                scheduled_date = None
+
+        cik = ticker_map.get(symbol)
+        filing: dict[str, Any] = {}
+        if cik:
+            try:
+                filing = fetch_sec_recent_earnings_filing(cik, scheduled_date, lookback_days=12)
+                if filing:
+                    sec_filing_hits += 1
+                time.sleep(0.12)
+            except Exception:
+                filing = {}
+
+        # Without an official filing or a known due date, there is no reliable
+        # result to publish for this symbol in this run.
+        if not filing and scheduled_date is None:
+            checked[symbol] = iso_utc()
+            checked_count += 1
+            continue
+
+        filing_date = filing.get("filing_date") if isinstance(filing.get("filing_date"), date) else None
+        reference_date = filing_date or scheduled_date
+        if reference_date is None:
+            checked[symbol] = iso_utc()
+            checked_count += 1
+            continue
+
         eps_actual = eps_estimate = surprise = None
         result_sources: list[str] = []
 
-        if api_key and alpha_remaining > 0:
+        # Analyst-surprise data is still useful when available, but it is no
+        # longer required for a result card to exist.
+        if scheduled_date and api_key and alpha_remaining > 0:
             try:
                 payload = http_get(ALPHA, params={"function": "EARNINGS", "symbol": symbol, "apikey": api_key}, timeout=35).json()
                 quota["calls"] = int(quota.get("calls", 0)) + 1
@@ -2368,8 +2559,7 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
             except Exception:
                 pass
 
-        # No-key Nasdaq fallback makes overseas result cards work even when Alpha is absent or rate-limited.
-        if eps_actual is None:
+        if scheduled_date and eps_actual is None:
             try:
                 nasdaq_result = fetch_nasdaq_earnings_surprise(symbol, scheduled_date)
                 eps_actual = nasdaq_result.get("eps_actual")
@@ -2386,31 +2576,35 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
                 pass
 
         sec_data: dict[str, Any] = {}
-        cik = ticker_map.get(symbol)
         if cik:
             try:
                 response = requests.get(SEC_COMPANY_FACTS.format(cik=cik), headers=sec_headers(), timeout=45)
                 response.raise_for_status()
-                sec_data = extract_sec_company_result(response.json(), scheduled_date)
+                sec_data = extract_sec_company_result(response.json(), reference_date)
                 if any(sec_data.get(k) is not None for k in ("revenue", "operating", "net", "eps")):
-                    sec_hits += 1
-                    result_sources.append("SEC")
+                    sec_fact_hits += 1
+                    result_sources.append("SEC XBRL")
                 time.sleep(0.12)
             except Exception:
                 sec_data = {}
+
         checked[symbol] = iso_utc()
         checked_count += 1
-        if eps_actual is None and not any(sec_data.get(k) is not None for k in ("revenue", "operating", "net", "eps")):
-            continue
+
         if eps_actual is None:
             eps_actual = sec_data.get("eps")
-        if eps_estimate is None:
+        if eps_estimate is None and scheduled:
             eps_estimate = safe_float(scheduled.get("expected"))
         if surprise is None and eps_estimate not in (None, 0) and eps_actual is not None:
             surprise = (eps_actual - eps_estimate) / abs(eps_estimate) * 100
+
+        has_numbers = eps_actual is not None or any(sec_data.get(k) is not None for k in ("revenue", "operating", "net"))
+        if not filing and not has_numbers:
+            continue
+
         operating_yoy = pct_change(sec_data.get("operating"), sec_data.get("operating_previous"))
         revenue_yoy = pct_change(sec_data.get("revenue"), sec_data.get("revenue_previous"))
-        rating = result_rating(surprise, operating_yoy if operating_yoy is not None else revenue_yoy)
+        rating = result_rating(surprise, operating_yoy if operating_yoy is not None else revenue_yoy) if has_numbers else 0
         parts = [rating_text(rating)]
         if eps_actual is not None:
             eps_text = f"EPS {fmt_num(eps_actual)}"
@@ -2429,34 +2623,57 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
             if operating_yoy is not None:
                 value_text += f" ({operating_yoy:+.1f}%)"
             parts.append(value_text)
-        actual_parts = []
+        if filing:
+            form = clean_text(filing.get("form")).upper() or "SEC"
+            if has_numbers:
+                parts.append(f"SEC {form} 공식 공시 확인")
+            else:
+                parts.append(f"SEC {form} 공식 실적 공시 확인 · 세부 수치는 후속 XBRL 반영 대기")
+            result_sources.insert(0, f"SEC {form}")
+
+        actual_parts: list[str] = []
         if eps_actual is not None:
             actual_parts.append(f"EPS {fmt_num(eps_actual)}")
         if sec_data.get("revenue") is not None:
             actual_parts.append(f"매출 {format_usd(sec_data['revenue'])}")
         if sec_data.get("operating") is not None:
             actual_parts.append(f"영업익 {format_usd(sec_data['operating'])}")
-        previous_parts = []
+        if not actual_parts and filing:
+            actual_parts.append("SEC 공식 실적 공시 확인")
+
+        previous_parts: list[str] = []
         if sec_data.get("revenue_previous") is not None:
             previous_parts.append(f"매출 {format_usd(sec_data['revenue_previous'])}")
         if sec_data.get("operating_previous") is not None:
             previous_parts.append(f"영업익 {format_usd(sec_data['operating_previous'])}")
-        when = datetime(scheduled_date.year, scheduled_date.month, scheduled_date.day, 16, 5, tzinfo=ET)
-        if cik and sec_data:
+
+        if filing and cik:
+            accession = clean_text(filing.get("accessionNumber"))
+            source_url = sec_filing_url(cik, accession)
+            when = parse_sec_acceptance_time(filing.get("acceptanceDateTime"), reference_date)
+            result_date = filing_date or reference_date
+        elif cik and sec_data:
             source_url = sec_filing_url(cik, clean_text(sec_data.get("accn")))
+            when = datetime(reference_date.year, reference_date.month, reference_date.day, 16, 5, tzinfo=ET)
+            result_date = reference_date
         elif "Nasdaq" in result_sources:
             source_url = NASDAQ_EARNINGS_SURPRISE.format(symbol=quote(symbol.lower()))
+            when = datetime(reference_date.year, reference_date.month, reference_date.day, 16, 5, tzinfo=ET)
+            result_date = reference_date
         else:
             source_url = f"https://www.alphavantage.co/query?function=EARNINGS&symbol={symbol}"
+            when = datetime(reference_date.year, reference_date.month, reference_date.day, 16, 5, tzinfo=ET)
+            result_date = reference_date
+
         out.append(event(
-            event_id=f"us-result-{symbol}-{scheduled_date.isoformat()}",
+            event_id=f"us-result-{symbol}-{result_date.isoformat()}",
             title=f"{company_display_name(symbol)} 실적 결과",
             when=when,
             source_key="us_results",
             source=SOURCE_LABELS["us_results"],
             source_url=source_url,
             category="earnings",
-            importance=int(scheduled.get("importance", us_importance(symbol))),
+            importance=int((scheduled or {}).get("importance", us_importance(symbol))),
             status="released",
             summary=" · ".join(parts),
             symbol=symbol,
@@ -2465,12 +2682,13 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
             expected=f"EPS {fmt_num(eps_estimate)}" if eps_estimate is not None else "",
             previous=", ".join(previous_parts),
             rating=rating,
-            official=bool(sec_data),
-            confidence="+".join(dict.fromkeys(result_sources)) or "provider",
+            official=bool(filing or sec_data),
+            confidence="+".join(dict.fromkeys(result_sources)) or "official_filing",
         ))
+
     return SourceResult(
         "us_results", out, True,
-        f"최근 핵심 미국 실적 {len(out)}개 · 확인 {checked_count}개 · Nasdaq {nasdaq_hits} · SEC {sec_hits} · Alpha {alpha_hits}"
+        f"해외 핵심 실적 결과 {len(out)}개 · 확인 {checked_count}개 · SEC 공시 {sec_filing_hits} · SEC 수치 {sec_fact_hits} · Nasdaq {nasdaq_hits} · Alpha {alpha_hits}",
     )
 
 def collect_spacex() -> SourceResult:

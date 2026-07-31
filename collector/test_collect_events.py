@@ -486,5 +486,69 @@ ZZZZ,Example Small Company,2026-08-03,2026-06-30,,USD,United States,
         self.assertIn("2분 뒤 알림 테스트", app)
         self.assertIn("REQUEST_IGNORE_BATTERY_OPTIMIZATIONS", manifest)
 
+
+    def test_sec_submissions_detects_earnings_8k_item_202(self):
+        row = {
+            "form": "8-K",
+            "items": "2.02,9.01",
+            "primaryDocument": "aapl-20260730.htm",
+            "primaryDocDescription": "Current report",
+        }
+        self.assertTrue(collector.sec_filing_is_earnings(row))
+        self.assertFalse(collector.sec_filing_is_earnings({"form": "8-K", "items": "5.02", "primaryDocument": "change.htm"}))
+
+    def test_sec_ifrs_companyfacts_extracts_foreign_issuer_result(self):
+        payload = {
+            "facts": {"ifrs-full": {
+                "Revenue": {"units": {"USD": [
+                    {"start": "2025-04-01", "end": "2025-06-30", "filed": "2025-07-25", "form": "6-K", "val": 1000000000, "accn": "0001-25-000001"},
+                    {"start": "2026-04-01", "end": "2026-06-30", "filed": "2026-07-30", "form": "6-K", "val": 1300000000, "accn": "0001-26-000001"},
+                ]}},
+                "ProfitLossFromOperatingActivities": {"units": {"USD": [
+                    {"start": "2025-04-01", "end": "2025-06-30", "filed": "2025-07-25", "form": "6-K", "val": 200000000, "accn": "0001-25-000001"},
+                    {"start": "2026-04-01", "end": "2026-06-30", "filed": "2026-07-30", "form": "6-K", "val": 300000000, "accn": "0001-26-000001"},
+                ]}},
+            }}
+        }
+        result = collector.extract_sec_company_result(payload, collector.date(2026, 7, 30))
+        self.assertEqual(result["revenue"], 1300000000)
+        self.assertEqual(result["revenue_previous"], 1000000000)
+        self.assertEqual(result["operating"], 300000000)
+
+    def test_us_results_creates_sec_result_without_calendar_provider(self):
+        filing_date = collector.NOW.astimezone(collector.ET).date()
+        filing = {
+            "form": "8-K",
+            "items": "2.02,9.01",
+            "filing_date": filing_date,
+            "accessionNumber": "0000320193-26-000001",
+            "acceptanceDateTime": filing_date.isoformat() + "T16:05:00-04:00",
+            "primaryDocument": "aapl-earnings.htm",
+        }
+
+        class SecResponse:
+            def raise_for_status(self):
+                return None
+            def json(self):
+                return {"facts": {}}
+
+        state = {}
+        with tempfile.TemporaryDirectory() as td:
+            old_file = collector.EVENTS_FILE
+            collector.EVENTS_FILE = Path(td) / "events.json"
+            collector.EVENTS_FILE.write_text('{"events": []}', encoding="utf-8")
+            try:
+                with patch.object(collector, "load_sec_ticker_map", return_value={"AAPL": 320193}), \
+                     patch.object(collector, "fetch_sec_recent_earnings_filing", side_effect=lambda cik, reference_date=None, lookback_days=12: filing if cik == 320193 else {}), \
+                     patch.object(collector.requests, "get", return_value=SecResponse()), \
+                     patch.object(collector.time, "sleep", return_value=None):
+                    result = collector.collect_us_results([], "", state, True)
+            finally:
+                collector.EVENTS_FILE = old_file
+        apple = next(e for e in result.events if e.get("symbol") == "AAPL")
+        self.assertEqual(apple["status"], "released")
+        self.assertTrue(apple["official"])
+        self.assertIn("SEC 8-K 공식 실적 공시 확인", apple["summary"])
+
 if __name__ == "__main__":
     unittest.main()
