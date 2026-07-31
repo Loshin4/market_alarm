@@ -43,7 +43,8 @@ NOW_MS = int(NOW.timestamp() * 1000)
 DART_IR_PARSER_VERSION = 160
 KIND_DETAIL_PARSER_VERSION = 150
 DART_RESULT_PARSER_VERSION = 140
-US_RESULT_PARSER_VERSION = 140
+US_CALENDAR_PARSER_VERSION = 190
+US_RESULT_PARSER_VERSION = 190
 
 BLS_ICS = "https://www.bls.gov/schedule/news_release/bls.ics"
 BEA_ICS = "https://www.bea.gov/news/schedule/ics/online-calendar-subscription.ics"
@@ -57,6 +58,7 @@ DART_DOCUMENT = "https://opendart.fss.or.kr/api/document.xml"
 DART_PUBLIC_VIEW = "https://dart.fss.or.kr/dsaf001/main.do"
 DART_FINANCIAL = "https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json"
 NASDAQ_EARNINGS = "https://api.nasdaq.com/api/calendar/earnings"
+NASDAQ_EARNINGS_SURPRISE = "https://api.nasdaq.com/api/company/{symbol}/earnings-surprise"
 BLS_API = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
 ALPHA = "https://www.alphavantage.co/query"
 LL2_UPCOMING = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/"
@@ -137,7 +139,7 @@ SOURCE_LABELS = {
     "alpha": "미국 기업 실적 데이터",
     "spacex": "우주 발사 일정 데이터",
     "bls_results": "미국 노동통계 발표 결과",
-    "us_results": "미국 기업 실적 결과(SEC·Alpha Vantage)",
+    "us_results": "미국 기업 실적 결과(Nasdaq·SEC·Alpha Vantage)",
     "krx_marketcap": "한국거래소 시가총액",
     "market_indicators": "시장 핵심 지표",
 }
@@ -1447,42 +1449,111 @@ def collect_dart_schedules(api_key: str, state: dict[str, Any], force: bool) -> 
     return SourceResult("dart_schedule", out, True, message)
 
 
+def nasdaq_cell(value: Any) -> str:
+    if isinstance(value, dict):
+        for key in ("value", "label", "text", "raw"):
+            if value.get(key) not in (None, ""):
+                return clean_text(value.get(key))
+        return ""
+    return clean_text(value)
+
+
+def nasdaq_calendar_rows(payload: Any) -> list[dict[str, Any]]:
+    if not isinstance(payload, dict):
+        return []
+    data = payload.get("data") or {}
+    candidates = [
+        data.get("rows"),
+        (data.get("earningsCalendar") or {}).get("rows") if isinstance(data, dict) else None,
+        (data.get("earningsTable") or {}).get("rows") if isinstance(data, dict) else None,
+        payload.get("rows"),
+    ]
+    for rows in candidates:
+        if isinstance(rows, list):
+            return [row for row in rows if isinstance(row, dict)]
+    return []
+
+
+def fetch_nasdaq_calendar_day(d: date) -> tuple[list[dict[str, Any]], str]:
+    last_error = ""
+    for attempt in range(3):
+        try:
+            response = http_get(NASDAQ_EARNINGS, params={"date": d.isoformat()}, timeout=35)
+            payload = response.json()
+            if not isinstance(payload, dict):
+                raise RuntimeError("JSON 형식이 아님")
+            status = payload.get("status") or {}
+            if isinstance(status, dict) and status.get("rCode") not in (None, 200, 0, "200", "0"):
+                raise RuntimeError(clean_text(status.get("bCodeMessage") or status.get("developerMessage") or status))
+            return nasdaq_calendar_rows(payload), ""
+        except Exception as exc:
+            last_error = clean_text(exc)
+            if attempt < 2:
+                time.sleep(0.7 * (attempt + 1))
+    return [], last_error or "조회 실패"
+
+
 def collect_nasdaq_earnings(state: dict[str, Any], force: bool) -> SourceResult:
-    """Free no-key fallback for the full U.S. earnings calendar on Nasdaq's domain."""
+    """Collect the U.S. earnings calendar with per-day retries and partial-failure recovery."""
     previous_events = load_json(EVENTS_FILE, {}).get("events", [])
     last = parse_iso(state.get("nasdaqCalendarCheckedAt"))
-    if not force and last and NOW - last < timedelta(hours=20):
+    calendar_version = int(state.get("usCalendarParserVersion", 0) or 0)
+    if not force and calendar_version == US_CALENDAR_PARSER_VERSION and last and NOW - last < timedelta(hours=6):
         cached = [item for item in previous_events if item.get("sourceKey") == "nasdaq" and item.get("status") == "scheduled"]
-        return SourceResult("nasdaq", cached, True, f"이전 전체 달력 유지 {len(cached)}개")
+        return SourceResult("nasdaq", cached, True, f"이전 미국 달력 유지 {len(cached)}개")
+
     today_et = NOW.astimezone(ET).date()
-    out: list[dict[str, Any]] = []
-    for offset in range(0, 46):
+    previous_by_date: dict[str, list[dict[str, Any]]] = {}
+    for item in previous_events:
+        if item.get("sourceKey") != "nasdaq" or item.get("status") != "scheduled":
+            continue
+        try:
+            key = datetime.fromtimestamp(int(item.get("time", 0)) / 1000, UTC).astimezone(ET).date().isoformat()
+        except Exception:
+            continue
+        previous_by_date.setdefault(key, []).append(item)
+
+    out_by_id: dict[str, dict[str, Any]] = {}
+    failed_days: list[str] = []
+    successful_days = 0
+    row_count = 0
+    important_count = 0
+    horizon_days = 63
+    for offset in range(0, horizon_days + 1):
         d = today_et + timedelta(days=offset)
-        response = http_get(NASDAQ_EARNINGS, params={"date": d.isoformat()}, timeout=30)
-        payload = response.json()
-        rows = (((payload.get("data") or {}).get("rows")) or [])
+        rows, error = fetch_nasdaq_calendar_day(d)
+        if error:
+            failed_days.append(d.isoformat())
+            for cached in previous_by_date.get(d.isoformat(), []):
+                out_by_id[cached["id"]] = cached
+            continue
+        successful_days += 1
+        row_count += len(rows)
         for raw in rows:
-            symbol = clean_text(raw.get("symbol")).upper()
+            symbol = nasdaq_cell(raw.get("symbol") or raw.get("ticker")).upper().replace("/", "-")
             if not symbol:
                 continue
-            raw_name = clean_text(raw.get("name"))
-            market_cap = parse_market_cap(raw.get("marketCap"))
-            timing_raw = clean_text(raw.get("time")).lower()
-            if "after" in timing_raw:
+            raw_name = nasdaq_cell(raw.get("name") or raw.get("companyName"))
+            market_cap = parse_market_cap(nasdaq_cell(raw.get("marketCap") or raw.get("market_cap")))
+            timing_raw = nasdaq_cell(raw.get("time") or raw.get("reportTime") or raw.get("timeOfDay")).lower()
+            if any(k in timing_raw for k in ("after", "post", "amc", "close")):
                 hour, all_day, timing = 16, False, "미국 장 마감 후"
-            elif "before" in timing_raw or "pre" in timing_raw:
+            elif any(k in timing_raw for k in ("before", "pre", "bmo", "open")):
                 hour, all_day, timing = 8, False, "미국 장 시작 전"
             else:
                 hour, all_day, timing = 12, True, "발표 시간 미정"
-            expected = clean_text(raw.get("epsForecast"))
-            fiscal = clean_text(raw.get("fiscalQuarterEnding"))
+            expected = nasdaq_cell(raw.get("epsForecast") or raw.get("epsEstimate") or raw.get("estimate"))
+            fiscal = nasdaq_cell(raw.get("fiscalQuarterEnding") or raw.get("fiscalDateEnding") or raw.get("fiscalPeriod"))
             summary = timing
-            if expected and expected not in ("N/A", "--"):
+            if expected and expected.upper() not in ("N/A", "--", "NA"):
                 summary += f" · 예상 EPS {expected}"
             if fiscal:
                 summary += f" · 회계기간 {fiscal}"
+            importance = us_importance(symbol, market_cap)
+            if importance >= 4:
+                important_count += 1
             when = datetime(d.year, d.month, d.day, hour, 0, tzinfo=ET)
-            out.append(event(
+            item = event(
                 event_id=f"us-earnings-{symbol}-{d.isoformat()}",
                 title=f"{company_display_name(symbol, raw_name)} 실적 발표",
                 when=when,
@@ -1490,19 +1561,33 @@ def collect_nasdaq_earnings(state: dict[str, Any], force: bool) -> SourceResult:
                 source=SOURCE_LABELS["nasdaq"],
                 source_url=f"https://www.nasdaq.com/market-activity/earnings?date={d.isoformat()}",
                 category="earnings",
-                importance=us_importance(symbol, market_cap),
+                importance=importance,
                 summary=summary,
                 symbol=symbol,
                 market="US",
-                expected="" if expected in ("N/A", "--") else expected,
+                expected="" if expected.upper() in ("N/A", "--", "NA") else expected,
                 all_day=all_day,
                 official=False,
                 confidence="exchange_calendar",
-            ))
+            )
+            out_by_id[item["id"]] = item
         time.sleep(0.03)
-    state["nasdaqCalendarCheckedAt"] = iso_utc()
-    return SourceResult("nasdaq", out, True, f"향후 45일 전체 실적 {len(out)}개")
 
+    if successful_days == 0:
+        raise RuntimeError(f"Nasdaq 미국 실적 달력 전체 조회 실패 · {failed_days[0] if failed_days else '응답 없음'}")
+    if row_count == 0:
+        cached = [item for item in previous_events if item.get("sourceKey") == "nasdaq" and item.get("status") == "scheduled"]
+        if cached:
+            return SourceResult("nasdaq", cached, False, f"Nasdaq 응답 0행 · 기존 미국 일정 {len(cached)}개 보존")
+        raise RuntimeError("Nasdaq 미국 실적 달력 응답은 성공했지만 전체 일정이 0행")
+    state["nasdaqCalendarCheckedAt"] = iso_utc()
+    state["usCalendarParserVersion"] = US_CALENDAR_PARSER_VERSION
+    out = list(out_by_id.values())
+    out.sort(key=lambda item: int(item.get("time", 0)))
+    message = f"향후 {horizon_days}일 {len(out)}개 · 핵심 {important_count}개 · 원본 {row_count}행"
+    if failed_days:
+        message += f" · 일부 날짜 실패 {len(failed_days)}일(기존 일정 유지)"
+    return SourceResult("nasdaq", out, True, message)
 
 def extract_dart_document_parts(payload: bytes) -> tuple[str, list[list[str]]]:
     """Return flattened text and table rows from an OpenDART original-document ZIP."""
@@ -1971,11 +2056,12 @@ def infer_report_period(report: str, d: date) -> str:
 def collect_alpha(config: dict[str, Any] | None, api_key: str, state: dict[str, Any], force: bool) -> SourceResult:
     """Collect the full U.S. earnings calendar without a watchlist."""
     if not api_key:
-        return SourceResult("alpha", [], False, "미국 실적 데이터 인증키 미설정")
+        return SourceResult("alpha", [], True, "선택형 Alpha Vantage 인증키 미설정 · Nasdaq 달력 사용")
     previous_events = load_json(EVENTS_FILE, {}).get("events", [])
     out: list[dict[str, Any]] = []
     last = parse_iso(state.get("alphaCalendarCheckedAt"))
-    should_calendar = force or not last or NOW - last >= timedelta(hours=22)
+    calendar_version = int(state.get("usCalendarParserVersion", 0) or 0)
+    should_calendar = force or calendar_version != US_CALENDAR_PARSER_VERSION or not last or NOW - last >= timedelta(hours=6)
     if not should_calendar:
         cached = [item for item in previous_events if item.get("sourceKey") == "alpha" and item.get("status") == "scheduled"]
         return SourceResult("alpha", cached, True, f"이전 전체 달력 유지 {len(cached)}개")
@@ -1986,6 +2072,11 @@ def collect_alpha(config: dict[str, Any] | None, api_key: str, state: dict[str, 
         payload = response.json()
         raise RuntimeError(payload.get("Information") or payload.get("Note") or "미국 전체 실적 달력 조회 오류")
     rows = list(csv.DictReader(io.StringIO(text)))
+    if not rows:
+        cached = [item for item in previous_events if item.get("sourceKey") == "alpha" and item.get("status") == "scheduled"]
+        if cached:
+            return SourceResult("alpha", cached, True, f"Alpha 응답이 비어 기존 일정 {len(cached)}개 유지")
+        raise RuntimeError("Alpha Vantage 미국 실적 달력 응답이 비어 있음")
     for raw in rows:
         row = {k: clean_text(v) for k, v in raw.items()}
         symbol = row.get("symbol", "").upper()
@@ -2031,6 +2122,7 @@ def collect_alpha(config: dict[str, Any] | None, api_key: str, state: dict[str, 
             confidence="provider",
         ))
     state["alphaCalendarCheckedAt"] = iso_utc()
+    state["usCalendarParserVersion"] = US_CALENDAR_PARSER_VERSION
     return SourceResult("alpha", out, True, f"향후 3개월 전체 실적 {len(out)}개")
 
 
@@ -2166,12 +2258,54 @@ def sec_filing_url(cik: int, accn: str) -> str:
     return f"https://www.sec.gov/Archives/edgar/data/{cik}/{clean_accn}/{accn}-index.html" if accn else "https://www.sec.gov/edgar/search/"
 
 
+def parse_nasdaq_report_date(value: Any) -> date | None:
+    raw = nasdaq_cell(value)
+    if not raw:
+        return None
+    try:
+        return dtparser.parse(raw, fuzzy=True).date()
+    except Exception:
+        return parse_korean_date(raw)
+
+
+def fetch_nasdaq_earnings_surprise(symbol: str, scheduled_date: date) -> dict[str, Any]:
+    response = http_get(NASDAQ_EARNINGS_SURPRISE.format(symbol=quote(symbol.lower())), timeout=35)
+    payload = response.json()
+    data = payload.get("data") or {}
+    table = data.get("earningsSurpriseTable") or data.get("earningsSurprise") or {}
+    rows = table.get("rows") if isinstance(table, dict) else []
+    if not isinstance(rows, list):
+        rows = []
+    best: tuple[int, dict[str, Any]] | None = None
+    for raw in rows:
+        if not isinstance(raw, dict):
+            continue
+        reported_date = parse_nasdaq_report_date(raw.get("dateReported") or raw.get("reportedDate") or raw.get("date"))
+        if reported_date is None:
+            continue
+        distance = abs((reported_date - scheduled_date).days)
+        if distance > 10:
+            continue
+        row = {
+            "reported_date": reported_date,
+            "eps_actual": safe_float(nasdaq_cell(raw.get("eps") or raw.get("reportedEPS") or raw.get("actualEPS"))),
+            "eps_estimate": safe_float(nasdaq_cell(raw.get("consensusForecast") or raw.get("estimatedEPS") or raw.get("epsForecast"))),
+            "surprise": safe_float(nasdaq_cell(raw.get("percentageSurprise") or raw.get("surprisePercentage"))),
+            "fiscal_period": nasdaq_cell(raw.get("fiscalQtrEnd") or raw.get("fiscalQuarterEnding")),
+        }
+        if best is None or distance < best[0]:
+            best = (distance, row)
+    return best[1] if best else {}
+
+
 def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dict[str, Any], force: bool) -> SourceResult:
-    """Track recently due U.S. earnings and combine EPS surprise with SEC financial facts."""
+    """Track important U.S. earnings with Nasdaq EPS fallback plus SEC financial facts."""
     today_et = NOW.astimezone(ET).date()
     candidate_by_symbol: dict[str, dict[str, Any]] = {}
     for item in schedules + load_json(EVENTS_FILE, {}).get("events", []):
         if item.get("market") != "US" or item.get("category") != "earnings" or item.get("status") != "scheduled":
+            continue
+        if int(item.get("importance", 0)) < 4:
             continue
         symbol = clean_text(item.get("symbol")).upper()
         if not symbol:
@@ -2180,14 +2314,17 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
             d = datetime.fromtimestamp(int(item.get("time", 0)) / 1000, UTC).astimezone(ET).date()
         except Exception:
             continue
-        if today_et - timedelta(days=4) <= d <= today_et:
+        if today_et - timedelta(days=7) <= d <= today_et:
             old = candidate_by_symbol.get(symbol)
             if old is None or int(item.get("importance", 0)) > int(old.get("importance", 0)):
                 candidate_by_symbol[symbol] = item
     if not candidate_by_symbol:
-        return SourceResult("us_results", [], True, "확인할 최근 미국 실적 없음")
+        return SourceResult("us_results", [], True, "확인할 최근 핵심 미국 실적 없음")
 
     ticker_map = load_sec_ticker_map(state, force)
+    if int(state.get("usResultParserVersion", 0) or 0) != US_RESULT_PARSER_VERSION:
+        state["usResultChecked"] = {}
+        state["usResultParserVersion"] = US_RESULT_PARSER_VERSION
     checked = state.setdefault("usResultChecked", {})
     quota = state.setdefault("alphaResultQuota", {})
     quota_date = today_et.isoformat()
@@ -2197,28 +2334,56 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
     alpha_remaining = max(0, 20 - int(quota.get("calls", 0)))
     out: list[dict[str, Any]] = []
     checked_count = 0
+    nasdaq_hits = 0
+    sec_hits = 0
+    alpha_hits = 0
     ordered = sorted(candidate_by_symbol.values(), key=lambda x: (-int(x.get("importance", 0)), int(x.get("time", 0))))
     for scheduled in ordered[:40]:
         symbol = clean_text(scheduled.get("symbol")).upper()
         checked_at = parse_iso(checked.get(symbol))
-        if not force and checked_at and NOW - checked_at < timedelta(hours=4):
+        if not force and checked_at and NOW - checked_at < timedelta(hours=2):
             continue
         scheduled_date = datetime.fromtimestamp(int(scheduled.get("time", 0)) / 1000, UTC).astimezone(ET).date()
         eps_actual = eps_estimate = surprise = None
+        result_sources: list[str] = []
+
         if api_key and alpha_remaining > 0:
-            payload = http_get(ALPHA, params={"function": "EARNINGS", "symbol": symbol, "apikey": api_key}).json()
-            quota["calls"] = int(quota.get("calls", 0)) + 1
-            alpha_remaining -= 1
-            if not payload.get("Information") and not payload.get("Note"):
-                for quarter in payload.get("quarterlyEarnings") or []:
-                    reported = parse_korean_date(clean_text(quarter.get("reportedDate")))
-                    if reported and abs((reported - scheduled_date).days) <= 7:
-                        eps_actual = safe_float(quarter.get("reportedEPS"))
-                        eps_estimate = safe_float(quarter.get("estimatedEPS"))
-                        surprise = safe_float(quarter.get("surprisePercentage"))
-                        if surprise is None and eps_estimate not in (None, 0) and eps_actual is not None:
-                            surprise = (eps_actual - eps_estimate) / abs(eps_estimate) * 100
-                        break
+            try:
+                payload = http_get(ALPHA, params={"function": "EARNINGS", "symbol": symbol, "apikey": api_key}, timeout=35).json()
+                quota["calls"] = int(quota.get("calls", 0)) + 1
+                alpha_remaining -= 1
+                if not payload.get("Information") and not payload.get("Note"):
+                    for quarter in payload.get("quarterlyEarnings") or []:
+                        reported = parse_korean_date(clean_text(quarter.get("reportedDate")))
+                        if reported and abs((reported - scheduled_date).days) <= 10:
+                            eps_actual = safe_float(quarter.get("reportedEPS"))
+                            eps_estimate = safe_float(quarter.get("estimatedEPS"))
+                            surprise = safe_float(quarter.get("surprisePercentage"))
+                            if surprise is None and eps_estimate not in (None, 0) and eps_actual is not None:
+                                surprise = (eps_actual - eps_estimate) / abs(eps_estimate) * 100
+                            if eps_actual is not None:
+                                alpha_hits += 1
+                                result_sources.append("Alpha Vantage")
+                            break
+            except Exception:
+                pass
+
+        # No-key Nasdaq fallback makes overseas result cards work even when Alpha is absent or rate-limited.
+        if eps_actual is None:
+            try:
+                nasdaq_result = fetch_nasdaq_earnings_surprise(symbol, scheduled_date)
+                eps_actual = nasdaq_result.get("eps_actual")
+                if eps_estimate is None:
+                    eps_estimate = nasdaq_result.get("eps_estimate")
+                if surprise is None:
+                    surprise = nasdaq_result.get("surprise")
+                if surprise is None and eps_estimate not in (None, 0) and eps_actual is not None:
+                    surprise = (eps_actual - eps_estimate) / abs(eps_estimate) * 100
+                if eps_actual is not None:
+                    nasdaq_hits += 1
+                    result_sources.append("Nasdaq")
+            except Exception:
+                pass
 
         sec_data: dict[str, Any] = {}
         cik = ticker_map.get(symbol)
@@ -2227,6 +2392,9 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
                 response = requests.get(SEC_COMPANY_FACTS.format(cik=cik), headers=sec_headers(), timeout=45)
                 response.raise_for_status()
                 sec_data = extract_sec_company_result(response.json(), scheduled_date)
+                if any(sec_data.get(k) is not None for k in ("revenue", "operating", "net", "eps")):
+                    sec_hits += 1
+                    result_sources.append("SEC")
                 time.sleep(0.12)
             except Exception:
                 sec_data = {}
@@ -2252,15 +2420,15 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
                 eps_text += f" ({surprise:+.1f}%)"
             parts.append(eps_text)
         if sec_data.get("revenue") is not None:
-            text = f"매출 {format_usd(sec_data['revenue'])}"
+            value_text = f"매출 {format_usd(sec_data['revenue'])}"
             if revenue_yoy is not None:
-                text += f" ({revenue_yoy:+.1f}%)"
-            parts.append(text)
+                value_text += f" ({revenue_yoy:+.1f}%)"
+            parts.append(value_text)
         if sec_data.get("operating") is not None:
-            text = f"영업익 {format_usd(sec_data['operating'])}"
+            value_text = f"영업익 {format_usd(sec_data['operating'])}"
             if operating_yoy is not None:
-                text += f" ({operating_yoy:+.1f}%)"
-            parts.append(text)
+                value_text += f" ({operating_yoy:+.1f}%)"
+            parts.append(value_text)
         actual_parts = []
         if eps_actual is not None:
             actual_parts.append(f"EPS {fmt_num(eps_actual)}")
@@ -2274,7 +2442,12 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
         if sec_data.get("operating_previous") is not None:
             previous_parts.append(f"영업익 {format_usd(sec_data['operating_previous'])}")
         when = datetime(scheduled_date.year, scheduled_date.month, scheduled_date.day, 16, 5, tzinfo=ET)
-        source_url = sec_filing_url(cik, clean_text(sec_data.get("accn"))) if cik and sec_data else f"https://www.alphavantage.co/query?function=EARNINGS&symbol={symbol}"
+        if cik and sec_data:
+            source_url = sec_filing_url(cik, clean_text(sec_data.get("accn")))
+        elif "Nasdaq" in result_sources:
+            source_url = NASDAQ_EARNINGS_SURPRISE.format(symbol=quote(symbol.lower()))
+        else:
+            source_url = f"https://www.alphavantage.co/query?function=EARNINGS&symbol={symbol}"
         out.append(event(
             event_id=f"us-result-{symbol}-{scheduled_date.isoformat()}",
             title=f"{company_display_name(symbol)} 실적 결과",
@@ -2293,9 +2466,12 @@ def collect_us_results(schedules: list[dict[str, Any]], api_key: str, state: dic
             previous=", ".join(previous_parts),
             rating=rating,
             official=bool(sec_data),
-            confidence="official_sec_plus_provider" if sec_data and eps_estimate is not None else "official_sec" if sec_data else "provider",
+            confidence="+".join(dict.fromkeys(result_sources)) or "provider",
         ))
-    return SourceResult("us_results", out, True, f"최근 미국 실적 {len(out)}개 반영 · 이번 확인 {checked_count}개 · Alpha {quota.get('calls', 0)}/20")
+    return SourceResult(
+        "us_results", out, True,
+        f"최근 핵심 미국 실적 {len(out)}개 · 확인 {checked_count}개 · Nasdaq {nasdaq_hits} · SEC {sec_hits} · Alpha {alpha_hits}"
+    )
 
 def collect_spacex() -> SourceResult:
     params_upcoming = {"limit": 60, "ordering": "net", "lsp__name": "SpaceX"}
@@ -2547,10 +2723,13 @@ def parse_iso(value: Any) -> datetime | None:
 
 def safe_float(value: Any) -> float | None:
     try:
-        text = str(value).strip().replace(",", "")
-        if text in ("", "None", "null", "None"):
+        text = str(value).strip().replace(",", "").replace("$", "").replace("%", "")
+        if text in ("", "None", "null", "N/A", "--", "-"):
             return None
-        return float(text)
+        negative = text.startswith("(") and text.endswith(")")
+        text = text.strip("()")
+        number = float(text)
+        return -number if negative else number
     except Exception:
         return None
 
@@ -2612,16 +2791,16 @@ def merge_events(new_events: Iterable[dict[str, Any]], old_events: list[dict[str
         when = int(old.get("time", 0))
         keep_history = old.get("status") == "released" and past_cutoff <= when <= future_cutoff
         keep_failed_source = old.get("sourceKey") in failed_sources and past_cutoff <= when <= future_cutoff
-        keep_future_kr_schedule = (
+        keep_future_earnings_schedule = (
             old.get("status") == "scheduled"
-            and old.get("market") == "KR"
+            and old.get("market") in {"KR", "US"}
             and old.get("category") == "earnings"
             and NOW_MS - int(timedelta(days=2).total_seconds() * 1000) <= when <= future_cutoff
         )
-        if key not in merged and (keep_history or keep_failed_source or keep_future_kr_schedule):
+        if key not in merged and (keep_history or keep_failed_source or keep_future_earnings_schedule):
             clone = dict(old)
-            if keep_future_kr_schedule:
-                clone["confidence"] = "previous_official_schedule"
+            if keep_future_earnings_schedule:
+                clone["confidence"] = "previous_official_schedule" if old.get("market") == "KR" else "previous_us_schedule"
             merged[key] = clone
     values = [x for x in merged.values() if past_cutoff <= int(x.get("time", 0)) <= future_cutoff]
     values.sort(key=lambda x: (int(x.get("time", 0)), -int(x.get("importance", 0)), str(x.get("title", ""))))

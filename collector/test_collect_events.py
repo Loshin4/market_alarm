@@ -292,6 +292,67 @@ ZZZZ,Example Small Company,2026-08-03,2026-06-30,,USD,United States,
         symbols = {e["symbol"] for e in result.events}
         self.assertEqual(symbols, {"INTC", "SNDK", "SMALL"})
 
+
+    def test_nasdaq_partial_day_failure_keeps_other_days(self):
+        payload = {"data": {"rows": [
+            {"symbol": "AAPL", "name": "Apple Inc.", "time": "time-after-hours", "epsForecast": "2.01"}
+        ]}}
+        calls = {"count": 0}
+
+        def fake_fetch(day):
+            calls["count"] += 1
+            if calls["count"] == 1:
+                return [], "temporary block"
+            return collector.nasdaq_calendar_rows(payload), ""
+
+        state = {}
+        with tempfile.TemporaryDirectory() as td:
+            old_file = collector.EVENTS_FILE
+            collector.EVENTS_FILE = Path(td) / "events.json"
+            collector.EVENTS_FILE.write_text('{"events": []}', encoding="utf-8")
+            try:
+                with patch.object(collector, "fetch_nasdaq_calendar_day", side_effect=fake_fetch), \
+                     patch.object(collector.time, "sleep", return_value=None):
+                    result = collector.collect_nasdaq_earnings(state, True)
+            finally:
+                collector.EVENTS_FILE = old_file
+        self.assertTrue(result.ok)
+        self.assertTrue(any(e["symbol"] == "AAPL" for e in result.events))
+        self.assertIn("일부 날짜 실패 1일", result.message)
+
+    def test_merge_preserves_future_us_schedule_when_one_run_misses_it(self):
+        old = collector.event(
+            event_id="us-earnings-AAPL-2026-08-15",
+            title="애플(AAPL) 실적 발표",
+            when=collector.datetime(2026, 8, 15, 16, 0, tzinfo=collector.ET),
+            source_key="nasdaq",
+            source="Nasdaq",
+            source_url="https://example.com",
+            category="earnings",
+            importance=5,
+            symbol="AAPL",
+            market="US",
+        )
+        merged = collector.merge_events([], [old], set())
+        self.assertEqual(len(merged), 1)
+        self.assertEqual(merged[0]["confidence"], "previous_us_schedule")
+
+    def test_nasdaq_earnings_surprise_parser_works_without_alpha_key(self):
+        payload = {"data": {"earningsSurpriseTable": {"rows": [
+            {
+                "fiscalQtrEnd": "Jun 2026",
+                "dateReported": "07/30/2026",
+                "eps": "$1.25",
+                "consensusForecast": "$1.10",
+                "percentageSurprise": "13.64%",
+            }
+        ]}}}
+        with patch.object(collector, "http_get", return_value=FakeResponse(payload=payload)):
+            result = collector.fetch_nasdaq_earnings_surprise("AAPL", collector.date(2026, 7, 30))
+        self.assertAlmostEqual(result["eps_actual"], 1.25)
+        self.assertAlmostEqual(result["eps_estimate"], 1.10)
+        self.assertAlmostEqual(result["surprise"], 13.64)
+
     def test_data_changes_do_not_trigger_apk_build(self):
         workflow = (MODULE_PATH.parents[1] / ".github" / "workflows" / "build-apk.yml").read_text(encoding="utf-8")
         self.assertIn('paths-ignore:', workflow)
