@@ -43,7 +43,7 @@ jobs:
         env:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
-          SEC_USER_AGENT: "MarketAlarm/1.9 market-alarm-bot@users.noreply.github.com"
+          SEC_USER_AGENT: "MarketAlarm/2.0 market-alarm-bot@users.noreply.github.com"
         run: python collector/collect_events.py
 
       - name: Show collection summary
