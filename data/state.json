@@ -19430,6 +19430,14 @@
         "confidence": "official_filing",
         "updatedAt": "2026-07-30T10:05:35Z"
       }
+    },
+    "20260731900125": {
+      "checkedAt": "2026-07-31T00:17:02Z",
+      "receiptDate": "20260731",
+      "parserVersion": 160,
+      "reportName": "기업설명회(IR)개최",
+      "method": "",
+      "event": null
     }
   },
   "dartIrParserVersion": 160,
@@ -26209,6 +26217,118 @@
         "official": true,
         "confidence": "official_financials",
         "updatedAt": "2026-07-30T10:05:35Z"
+      }
+    },
+    "20260731800083": {
+      "checkedAt": "2026-07-31T00:17:02Z",
+      "receiptDate": "20260731",
+      "parserVersion": 140,
+      "event": {
+        "id": "kr-result-003570-2026-07-31",
+        "title": "SNT다이내믹스 실적 결과",
+        "time": 1785488400000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731800083",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🟢🟢 매우 좋음 · 매출 1,963.1억 원 (+2157185.7%) · 영업익 171.9억 원 (+89157.0%) · 순익 131.1억 원 (+37355.7%) · 예상치 없음",
+        "symbol": "003570",
+        "market": "KR",
+        "actual": "매출 1,963.1억 원, 영업익 171.9억 원, 순익 131.1억 원",
+        "expected": "",
+        "previous": "매출 910만 원, 영업익 -1,930만 원, 순익 -3,520만 원",
+        "rating": 2,
+        "ratingLabel": "🟢🟢 매우 좋음",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-31T00:17:02Z"
+      }
+    },
+    "20260731800084": {
+      "checkedAt": "2026-07-31T00:17:02Z",
+      "receiptDate": "20260731",
+      "parserVersion": 140,
+      "event": {
+        "id": "kr-result-100840-2026-07-31",
+        "title": "SNT에너지 실적 결과",
+        "time": 1785488400000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731800084",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🟢🟢 매우 좋음 · 매출 1,080.6억 원 (+857687.3%) · 영업익 212.7억 원 (+317562.7%) · 순익 181.3억 원 (+57115.7%) · 예상치 없음",
+        "symbol": "100840",
+        "market": "KR",
+        "actual": "매출 1,080.6억 원, 영업익 212.7억 원, 순익 181.3억 원",
+        "expected": "",
+        "previous": "매출 -1,260만 원, 영업익 -670만 원, 순익 -3,180만 원",
+        "rating": 2,
+        "ratingLabel": "🟢🟢 매우 좋음",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-31T00:17:02Z"
+      }
+    },
+    "20260731800085": {
+      "checkedAt": "2026-07-31T00:17:02Z",
+      "receiptDate": "20260731",
+      "parserVersion": 140,
+      "event": {
+        "id": "kr-result-064960-2026-07-31",
+        "title": "SNT모티브 실적 결과",
+        "time": 1785488400000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731800085",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🟢🟢 매우 좋음 · 매출 2,580.2억 원 (+1309671.6%) · 영업익 258.4억 원 (+129110.0%) · 순익 238.1억 원 (+567100.0%) · 예상치 없음",
+        "symbol": "064960",
+        "market": "KR",
+        "actual": "매출 2,580.2억 원, 영업익 258.4억 원, 순익 238.1억 원",
+        "expected": "",
+        "previous": "매출 1,970만 원, 영업익 2,000만 원, 순익 -420만 원",
+        "rating": 2,
+        "ratingLabel": "🟢🟢 매우 좋음",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-31T00:17:02Z"
+      }
+    },
+    "20260731800096": {
+      "checkedAt": "2026-07-31T00:17:02Z",
+      "receiptDate": "20260731",
+      "parserVersion": 140,
+      "event": {
+        "id": "kr-result-036530-2026-07-31",
+        "title": "SNT홀딩스 실적 결과",
+        "time": 1785488400000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731800096",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🟢🟢 매우 좋음 · 매출 5,237.7억 원 (+5813140.8%) · 영업익 639.8억 원 (+6528671.4%) · 순익 311.6억 원 (+89858.1%) · 예상치 없음",
+        "symbol": "036530",
+        "market": "KR",
+        "actual": "매출 5,237.7억 원, 영업익 639.8억 원, 순익 311.6억 원",
+        "expected": "",
+        "previous": "매출 901만 원, 영업익 -98만 원, 순익 -3,472만 원",
+        "rating": 2,
+        "ratingLabel": "🟢🟢 매우 좋음",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-31T00:17:02Z"
       }
     }
   },
