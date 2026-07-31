@@ -43,7 +43,7 @@ jobs:
         env:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
-          SEC_USER_AGENT: "MarketAlarm/1.7 market-alarm-bot@users.noreply.github.com"
+          SEC_USER_AGENT: "MarketAlarm/1.9 market-alarm-bot@users.noreply.github.com"
         run: python collector/collect_events.py
 
       - name: Show collection summary
@@ -57,8 +57,11 @@ jobs:
               print(f"{key}: count={item.get('count', 0)}, ok={item.get('ok')}, message={item.get('message', '')}")
           events = json.loads(Path('data/events.json').read_text(encoding='utf-8')).get('events', [])
           kr_results = [e for e in events if e.get('market') == 'KR' and e.get('status') == 'released' and e.get('category') == 'earnings']
+          us_schedules = [e for e in events if e.get('market') == 'US' and e.get('status') == 'scheduled' and e.get('category') == 'earnings']
+          us_important = [e for e in us_schedules if int(e.get('importance', 0)) >= 4]
           us_results = [e for e in events if e.get('market') == 'US' and e.get('status') == 'released' and e.get('category') == 'earnings']
           print(f"Korean earnings results saved: {len(kr_results)}")
+          print(f"U.S. earnings schedules saved: {len(us_schedules)} (important {len(us_important)})")
           print(f"U.S. earnings results saved: {len(us_results)}")
           PY
 
