@@ -43,6 +43,7 @@ jobs:
         env:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
           SEC_USER_AGENT: "MarketAlarm/2.0 market-alarm-bot@users.noreply.github.com"
         run: python collector/collect_events.py
 
@@ -52,7 +53,7 @@ jobs:
           import json
           from pathlib import Path
           status = json.loads(Path('data/status.json').read_text(encoding='utf-8'))
-          for key in ('krx_marketcap', 'market_indicators', 'dart_schedule', 'kind', 'dart', 'alpha', 'nasdaq', 'us_results'):
+          for key in ('krx_marketcap', 'market_indicators', 'dart_schedule', 'kind', 'dart', 'alpha', 'nasdaq', 'us_results', 'finnhub'):
               item = status.get('sources', {}).get(key, {})
               print(f"{key}: count={item.get('count', 0)}, ok={item.get('ok')}, message={item.get('message', '')}")
           events = json.loads(Path('data/events.json').read_text(encoding='utf-8')).get('events', [])
