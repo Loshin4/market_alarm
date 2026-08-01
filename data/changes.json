@@ -1,60 +1,6 @@
 {
-  "updatedAt": "2026-08-01T05:01:57Z",
+  "updatedAt": "2026-08-01T07:38:50Z",
   "changes": [
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-earnings-ddc14abef964d9118064-2026-08-07",
-        "title": "CJ CGV 2026년 2분기 영업실적발표",
-        "time": 1786087800000,
-        "allDay": false,
-        "sourceKey": "dart_schedule",
-        "source": "OpenDART·KIND 전체 실적 일정 공시",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731800992",
-        "category": "earnings",
-        "importance": 3,
-        "status": "scheduled",
-        "summary": "",
-        "symbol": "079160",
-        "market": "KR",
-        "actual": "",
-        "expected": "",
-        "previous": "",
-        "rating": 0,
-        "ratingLabel": "⚪ 중립",
-        "official": true,
-        "confidence": "official_filing",
-        "updatedAt": "2026-07-31T10:19:54Z"
-      },
-      "detectedAt": "2026-07-31T10:19:54Z"
-    },
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-earnings-433aeb547a494a147507-2026-08-12",
-        "title": "더블유게임즈 2026년 2분기 경영실적 발표",
-        "time": 1786498200000,
-        "allDay": false,
-        "sourceKey": "dart_schedule",
-        "source": "OpenDART·KIND 전체 실적 일정 공시",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731800873",
-        "category": "earnings",
-        "importance": 3,
-        "status": "scheduled",
-        "summary": "",
-        "symbol": "192080",
-        "market": "KR",
-        "actual": "",
-        "expected": "",
-        "previous": "",
-        "rating": 0,
-        "ratingLabel": "⚪ 중립",
-        "official": true,
-        "confidence": "official_filing",
-        "updatedAt": "2026-07-31T10:19:54Z"
-      },
-      "detectedAt": "2026-07-31T10:19:54Z"
-    },
     {
       "type": "new",
       "event": {
@@ -8102,6 +8048,61 @@
         "updatedAt": "2026-08-01T05:01:57Z"
       },
       "detectedAt": "2026-08-01T05:01:57Z"
+    },
+    {
+      "type": "new",
+      "event": {
+        "id": "kr-result-462350-2026-H1",
+        "title": "이노스페이스 실적 결과",
+        "time": 1785488400000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731000732",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🔴🔴 매우 나쁨 · 매출 4.5억 원 · 영업익 -167.4억 원 (-193.3%) · 순익 -167.6억 원 (-171.5%) · 예상치 없음",
+        "symbol": "462350",
+        "market": "KR",
+        "actual": "매출 4.5억 원, 영업익 -167.4억 원, 순익 -167.6억 원",
+        "expected": "",
+        "previous": "영업익 -57.1억 원, 순익 -61.7억 원",
+        "rating": -2,
+        "ratingLabel": "🔴🔴 매우 나쁨",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-31T10:19:54Z"
+      },
+      "detectedAt": "2026-08-01T07:38:50Z"
+    },
+    {
+      "type": "time_changed",
+      "event": {
+        "id": "us-earnings-XOM-2026-07-31",
+        "title": "엑슨모빌(XOM) 실적 발표",
+        "time": 1785513600000,
+        "allDay": true,
+        "sourceKey": "alpha",
+        "source": "미국 기업 실적 데이터",
+        "sourceUrl": "https://www.alphavantage.co/query?function=EARNINGS_CALENDAR&symbol=XOM",
+        "category": "earnings",
+        "importance": 4,
+        "status": "scheduled",
+        "summary": "발표 시간 미정 · 예상 EPS 3.79 · 회계기간 2026-06-30",
+        "symbol": "XOM",
+        "market": "US",
+        "actual": "",
+        "expected": "3.79",
+        "previous": "",
+        "rating": 0,
+        "ratingLabel": "⚪ 중립",
+        "official": true,
+        "confidence": "provider",
+        "updatedAt": "2026-08-01T07:38:50Z"
+      },
+      "oldTime": 1785499200000,
+      "detectedAt": "2026-08-01T07:38:50Z"
     }
   ]
 }
