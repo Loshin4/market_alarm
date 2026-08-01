@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-01T22:13:24Z",
+  "updatedAt": "2026-08-01T23:14:27Z",
   "ok": true,
   "message": "5579개 일정 · 정상 소스 9/15",
   "counts": {
@@ -243,16 +243,16 @@
     {
       "key": "BTC",
       "label": "비트코인",
-      "value": 62787.421875,
+      "value": 62725.359375,
       "previous": 62823.297,
-      "change": -35.87512499999866,
-      "changePct": -0.057104810974818246,
+      "change": -97.93762499999866,
+      "changePct": -0.15589380003408396,
       "unit": "$",
-      "updatedAt": "2026-08-01T22:17:12Z",
+      "updatedAt": "2026-08-01T23:19:23Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/BTC-USD"
     }
   ],
-  "indicatorUpdatedAt": "2026-08-01T22:13:24Z",
-  "eventsHash": "9731477ffee6348925965f0a6e1eb206e55fa21286768497369dae45c793c94e"
+  "indicatorUpdatedAt": "2026-08-01T23:14:27Z",
+  "eventsHash": "1dcb93e796fc18311017cdc5fbbd9398164a9deefdaac4d2dc3e54290e535c7d"
 }
