@@ -1,33 +1,6 @@
 {
-  "updatedAt": "2026-07-31T23:17:34Z",
+  "updatedAt": "2026-08-01T01:17:42Z",
   "changes": [
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-earnings-e7e730f153240058db76-2026-08-03",
-        "title": "효성중공업 2026년 2분기 경영실적 발표 및 질의응답",
-        "time": 1785715800000,
-        "allDay": false,
-        "sourceKey": "dart_schedule",
-        "source": "OpenDART·KIND 전체 실적 일정 공시",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731800888",
-        "category": "earnings",
-        "importance": 3,
-        "status": "scheduled",
-        "summary": "",
-        "symbol": "298040",
-        "market": "KR",
-        "actual": "",
-        "expected": "",
-        "previous": "",
-        "rating": 0,
-        "ratingLabel": "⚪ 중립",
-        "official": true,
-        "confidence": "official_filing",
-        "updatedAt": "2026-07-31T10:19:54Z"
-      },
-      "detectedAt": "2026-07-31T10:19:54Z"
-    },
     {
       "type": "new",
       "event": {
@@ -8102,6 +8075,33 @@
       },
       "oldTime": 1785553168000,
       "detectedAt": "2026-07-31T23:17:34Z"
+    },
+    {
+      "type": "new",
+      "event": {
+        "id": "kr-result-462350-2026-H1",
+        "title": "이노스페이스 실적 결과",
+        "time": 1785488400000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731000732",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🔴🔴 매우 나쁨 · 매출 4.5억 원 · 영업익 -167.4억 원 (-193.3%) · 순익 -167.6억 원 (-171.5%) · 예상치 없음",
+        "symbol": "462350",
+        "market": "KR",
+        "actual": "매출 4.5억 원, 영업익 -167.4억 원, 순익 -167.6억 원",
+        "expected": "",
+        "previous": "영업익 -57.1억 원, 순익 -61.7억 원",
+        "rating": -2,
+        "ratingLabel": "🔴🔴 매우 나쁨",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-31T10:19:54Z"
+      },
+      "detectedAt": "2026-08-01T01:17:42Z"
     }
   ]
 }
