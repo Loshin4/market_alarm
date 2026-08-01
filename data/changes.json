@@ -1,33 +1,6 @@
 {
-  "updatedAt": "2026-08-01T07:38:50Z",
+  "updatedAt": "2026-08-01T09:47:13Z",
   "changes": [
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-earnings-7ba1691e2d7aa8f88409-2026-08-13",
-        "title": "삼성화재해상보험 2026 회계연도 상반기 경영실적 발표",
-        "time": 1786582800000,
-        "allDay": false,
-        "sourceKey": "dart_schedule",
-        "source": "OpenDART·KIND 전체 실적 일정 공시",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731801034",
-        "category": "earnings",
-        "importance": 3,
-        "status": "scheduled",
-        "summary": "",
-        "symbol": "000810",
-        "market": "KR",
-        "actual": "",
-        "expected": "",
-        "previous": "",
-        "rating": 0,
-        "ratingLabel": "⚪ 중립",
-        "official": true,
-        "confidence": "official_filing",
-        "updatedAt": "2026-07-31T10:19:54Z"
-      },
-      "detectedAt": "2026-07-31T10:19:54Z"
-    },
     {
       "type": "new",
       "event": {
@@ -8103,6 +8076,33 @@
       },
       "oldTime": 1785499200000,
       "detectedAt": "2026-08-01T07:38:50Z"
+    },
+    {
+      "type": "new",
+      "event": {
+        "id": "kr-result-462350-2025-FY",
+        "title": "이노스페이스 실적 결과",
+        "time": 1785488400000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731000737",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🔴🔴 매우 나쁨 · 매출 27.5억 원 (+18573.4%) · 영업익 -722.5억 원 (-119.6%) · 순익 -751억 원 (-125.2%) · 예상치 없음",
+        "symbol": "462350",
+        "market": "KR",
+        "actual": "매출 27.5억 원, 영업익 -722.5억 원, 순익 -751억 원",
+        "expected": "",
+        "previous": "매출 1,470.8만 원, 영업익 -329억 원, 순익 -333.5억 원",
+        "rating": -2,
+        "ratingLabel": "🔴🔴 매우 나쁨",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-31T10:19:54Z"
+      },
+      "detectedAt": "2026-08-01T09:47:13Z"
     }
   ]
 }
