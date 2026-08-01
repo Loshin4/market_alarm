@@ -1,87 +1,6 @@
 {
-  "updatedAt": "2026-08-01T01:17:42Z",
+  "updatedAt": "2026-08-01T05:01:57Z",
   "changes": [
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-earnings-7b7146f1af976cf28838-2026-08-03",
-        "title": "효성티앤씨 2026년 2분기 경영실적 발표 및 질의응답",
-        "time": 1785715800000,
-        "allDay": false,
-        "sourceKey": "dart_schedule",
-        "source": "OpenDART·KIND 전체 실적 일정 공시",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731801182",
-        "category": "earnings",
-        "importance": 3,
-        "status": "scheduled",
-        "summary": "",
-        "symbol": "298020",
-        "market": "KR",
-        "actual": "",
-        "expected": "",
-        "previous": "",
-        "rating": 0,
-        "ratingLabel": "⚪ 중립",
-        "official": true,
-        "confidence": "official_filing",
-        "updatedAt": "2026-07-31T10:19:54Z"
-      },
-      "detectedAt": "2026-07-31T10:19:54Z"
-    },
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-earnings-f2fe69eceb2c7ce1594f-2026-08-03",
-        "title": "효성화학 2026년 2분기 경영실적 및 경영현황 설명",
-        "time": 1785715800000,
-        "allDay": false,
-        "sourceKey": "dart_schedule",
-        "source": "OpenDART·KIND 전체 실적 일정 공시",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731801204",
-        "category": "earnings",
-        "importance": 3,
-        "status": "scheduled",
-        "summary": "",
-        "symbol": "298000",
-        "market": "KR",
-        "actual": "",
-        "expected": "",
-        "previous": "",
-        "rating": 0,
-        "ratingLabel": "⚪ 중립",
-        "official": true,
-        "confidence": "official_filing",
-        "updatedAt": "2026-07-31T10:19:54Z"
-      },
-      "detectedAt": "2026-07-31T10:19:54Z"
-    },
-    {
-      "type": "new",
-      "event": {
-        "id": "kr-earnings-667283495decd38e98e0-2026-08-05",
-        "title": "SK가스 '26년 2분기 사업실적 발표",
-        "time": 1785888600000,
-        "allDay": false,
-        "sourceKey": "dart_schedule",
-        "source": "OpenDART·KIND 전체 실적 일정 공시",
-        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731801166",
-        "category": "earnings",
-        "importance": 3,
-        "status": "scheduled",
-        "summary": "",
-        "symbol": "018670",
-        "market": "KR",
-        "actual": "",
-        "expected": "",
-        "previous": "",
-        "rating": 0,
-        "ratingLabel": "⚪ 중립",
-        "official": true,
-        "confidence": "official_filing",
-        "updatedAt": "2026-07-31T10:19:54Z"
-      },
-      "detectedAt": "2026-07-31T10:19:54Z"
-    },
     {
       "type": "new",
       "event": {
@@ -8102,6 +8021,87 @@
         "updatedAt": "2026-07-31T10:19:54Z"
       },
       "detectedAt": "2026-08-01T01:17:42Z"
+    },
+    {
+      "type": "new",
+      "event": {
+        "id": "kr-result-462350-2025-FY",
+        "title": "이노스페이스 실적 결과",
+        "time": 1785488400000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731000737",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🔴🔴 매우 나쁨 · 매출 27.5억 원 (+18573.4%) · 영업익 -722.5억 원 (-119.6%) · 순익 -751억 원 (-125.2%) · 예상치 없음",
+        "symbol": "462350",
+        "market": "KR",
+        "actual": "매출 27.5억 원, 영업익 -722.5억 원, 순익 -751억 원",
+        "expected": "",
+        "previous": "매출 1,470.8만 원, 영업익 -329억 원, 순익 -333.5억 원",
+        "rating": -2,
+        "ratingLabel": "🔴🔴 매우 나쁨",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-31T10:19:54Z"
+      },
+      "detectedAt": "2026-08-01T05:01:57Z"
+    },
+    {
+      "type": "released",
+      "event": {
+        "id": "space-e7e55b53-6f69-4c22-9fc5-df00df653a3f",
+        "title": "스페이스X 팰컨 9 Block 5 | 스타링크 그룹 17-52 결과",
+        "time": 1785553723000,
+        "allDay": false,
+        "sourceKey": "spacex",
+        "source": "우주 발사 일정 데이터",
+        "sourceUrl": "https://ll.thespacedevs.com/2.3.0/launches/e7e55b53-6f69-4c22-9fc5-df00df653a3f/",
+        "category": "industry",
+        "importance": 4,
+        "status": "released",
+        "summary": "🟢 좋음 · 팰컨 9 Block 5 · 우주발사단지 4E",
+        "symbol": "SPACEX",
+        "market": "US",
+        "actual": "",
+        "expected": "",
+        "previous": "",
+        "rating": 1,
+        "ratingLabel": "🟢 좋음",
+        "official": false,
+        "confidence": "aggregator",
+        "updatedAt": "2026-08-01T05:01:57Z"
+      },
+      "detectedAt": "2026-08-01T05:01:57Z"
+    },
+    {
+      "type": "result_updated",
+      "event": {
+        "id": "space-e7e55b53-6f69-4c22-9fc5-df00df653a3f",
+        "title": "스페이스X 팰컨 9 Block 5 | 스타링크 그룹 17-52 결과",
+        "time": 1785553723000,
+        "allDay": false,
+        "sourceKey": "spacex",
+        "source": "우주 발사 일정 데이터",
+        "sourceUrl": "https://ll.thespacedevs.com/2.3.0/launches/e7e55b53-6f69-4c22-9fc5-df00df653a3f/",
+        "category": "industry",
+        "importance": 4,
+        "status": "released",
+        "summary": "🟢 좋음 · 팰컨 9 Block 5 · 우주발사단지 4E",
+        "symbol": "SPACEX",
+        "market": "US",
+        "actual": "",
+        "expected": "",
+        "previous": "",
+        "rating": 1,
+        "ratingLabel": "🟢 좋음",
+        "official": false,
+        "confidence": "aggregator",
+        "updatedAt": "2026-08-01T05:01:57Z"
+      },
+      "detectedAt": "2026-08-01T05:01:57Z"
     }
   ]
 }
