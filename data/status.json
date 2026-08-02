@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-02T17:45:43Z",
+  "updatedAt": "2026-08-02T18:45:15Z",
   "ok": true,
   "message": "5518개 일정 · 정상 소스 9/15",
   "counts": {
@@ -60,14 +60,14 @@
     "nasdaq": {
       "name": "나스닥 전체 실적 달력",
       "ok": true,
-      "count": 3277,
-      "message": "향후 63일 3277개 · 핵심 32개 · 원본 3277행"
+      "count": 8,
+      "message": "이전 미국 달력 유지 8개"
     },
     "alpha": {
       "name": "미국 기업 실적 데이터",
       "ok": true,
-      "count": 4463,
-      "message": "향후 3개월 전체 실적 4463개"
+      "count": 4796,
+      "message": "이전 전체 달력 유지 4796개"
     },
     "spacex": {
       "name": "우주 발사 일정 데이터",
@@ -243,16 +243,16 @@
     {
       "key": "BTC",
       "label": "비트코인",
-      "value": 63247.0,
+      "value": 63370.578125,
       "previous": 62762.418,
-      "change": 484.58200000000215,
-      "changePct": 0.7720894373444984,
+      "change": 608.1601250000022,
+      "changePct": 0.9689877228758175,
       "unit": "$",
-      "updatedAt": "2026-08-02T17:51:24Z",
+      "updatedAt": "2026-08-02T18:46:37Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/BTC-USD"
     }
   ],
-  "indicatorUpdatedAt": "2026-08-02T17:45:43Z",
-  "eventsHash": "e808636f181682e3095115af23e5200d52a52f1aa4217da306de6b4dddacb405"
+  "indicatorUpdatedAt": "2026-08-02T18:45:15Z",
+  "eventsHash": "5873cde06265a8331ee1f7715a4656b279cfa32de0b6c77318a200f950f7470a"
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-08-02T17:45:43Z",
-  "eventsHash": "e808636f181682e3095115af23e5200d52a52f1aa4217da306de6b4dddacb405",
+  "updatedAt": "2026-08-02T18:45:15Z",
+  "eventsHash": "5873cde06265a8331ee1f7715a4656b279cfa32de0b6c77318a200f950f7470a",
   "events": [
     {
       "id": "fomc-2026-04-06",
@@ -24,7 +24,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-04-07",
@@ -47,7 +47,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-04-08",
@@ -70,7 +70,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-65916fcdb819ab414b21",
@@ -93,7 +93,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-e92e5421db70bac0a974",
@@ -116,7 +116,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-04-09",
@@ -139,7 +139,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-04-10",
@@ -162,7 +162,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-04-12",
@@ -185,7 +185,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-53cd5232e855d83d5690",
@@ -208,7 +208,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-04-28",
@@ -231,7 +231,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-04-29",
@@ -254,7 +254,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-a9e3c85058c09a8787b5",
@@ -277,7 +277,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-6acc082f0ee483951fe8",
@@ -300,7 +300,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-05-01",
@@ -323,7 +323,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-05-03",
@@ -346,7 +346,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-05-04",
@@ -369,7 +369,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-20f229816118d6fd44bd",
@@ -392,7 +392,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-05-07",
@@ -415,7 +415,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-05-19",
@@ -438,7 +438,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-05-20",
@@ -461,7 +461,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-4532e8a4ea4f7498163a",
@@ -484,7 +484,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-b8f89edec003ef0808a9-2026-05-22",
@@ -553,7 +553,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-05-24",
@@ -576,7 +576,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-05-25",
@@ -599,7 +599,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-cd5256c9cf1652bbf378-2026-05-26",
@@ -1036,7 +1036,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-71664625075c21f99cba",
@@ -1059,7 +1059,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-05-28",
@@ -1082,7 +1082,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-9c676f864a2121618d59-2026-05-29",
@@ -1496,7 +1496,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-cb18796c5f06df76f702",
@@ -1519,7 +1519,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-11c905c77cb7b0dfb914-2026-06-10",
@@ -1611,7 +1611,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-46b85aba6aa47a92dc57-2026-06-11",
@@ -1749,7 +1749,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-06-14",
@@ -1772,7 +1772,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-e004285dec064d125046-2026-06-15",
@@ -1818,7 +1818,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-cd5256c9cf1652bbf378-2026-06-16",
@@ -2209,7 +2209,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-2fba345f12ed22133571",
@@ -2232,7 +2232,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-06-16",
@@ -2255,7 +2255,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-e7e730f153240058db76-2026-06-17",
@@ -2439,7 +2439,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-e004285dec064d125046-2026-06-18",
@@ -2485,7 +2485,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-0d51974b28874bf78122-2026-06-19",
@@ -2830,7 +2830,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-eec22ce607138c45e43c-2026-06-25",
@@ -2876,7 +2876,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-cb7c9dd349e0caafccb1",
@@ -2899,7 +2899,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-71965b8ab0255470d5f8-2026-06-26",
@@ -3244,7 +3244,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-1ef27ca1-af91-48bb-b934-3da5abd9f711",
@@ -3267,7 +3267,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-07-05",
@@ -3290,7 +3290,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-94662e6c504c27e89a1c-2026-07-06",
@@ -3359,7 +3359,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-a6db1e67-5860-47c9-a674-adc0f35b62e0",
@@ -3382,7 +3382,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-89fe4168fa1487b73f22",
@@ -3405,7 +3405,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-2b6792d054197aabac5d",
@@ -3428,7 +3428,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-07-07",
@@ -3451,7 +3451,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-6d1c61d45c92062659c2-2026-07-08",
@@ -3520,7 +3520,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-0b06a580c0ca2d3d5004-2026-07-09",
@@ -3612,7 +3612,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-07-09",
@@ -3635,7 +3635,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-d52728ad91a820f94a75-2026-07-10",
@@ -3704,7 +3704,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-135fb199-a39e-48cc-ba27-0aecd96ba9f8",
@@ -3727,7 +3727,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-3a48b4e41a7735f45adc-2026-07-13",
@@ -3842,7 +3842,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-71965b8ab0255470d5f8-2026-07-14",
@@ -3888,7 +3888,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-b8423e84ad13ac463561-2026-07-16",
@@ -4049,7 +4049,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-d9adedc4-8fa1-4a36-84f9-43b8893a6865",
@@ -4072,7 +4072,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-5b392b724a084faf872b-2026-07-20",
@@ -4371,7 +4371,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-e1079d3a-c0a6-4b42-bc1d-92e48a5a78fc",
@@ -4394,7 +4394,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-0f6780cf-edae-4d7c-99d6-ce7de784d140",
@@ -4417,7 +4417,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-1c202e1d5468724cbcb7-2026-07-22",
@@ -6050,7 +6050,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-5b2f05d7-9052-49fb-9bd7-2a05d4910576",
@@ -6073,7 +6073,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-07-26",
@@ -6096,7 +6096,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-7f5002579b8549f63931-2026-07-27",
@@ -7131,7 +7131,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-8523d0d5524c2d5ff774-2026-07-28",
@@ -7867,7 +7867,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-ee447eee9d509293a365-2026-07-29",
@@ -8925,7 +8925,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-e38d36a2ad5135dad532-2026-07-30",
@@ -9155,7 +9155,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-result-005930-2026-07-30",
@@ -10489,7 +10489,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-b0b620e9f0eac542dfb2",
@@ -10512,7 +10512,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-07-30",
@@ -10535,7 +10535,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-ddc14abef964d9118064-2026-07-31",
@@ -11642,22 +11642,22 @@
       "updatedAt": "2026-07-31T03:57:05Z"
     },
     {
-      "id": "kr-result-462350-2026-H1",
+      "id": "kr-result-462350-2025-FY",
       "title": "이노스페이스 실적 결과",
       "time": 1785488400000,
       "allDay": false,
       "sourceKey": "dart",
       "source": "금융감독원 전자공시(OpenDART)",
-      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731000732",
+      "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731000737",
       "category": "earnings",
       "importance": 3,
       "status": "released",
-      "summary": "🔴🔴 매우 나쁨 · 매출 4.5억 원 · 영업익 -167.4억 원 (-193.3%) · 순익 -167.6억 원 (-171.5%) · 예상치 없음",
+      "summary": "🔴🔴 매우 나쁨 · 매출 27.5억 원 (+18573.4%) · 영업익 -722.5억 원 (-119.6%) · 순익 -751억 원 (-125.2%) · 예상치 없음",
       "symbol": "462350",
       "market": "KR",
-      "actual": "매출 4.5억 원, 영업익 -167.4억 원, 순익 -167.6억 원",
+      "actual": "매출 27.5억 원, 영업익 -722.5억 원, 순익 -751억 원",
       "expected": "",
-      "previous": "영업익 -57.1억 원, 순익 -61.7억 원",
+      "previous": "매출 1,470.8만 원, 영업익 -329억 원, 순익 -333.5억 원",
       "rating": -2,
       "ratingLabel": "🔴🔴 매우 나쁨",
       "official": true,
@@ -12260,7 +12260,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-e7e55b53-6f69-4c22-9fc5-df00df653a3f",
@@ -12283,7 +12283,7 @@
       "ratingLabel": "🟢 좋음",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-f60cf19f779da449a046-2026-08-03",
@@ -15917,7 +15917,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-0448d030-5175-4c1f-bd0b-4f3f87072921",
@@ -15940,7 +15940,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-AMD-2026-08-04",
@@ -25531,7 +25531,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-LLY-2026-08-05",
@@ -53752,7 +53752,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-91b8117866befc1fe034-2026-08-10",
@@ -53821,7 +53821,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-AAON-2026-08-10",
@@ -65390,7 +65390,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-55f61bbbd7da9a21d0ac-2026-08-12",
@@ -82801,7 +82801,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-AGRO-2026-08-17",
@@ -83537,7 +83537,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-HD-2026-08-18",
@@ -84917,7 +84917,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "kr-earnings-87c7f9c831e09e2a5722-2026-08-19",
@@ -86550,7 +86550,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-ALLR-2026-08-21",
@@ -87378,7 +87378,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-08-22",
@@ -87401,7 +87401,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-GASS-2026-08-24",
@@ -88275,7 +88275,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-181e59f1fe28f0165399",
@@ -88298,7 +88298,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-NVDA-2026-08-26",
@@ -90437,7 +90437,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-be8b4b0d-1989-48a5-a96d-e8e4d59ed8b3",
@@ -90460,7 +90460,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-ASO-2026-09-01",
@@ -91265,7 +91265,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-AVGO-2026-09-03",
@@ -96923,7 +96923,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-ABAT-2026-09-17",
@@ -97567,7 +97567,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-ELLKF-2026-09-18",
@@ -97728,7 +97728,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-09-20",
@@ -97751,7 +97751,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-AAVXF-2026-09-21",
@@ -98234,7 +98234,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-MU-2026-09-22",
@@ -98694,7 +98694,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-AAGFF-2026-09-23",
@@ -99269,7 +99269,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-COST-2026-09-24",
@@ -102328,7 +102328,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-18441371-8b2e-457c-afb5-1ec1b11ab630",
@@ -102351,7 +102351,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-ad358a4d-c541-409b-9366-9c2f2da4aeb9",
@@ -102374,7 +102374,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-2d0472b9-463d-49c8-afb1-7925e49a3368",
@@ -102397,7 +102397,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-dca8749f-1552-485a-8061-f1ad79055b8d",
@@ -102420,7 +102420,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-fcbc4550-e69e-4458-a9e6-4a5b6b6b15a5",
@@ -102443,7 +102443,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-da43dc2c-00af-4cc1-8ef1-90a60b2eb9e5",
@@ -102466,7 +102466,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-4541ce85-0e38-42ac-a9a0-20474bb5f2cd",
@@ -102489,7 +102489,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-c5783e2b-d458-4b99-9936-4043c236190b",
@@ -102512,7 +102512,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-b9cf7f182f63e9ced5c9",
@@ -102535,7 +102535,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-661b7b683c7b990899f5",
@@ -102558,7 +102558,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-ACOLF-2026-09-30",
@@ -103156,7 +103156,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-1c34002ad6030217e9dc",
@@ -103179,7 +103179,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-CLGMF-2026-10-06",
@@ -104237,7 +104237,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-FNOEF-2026-10-09",
@@ -104398,7 +104398,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-10-11",
@@ -104421,7 +104421,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-FDX-2026-10-12",
@@ -104467,7 +104467,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-JPM-2026-10-13",
@@ -105088,7 +105088,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-ASML-2026-10-14",
@@ -123258,7 +123258,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-b3dc6a5b1b9d1585182b",
@@ -123281,7 +123281,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-7cbcc82af59c08cd9c56",
@@ -123304,7 +123304,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-AKRBF-2026-10-29",
@@ -125029,7 +125029,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "us-earnings-AAFRF-2026-10-30",
@@ -125351,7 +125351,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-11-02",
@@ -125374,7 +125374,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-11-03",
@@ -125397,7 +125397,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-a2a33033bfd7034721a5",
@@ -125420,7 +125420,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-11-07",
@@ -125443,7 +125443,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-11-19",
@@ -125466,7 +125466,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-92e2557d71fe1aaf30f2",
@@ -125489,7 +125489,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-11-21",
@@ -125512,7 +125512,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-11-23",
@@ -125535,7 +125535,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-11-24",
@@ -125558,7 +125558,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-2536800f88df2e8b11bd",
@@ -125581,7 +125581,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-2c1303574efbb1191318",
@@ -125604,7 +125604,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-11-26",
@@ -125627,7 +125627,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-d3bd7fb2-fac6-49fc-ae52-cee07d2fde67",
@@ -125650,7 +125650,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-4a44fe9324f334ff6ef9",
@@ -125673,7 +125673,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-b6e28cc5dec28886cab9",
@@ -125696,7 +125696,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-12-09",
@@ -125719,7 +125719,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-4f32e1fede306b86e67d",
@@ -125742,7 +125742,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-12-10",
@@ -125765,7 +125765,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-12-13",
@@ -125788,7 +125788,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-12-14",
@@ -125811,7 +125811,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-12-15",
@@ -125834,7 +125834,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-babad9a49a846396d1c2",
@@ -125857,7 +125857,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-12-18",
@@ -125880,7 +125880,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-cea163369d24c674f9be",
@@ -125903,7 +125903,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "bea-74e8aadd822b80b7645b",
@@ -125926,7 +125926,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2026-12-30",
@@ -125949,7 +125949,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-bf2c3027-a314-403e-a416-2bfd5d165ad1",
@@ -125972,7 +125972,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-c1bd775a-2fff-45bb-9726-765b69817c19",
@@ -125995,7 +125995,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-387aadc6-68ca-4090-9be7-d57603ad7c79",
@@ -126018,7 +126018,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-8bf5f61e-a7e1-41e6-aede-7b87e4beebab",
@@ -126041,7 +126041,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-4d3943e9-c894-46c4-a318-84d526d0ef40",
@@ -126064,7 +126064,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-d74afbc7-0de5-491c-be05-4e9c31f736ac",
@@ -126087,7 +126087,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-e61d353c-db55-4a57-8184-0fab187231e6",
@@ -126110,7 +126110,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-01ca3653-126a-4c01-94fb-a9467b39cdac",
@@ -126133,7 +126133,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-0c26b3d4-43e3-4c1a-8976-592ff319bc51",
@@ -126156,7 +126156,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-dfd444f9-ddda-4b35-8f51-cda7cd801809",
@@ -126179,7 +126179,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-511a3ef8-799e-4723-9293-b954d9d2eb83",
@@ -126202,7 +126202,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-d08d8b46-353b-4eee-ab5e-e1385b329008",
@@ -126225,7 +126225,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-bf5c6fa2-3add-49ff-aad6-c6450148cd89",
@@ -126248,7 +126248,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-20fa8dc4-8cab-41cf-b452-98a2620f7e86",
@@ -126271,7 +126271,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-ab932c60-d808-4825-ab71-b6fe0a745f15",
@@ -126294,7 +126294,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-2f31a7f0-968a-448d-b447-333bf0341078",
@@ -126317,7 +126317,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-fa895702-687b-4ba3-95fb-9462a2c9844b",
@@ -126340,7 +126340,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-46d6822b-82aa-452c-aa34-80b6f052de84",
@@ -126363,7 +126363,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-1fa3741c-3339-4954-a026-2cd9d36161c0",
@@ -126386,7 +126386,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-7d77bd89-af23-4a5a-b632-de0034003a64",
@@ -126409,7 +126409,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-5ce7e9b6-b471-4a88-891f-2a6f21cb369f",
@@ -126432,7 +126432,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-0a07a23e-606a-4589-bf3e-c3e41bd4de51",
@@ -126455,7 +126455,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-cb1762f0-90f4-4902-a5f6-655a7ade25bf",
@@ -126478,7 +126478,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-c703fab3-2ce4-4cf1-861d-754da3f3ad42",
@@ -126501,7 +126501,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-71df1dd0-d658-4762-b0bc-0fca6886aea7",
@@ -126524,7 +126524,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-71ed4649-8d71-42e8-8548-d42ffa2c5a6e",
@@ -126547,7 +126547,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-ce1317de-ec94-4479-9b28-38ebf11f13ae",
@@ -126570,7 +126570,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-428edcbe-bbd7-4475-8eb1-3dd90b39ad75",
@@ -126593,7 +126593,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-d6615c37-dcef-45d1-96c1-3d1a5250bf13",
@@ -126616,7 +126616,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-adfc829a-6704-4d9e-b2ca-1068c38b2b83",
@@ -126639,7 +126639,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-98b905bb-4060-40a2-b299-2773b6883203",
@@ -126662,7 +126662,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-ad00f137-39e4-4780-be30-443020b2a5aa",
@@ -126685,7 +126685,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-1ce39fa1-5f79-4d7b-9aa9-9a5aad74a46a",
@@ -126708,7 +126708,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-4c78e865-8f03-4f47-a081-b507da270d19",
@@ -126731,7 +126731,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "space-fc1bd321-e502-4d0f-81f4-1926dece81c6",
@@ -126754,7 +126754,7 @@
       "ratingLabel": "⚪ 중립",
       "official": false,
       "confidence": "aggregator",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2027-01-26",
@@ -126777,7 +126777,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2027-01-27",
@@ -126800,7 +126800,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2027-03-17",
@@ -126823,7 +126823,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2027-04-28",
@@ -126846,7 +126846,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2027-06-09",
@@ -126869,7 +126869,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2027-07-28",
@@ -126892,7 +126892,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     },
     {
       "id": "fomc-2027-07-29",
@@ -126915,7 +126915,7 @@
       "ratingLabel": "⚪ 중립",
       "official": true,
       "confidence": "official",
-      "updatedAt": "2026-08-02T17:45:43Z"
+      "updatedAt": "2026-08-02T18:45:15Z"
     }
   ]
 }
