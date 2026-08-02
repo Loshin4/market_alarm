@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-02T11:07:41Z",
+  "updatedAt": "2026-08-02T12:16:46Z",
   "ok": true,
   "message": "5579개 일정 · 정상 소스 9/15",
   "counts": {
@@ -37,7 +37,7 @@
       "name": "한국은행",
       "ok": false,
       "count": 0,
-      "message": "HTTPSConnectionPool(host='www.bok.or.kr', port=443): Max retries exceeded with url: /portal/singl/crncyPolicyDrcMtg/listYear.do?menuNo=200755&mtgSe=A (Caused by ConnectTimeoutError(<HTTPSConnection(host='www.bok.or.kr', port=443) at 0x7fde42c755e0>, 'Connection to www.bok.or.kr timed out. (connect timeout=30)'))"
+      "message": "한국은행 일정을 해석하지 못함"
     },
     "dart_schedule": {
       "name": "OpenDART·KIND 전체 실적 일정 공시",
@@ -60,14 +60,14 @@
     "nasdaq": {
       "name": "나스닥 전체 실적 달력",
       "ok": true,
-      "count": 3277,
-      "message": "향후 63일 3277개 · 핵심 32개 · 원본 3277행"
+      "count": 22,
+      "message": "이전 미국 달력 유지 22개"
     },
     "alpha": {
       "name": "미국 기업 실적 데이터",
       "ok": true,
-      "count": 4463,
-      "message": "향후 3개월 전체 실적 4463개"
+      "count": 4843,
+      "message": "이전 전체 달력 유지 4843개"
     },
     "spacex": {
       "name": "우주 발사 일정 데이터",
@@ -243,16 +243,16 @@
     {
       "key": "BTC",
       "label": "비트코인",
-      "value": 63093.0390625,
+      "value": 63114.171875,
       "previous": 62762.418,
-      "change": 330.62106250000215,
-      "changePct": 0.5267819071279283,
+      "change": 351.75387500000215,
+      "changePct": 0.5604530325775564,
       "unit": "$",
-      "updatedAt": "2026-08-02T11:11:49Z",
+      "updatedAt": "2026-08-02T12:18:15Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/BTC-USD"
     }
   ],
-  "indicatorUpdatedAt": "2026-08-02T11:07:41Z",
-  "eventsHash": "dbe37c839e62a929ae9e8c46915c4570448bc7455a7aa922fe89c6e06fbfe04e"
+  "indicatorUpdatedAt": "2026-08-02T12:16:46Z",
+  "eventsHash": "44e9346119118e93250e846e14c65a2b1f291803875ad55906302df70528d30d"
 }
