@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-08-02T16:39:11Z",
+  "updatedAt": "2026-08-02T17:45:43Z",
   "ok": true,
-  "message": "5579개 일정 · 정상 소스 9/15",
+  "message": "5518개 일정 · 정상 소스 9/15",
   "counts": {
     "central_bank": 77,
     "macro": 45,
-    "earnings": 5388,
+    "earnings": 5327,
     "industry": 69
   },
   "sources": {
@@ -60,14 +60,14 @@
     "nasdaq": {
       "name": "나스닥 전체 실적 달력",
       "ok": true,
-      "count": 22,
-      "message": "이전 미국 달력 유지 22개"
+      "count": 3277,
+      "message": "향후 63일 3277개 · 핵심 32개 · 원본 3277행"
     },
     "alpha": {
       "name": "미국 기업 실적 데이터",
       "ok": true,
-      "count": 4843,
-      "message": "이전 전체 달력 유지 4843개"
+      "count": 4463,
+      "message": "향후 3개월 전체 실적 4463개"
     },
     "spacex": {
       "name": "우주 발사 일정 데이터",
@@ -184,9 +184,9 @@
       "key": "NASDAQ",
       "label": "나스닥 종합",
       "value": 25373.854,
-      "previous": 25122.178,
-      "change": 251.67599999999948,
-      "changePct": 1.0018080438726271,
+      "previous": 25122.2,
+      "change": 251.65399999999863,
+      "changePct": 1.0017195946214847,
       "unit": "pt",
       "updatedAt": "2026-07-31T21:16:00Z",
       "source": "시장 장중 시세",
@@ -196,9 +196,9 @@
       "key": "SOX",
       "label": "필라델피아 반도체",
       "value": 11311.075,
-      "previous": 11302.987,
-      "change": 8.088000000001557,
-      "changePct": 0.07155630631090311,
+      "previous": 11303.0,
+      "change": 8.075000000000728,
+      "changePct": 0.07144121029815736,
       "unit": "pt",
       "updatedAt": "2026-07-31T21:16:00Z",
       "source": "시장 장중 시세",
@@ -243,16 +243,16 @@
     {
       "key": "BTC",
       "label": "비트코인",
-      "value": 63127.44921875,
+      "value": 63247.0,
       "previous": 62762.418,
-      "change": 365.03121875000215,
-      "changePct": 0.581607959639162,
+      "change": 484.58200000000215,
+      "changePct": 0.7720894373444984,
       "unit": "$",
-      "updatedAt": "2026-08-02T16:40:38Z",
+      "updatedAt": "2026-08-02T17:51:24Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/BTC-USD"
     }
   ],
-  "indicatorUpdatedAt": "2026-08-02T16:39:11Z",
-  "eventsHash": "dbe37c839e62a929ae9e8c46915c4570448bc7455a7aa922fe89c6e06fbfe04e"
+  "indicatorUpdatedAt": "2026-08-02T17:45:43Z",
+  "eventsHash": "e808636f181682e3095115af23e5200d52a52f1aa4217da306de6b4dddacb405"
 }

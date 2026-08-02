@@ -1,5 +1,5 @@
 {
-  "alphaCalendarCheckedAt": "2026-08-02T11:07:41Z",
+  "alphaCalendarCheckedAt": "2026-08-02T17:45:43Z",
   "alphaResultChecked": {
     "BKR": "2026-07-26T13:33:25Z",
     "AGYS": "2026-07-26T13:48:51Z",
@@ -20337,7 +20337,7 @@
     }
   },
   "dartIrParserVersion": 160,
-  "nasdaqCalendarCheckedAt": "2026-08-02T11:07:41Z",
+  "nasdaqCalendarCheckedAt": "2026-08-02T17:45:43Z",
   "dartResultCache": {
     "20260723800003": {
       "checkedAt": "2026-07-26T16:15:55Z",
