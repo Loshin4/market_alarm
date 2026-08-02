@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-02T00:16:09Z",
+  "updatedAt": "2026-08-02T04:03:07Z",
   "ok": true,
   "message": "5579개 일정 · 정상 소스 9/15",
   "counts": {
@@ -60,19 +60,19 @@
     "nasdaq": {
       "name": "나스닥 전체 실적 달력",
       "ok": true,
-      "count": 22,
-      "message": "이전 미국 달력 유지 22개"
+      "count": 3277,
+      "message": "향후 63일 3277개 · 핵심 32개 · 원본 3277행"
     },
     "alpha": {
       "name": "미국 기업 실적 데이터",
       "ok": true,
-      "count": 4843,
-      "message": "이전 전체 달력 유지 4843개"
+      "count": 4488,
+      "message": "향후 3개월 전체 실적 4488개"
     },
     "spacex": {
       "name": "우주 발사 일정 데이터",
       "ok": true,
-      "count": 67,
+      "count": 66,
       "message": ""
     },
     "us_results": {
@@ -85,7 +85,7 @@
       "name": "Finnhub 해외 실적 실제치",
       "ok": false,
       "count": 0,
-      "message": "401 Client Error: Unauthorized for url: https://finnhub.io/api/v1/calendar/earnings?from=2026-07-18&to=2026-08-03&international=true&token=d9meg31r01qg1eudkl3gd9meg31r01qg1eudkl40"
+      "message": "401 Client Error: Unauthorized for url: https://finnhub.io/api/v1/calendar/earnings?from=2026-07-19&to=2026-08-04&international=true&token=d9meg31r01qg1eudkl3gd9meg31r01qg1eudkl40"
     },
     "bls_results": {
       "name": "미국 노동통계 발표 결과",
@@ -111,12 +111,12 @@
     {
       "key": "WTI",
       "label": "WTI 유가",
-      "value": 84.66999816894531,
+      "value": 84.67,
       "previous": 83.59,
-      "change": 1.079998168945309,
-      "changePct": 1.2920183861051668,
+      "change": 1.0799999999999983,
+      "changePct": 1.2920205766239958,
       "unit": "$/배럴",
-      "updatedAt": "2026-07-31T20:59:00Z",
+      "updatedAt": "2026-07-31T20:59:59Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/CL%3DF"
     },
@@ -159,12 +159,12 @@
     {
       "key": "DXY",
       "label": "달러지수",
-      "value": 99.8030014038086,
+      "value": 99.803,
       "previous": 99.914,
-      "change": -0.11099859619140773,
-      "changePct": -0.11109413714935616,
+      "change": -0.1110000000000042,
+      "changePct": -0.11109554216626719,
       "unit": "pt",
-      "updatedAt": "2026-07-31T20:59:00Z",
+      "updatedAt": "2026-07-31T20:59:59Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/DX-Y.NYB"
     },
@@ -207,12 +207,12 @@
     {
       "key": "BRENT",
       "label": "브렌트유",
-      "value": 90.12000274658203,
+      "value": 90.12,
       "previous": 89.03,
-      "change": 1.0900027465820301,
-      "changePct": 1.224309498575795,
+      "change": 1.0900000000000034,
+      "changePct": 1.2243064135684638,
       "unit": "$/배럴",
-      "updatedAt": "2026-07-31T18:28:00Z",
+      "updatedAt": "2026-07-31T18:28:19Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/BZ%3DF"
     },
@@ -224,35 +224,35 @@
       "change": -53.600000000000364,
       "changePct": -1.2882757294621054,
       "unit": "$/oz",
-      "updatedAt": "2026-07-31T20:59:00Z",
+      "updatedAt": "2026-07-31T20:59:54Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/GC%3DF"
     },
     {
       "key": "COPPER",
       "label": "구리",
-      "value": 6.4654998779296875,
+      "value": 6.4655,
       "previous": 6.4745,
-      "change": -0.009000122070312422,
-      "changePct": -0.13900875851899638,
+      "change": -0.009000000000000341,
+      "changePct": -0.13900687311762053,
       "unit": "$/lb",
-      "updatedAt": "2026-07-31T20:59:00Z",
+      "updatedAt": "2026-07-31T20:59:55Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/HG%3DF"
     },
     {
       "key": "BTC",
       "label": "비트코인",
-      "value": 62868.76171875,
+      "value": 63460.19921875,
       "previous": 62762.418,
-      "change": 106.34371875000215,
-      "changePct": 0.16943853047535892,
+      "change": 697.7812187500022,
+      "changePct": 1.111781924574675,
       "unit": "$",
-      "updatedAt": "2026-08-02T00:21:11Z",
+      "updatedAt": "2026-08-02T04:10:15Z",
       "source": "시장 장중 시세",
       "sourceUrl": "https://finance.yahoo.com/quote/BTC-USD"
     }
   ],
-  "indicatorUpdatedAt": "2026-08-02T00:16:09Z",
-  "eventsHash": "9731477ffee6348925965f0a6e1eb206e55fa21286768497369dae45c793c94e"
+  "indicatorUpdatedAt": "2026-08-02T04:03:07Z",
+  "eventsHash": "1dcb93e796fc18311017cdc5fbbd9398164a9deefdaac4d2dc3e54290e535c7d"
 }
