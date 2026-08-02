@@ -1,33 +1,6 @@
 {
-  "updatedAt": "2026-08-02T04:03:07Z",
+  "updatedAt": "2026-08-02T06:47:30Z",
   "changes": [
-    {
-      "type": "new",
-      "event": {
-        "id": "us-earnings-CGECF-2026-10-29",
-        "title": "CGECF 실적 발표",
-        "time": 1793289600000,
-        "allDay": true,
-        "sourceKey": "alpha",
-        "source": "미국 기업 실적 데이터",
-        "sourceUrl": "https://www.alphavantage.co/query?function=EARNINGS_CALENDAR&symbol=CGECF",
-        "category": "earnings",
-        "importance": 3,
-        "status": "scheduled",
-        "summary": "발표 시간 미정 · 예상 EPS -2.63 · 회계기간 2026-08-31",
-        "symbol": "CGECF",
-        "market": "US",
-        "actual": "",
-        "expected": "-2.63",
-        "previous": "",
-        "rating": 0,
-        "ratingLabel": "⚪ 중립",
-        "official": true,
-        "confidence": "provider",
-        "updatedAt": "2026-07-31T16:59:06Z"
-      },
-      "detectedAt": "2026-07-31T16:59:06Z"
-    },
     {
       "type": "new",
       "event": {
@@ -8288,6 +8261,33 @@
         "updatedAt": "2026-07-31T10:19:54Z"
       },
       "detectedAt": "2026-08-02T04:03:07Z"
+    },
+    {
+      "type": "new",
+      "event": {
+        "id": "kr-result-462350-2025-FY",
+        "title": "이노스페이스 실적 결과",
+        "time": 1785488400000,
+        "allDay": false,
+        "sourceKey": "dart",
+        "source": "금융감독원 전자공시(OpenDART)",
+        "sourceUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260731000737",
+        "category": "earnings",
+        "importance": 3,
+        "status": "released",
+        "summary": "🔴🔴 매우 나쁨 · 매출 27.5억 원 (+18573.4%) · 영업익 -722.5억 원 (-119.6%) · 순익 -751억 원 (-125.2%) · 예상치 없음",
+        "symbol": "462350",
+        "market": "KR",
+        "actual": "매출 27.5억 원, 영업익 -722.5억 원, 순익 -751억 원",
+        "expected": "",
+        "previous": "매출 1,470.8만 원, 영업익 -329억 원, 순익 -333.5억 원",
+        "rating": -2,
+        "ratingLabel": "🔴🔴 매우 나쁨",
+        "official": true,
+        "confidence": "official_financials",
+        "updatedAt": "2026-07-31T10:19:54Z"
+      },
+      "detectedAt": "2026-08-02T06:47:30Z"
     }
   ]
 }
